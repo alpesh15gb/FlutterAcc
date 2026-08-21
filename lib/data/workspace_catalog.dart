@@ -24,12 +24,16 @@ class WorkspaceField {
 
 class WorkspaceColumn {
   const WorkspaceColumn(this.key, this.label,
-      {this.money = false, this.date = false, this.status = false});
+      {this.money = false,
+      this.date = false,
+      this.status = false,
+      this.taxMode = false});
   final String key;
   final String label;
   final bool money;
   final bool date;
   final bool status;
+  final bool taxMode;
 }
 
 class WorkspaceConfig {
@@ -178,6 +182,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Vendor'),
       WorkspaceColumn('issue_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
+      WorkspaceColumn('is_gst_inclusive', 'Rate mode', taxMode: true),
       WorkspaceColumn('total', 'Total', money: true),
       WorkspaceColumn('amount_paid', 'Paid', money: true)
     ],

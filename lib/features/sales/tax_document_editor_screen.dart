@@ -416,7 +416,8 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       final rate = double.tryParse(line.rate.text) ?? 0;
       final discount = double.tryParse(line.discount.text) ?? 0;
       final gst = double.tryParse(line.gst.text) ?? 0;
-      final grossLine = (qty * rate - discount).clamp(0, double.infinity);
+      final grossLine =
+          (qty * rate - discount).clamp(0.0, double.infinity).toDouble();
       entered += grossLine;
 
       if (_inclusive == true && gst > 0) {
@@ -607,13 +608,20 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
               decoration: const InputDecoration(labelText: 'Supply type'),
               items: const [
                 DropdownMenuItem(value: 'DOMESTIC', child: Text('Domestic')),
-                DropdownMenuItem(value: 'EXPORT', child: Text('Export')),
-                DropdownMenuItem(value: 'SEZ', child: Text('SEZ')),
                 DropdownMenuItem(
-                    value: 'DEEMED_EXPORT', child: Text('Deemed export')),
+                    value: 'EXPORT_WITH_TAX', child: Text('Export with tax')),
+                DropdownMenuItem(
+                    value: 'EXPORT_WITHOUT_TAX',
+                    child: Text('Export without tax / LUT')),
+                DropdownMenuItem(
+                    value: 'SEZ_WITH_TAX', child: Text('SEZ with tax')),
+                DropdownMenuItem(
+                    value: 'SEZ_WITHOUT_TAX', child: Text('SEZ without tax')),
               ],
-              onChanged: (value) =>
-                  setState(() => _supplyType = value ?? 'DOMESTIC'),
+              onChanged: (value) {
+                setState(() => _supplyType = value ?? 'DOMESTIC');
+                _queuePreview();
+              },
             ),
           ),
       ]),

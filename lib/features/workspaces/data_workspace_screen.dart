@@ -224,7 +224,10 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-              '${raw['product_name'] ?? raw['description'] ?? 'Item'}  •  Qty ${displayValue(raw['quantity'])}  •  ${money(raw['total'] ?? ((num.tryParse('${raw['quantity']}') ?? 0) * (num.tryParse('${raw['rate']}') ?? 0)))}',
+              '${raw['product_name'] ?? raw['description'] ?? 'Item'}  •  '
+              'Qty ${displayValue(raw['quantity'])}  •  '
+              'Rate ${money(raw['rate'])} ${item['is_gst_inclusive'] == true ? '(incl. GST)' : '(excl. GST)'}  •  '
+              '${money(raw['total'] ?? ((num.tryParse('${raw['quantity']}') ?? 0) * (num.tryParse('${raw['rate']}') ?? 0)))}',
             ),
           ),
       ],
@@ -232,6 +235,11 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
   }
 
   String _formattedDetail(String key, Object? value) {
+    if (key == 'is_gst_inclusive') {
+      return value == true
+          ? 'GST INCLUDED in rate'
+          : 'GST EXCLUDED; added on top';
+    }
     if (key.contains('date') || key.endsWith('_at')) return displayDate(value);
     if (['total', 'amount_paid', 'amount_received', 'subtotal'].contains(key))
       return money(value);
@@ -539,11 +547,13 @@ class _ResponsiveWorkspace extends StatelessWidget {
 
   Widget _value(WorkspaceColumn column, Map<String, dynamic> item) {
     final raw = _path(item, column.key);
-    final text = column.money
-        ? money(raw)
-        : column.date
-            ? displayDate(raw)
-            : displayValue(raw);
+    final text = column.taxMode
+        ? (raw == true ? 'GST INCLUDED' : 'GST EXCLUDED')
+        : column.money
+            ? money(raw)
+            : column.date
+                ? displayDate(raw)
+                : displayValue(raw);
     if (column.status) {
       final normalized = text.toUpperCase();
       final color = normalized.contains('PAID') ||

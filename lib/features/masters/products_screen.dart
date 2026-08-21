@@ -189,7 +189,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 DataColumn(label: Text('Item')),
                 DataColumn(label: Text('HSN/SAC')),
                 DataColumn(label: Text('GST')),
-                DataColumn(label: Text('Sale price')),
+                DataColumn(label: Text('Default sale rate')),
                 DataColumn(label: Text('Stock')),
                 DataColumn(label: Text('Reorder')),
                 DataColumn(label: Text(''))
@@ -402,7 +402,7 @@ class _ProductDialogState extends State<_ProductDialog> {
                                     const TextInputType.numberWithOptions(
                                         decimal: true),
                                 decoration: const InputDecoration(
-                                    labelText: 'Sale price'))),
+                                    labelText: 'Default sale rate'))),
                         SizedBox(
                             width: 160,
                             child: TextFormField(
@@ -411,7 +411,7 @@ class _ProductDialogState extends State<_ProductDialog> {
                                     const TextInputType.numberWithOptions(
                                         decimal: true),
                                 decoration: const InputDecoration(
-                                    labelText: 'Purchase price'))),
+                                    labelText: 'Default purchase rate'))),
                         SizedBox(
                             width: 130,
                             child: TextFormField(

@@ -211,7 +211,10 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
       _detailRow('Place of supply', data['pos_state_code']),
       _detailRow('Supply type', data['supply_type']),
       _detailRow(
-          'GST inclusive', data['is_gst_inclusive'] == true ? 'Yes' : 'No'),
+          'Rate entry mode',
+          data['is_gst_inclusive'] == true
+              ? 'GST INCLUDED in entered rate'
+              : 'GST EXCLUDED; GST added on top'),
       _detailRow('Reverse charge', data['is_rcm'] == true ? 'Yes' : 'No'),
       _detailRow('Subtotal', money(data['subtotal'])),
       _detailRow(
@@ -237,7 +240,10 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
-                '${line['product_name'] ?? line['description'] ?? 'Item'} • Qty ${displayValue(line['quantity'])} • ${money(line['total'])}'),
+                '${line['product_name'] ?? line['description'] ?? 'Item'} • '
+                'Qty ${displayValue(line['quantity'])} • '
+                'Rate ${money(line['rate'])} ${data['is_gst_inclusive'] == true ? '(incl. GST)' : '(excl. GST)'} • '
+                'GST ${displayValue(line['gst_rate'])}% • ${money(line['total'])}'),
           ),
       ],
     ]);

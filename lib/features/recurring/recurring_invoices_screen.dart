@@ -91,7 +91,7 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
             title: const Text('Generate invoice now?'),
             content: Text(
               'Generate an invoice from ${row['template_name'] ?? 'this template'}? '
-              'Recurring template rates are GST EXCLUSIVE, so GST is added on top.',
+              'Saved rate mode: ${row['is_gst_inclusive'] == true ? 'GST INCLUDED' : 'GST EXCLUDED'}.',
             ),
             actions: [
               TextButton(
@@ -111,8 +111,7 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
       if (!mounted) return;
       showMessage(
         context,
-        'Invoice ${data is Map ? data['invoice_number'] ?? '' : ''} generated. '
-        'GST was added above the taxable template rates.',
+        'Invoice ${data is Map ? data['invoice_number'] ?? '' : ''} generated with the template GST rate mode.',
       );
       _load();
     } catch (e) {
@@ -167,7 +166,7 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
   Widget build(BuildContext context) => PageFrame(
         title: 'Recurring Invoices',
         subtitle:
-            'Scheduled billing. Template rates are explicitly GST-exclusive until the backend stores an inclusive-rate mode.',
+            'Scheduled billing with an explicit GST-included or GST-excluded rate mode.',
         actions: [
           IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
           FilledButton.icon(
@@ -176,32 +175,6 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
               label: const Text('New template')),
         ],
         child: Column(children: [
-          SectionCard(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.warning.withOpacity(.08),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.warning.withOpacity(.25)),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline_rounded, color: AppColors.warning),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'GST EXCLUSIVE RATES: ₹16,500 @ 18% generates ₹19,470. '
-                      'If ₹16,500 is the final GST-inclusive amount, create a normal invoice and choose “GST INCLUDED in entered rate”.',
-                      style: TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
           if (_loading)
             const Padding(
                 padding: EdgeInsets.all(60), child: CircularProgressIndicator())
@@ -236,7 +209,11 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
                               style:
                                   const TextStyle(fontWeight: FontWeight.w800)),
                         ),
-                        const Chip(label: Text('GST EXCL. RATES')),
+                        Chip(
+                          label: Text(row['is_gst_inclusive'] == true
+                              ? 'GST INCLUDED'
+                              : 'GST EXCLUDED'),
+                        ),
                         const SizedBox(width: 6),
                         Chip(label: Text(active ? 'Active' : 'Paused')),
                       ]),
@@ -306,6 +283,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
   int _interval = 1;
   DateTime _nextDate = DateTime.now();
   DateTime? _endDate;
+  bool? _inclusive;
   bool _loading = false;
   bool _saving = false;
   String? _error;
@@ -380,6 +358,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
             : DateTime.tryParse('${data['end_date']}');
         _max.text = '${data['max_occurrences'] ?? 12}';
         _pos.text = '${data['pos_state_code'] ?? '27'}';
+        _inclusive = data['is_gst_inclusive'] == true;
         _notes.text = '${data['notes'] ?? ''}';
         _terms.text = '${data['terms_and_conditions'] ?? ''}';
         for (final raw in data['items'] as List? ?? const []) {
@@ -403,18 +382,32 @@ class _RecurringEditorState extends State<_RecurringEditor> {
   }
 
   Map<String, double> get _estimate {
+    var entered = 0.0;
     var taxable = 0.0;
     var gst = 0.0;
     for (final line in _lines) {
       final qty = double.tryParse(line.quantity.text) ?? 0;
       final rate = double.tryParse(line.rate.text) ?? 0;
       final discount = double.tryParse(line.discount.text) ?? 0;
-      final lineBase = (qty * rate - discount).clamp(0.0, double.infinity);
+      final lineAmount =
+          (qty * rate - discount).clamp(0.0, double.infinity).toDouble();
       final ratePct = double.tryParse(line.gst.text) ?? 0;
-      taxable += lineBase;
-      gst += lineBase * ratePct / 100;
+      entered += lineAmount;
+      if (_inclusive == true && ratePct > 0) {
+        final base = lineAmount / (1 + ratePct / 100);
+        taxable += base;
+        gst += lineAmount - base;
+      } else {
+        taxable += lineAmount;
+        gst += lineAmount * ratePct / 100;
+      }
     }
-    return {'taxable': taxable, 'gst': gst, 'total': taxable + gst};
+    return {
+      'entered': entered,
+      'taxable': taxable,
+      'gst': gst,
+      'total': _inclusive == true ? entered : taxable + gst,
+    };
   }
 
   Future<void> _save() async {
@@ -426,13 +419,19 @@ class _RecurringEditorState extends State<_RecurringEditor> {
           error: true);
       return;
     }
+    if (_inclusive == null) {
+      showMessage(context,
+          'Choose whether recurring invoice rates INCLUDE GST or EXCLUDE GST.',
+          error: true);
+      return;
+    }
     for (var i = 0; i < _lines.length; i++) {
       final line = _lines[i];
       if (line.productId == null ||
           (double.tryParse(line.quantity.text) ?? 0) <= 0 ||
           (double.tryParse(line.rate.text) ?? -1) < 0 ||
           line.hsn.text.trim().length < 4) {
-        showMessage(context, 'Fix item ${i + 1}: item, qty, taxable rate and HSN/SAC are required.',
+        showMessage(context, 'Fix item ${i + 1}: item, qty, rate and HSN/SAC are required.',
             error: true);
         return;
       }
@@ -454,6 +453,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
         'currency': 'INR',
         'exchange_rate': 1,
         'pos_state_code': _pos.text.trim(),
+        'is_gst_inclusive': _inclusive,
         'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         'terms_and_conditions':
             _terms.text.trim().isEmpty ? null : _terms.text.trim(),
@@ -516,18 +516,46 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                       constraints: const BoxConstraints(maxWidth: 1100),
                       child: Column(children: [
                         SectionCard(
-                          title: 'GST rate mode',
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.warning.withOpacity(.08),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Text(
-                              'GST EXCLUDED — FIXED BY CURRENT BACKEND. Every rate below is a taxable/base rate; GST is added when the invoice is generated.',
-                              style: TextStyle(fontWeight: FontWeight.w800),
-                            ),
+                          title: 'GST rate mode — required',
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'What does each recurring line rate already contain?',
+                                style: TextStyle(color: AppColors.muted),
+                              ),
+                              const SizedBox(height: 10),
+                              Wrap(spacing: 10, runSpacing: 10, children: [
+                                ChoiceChip(
+                                  label: const Text('GST INCLUDED in rate'),
+                                  selected: _inclusive == true,
+                                  onSelected: (_) =>
+                                      setState(() => _inclusive = true),
+                                ),
+                                ChoiceChip(
+                                  label: const Text('GST EXCLUDED — add GST'),
+                                  selected: _inclusive == false,
+                                  onSelected: (_) =>
+                                      setState(() => _inclusive = false),
+                                ),
+                              ]),
+                              const SizedBox(height: 8),
+                              Text(
+                                _inclusive == true
+                                    ? '₹16,500 @ 18% remains ₹16,500 total; GST is extracted.'
+                                    : _inclusive == false
+                                        ? '₹16,500 @ 18% becomes ₹19,470 total; GST is added.'
+                                        : 'Choose a rate mode before saving.',
+                                style: TextStyle(
+                                  color: _inclusive == null
+                                      ? AppColors.danger
+                                      : AppColors.muted,
+                                  fontWeight: _inclusive == null
+                                      ? FontWeight.w800
+                                      : FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 14),
@@ -710,9 +738,17 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                       child: TextField(
                                         controller: line.rate,
                                         keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                        decoration: const InputDecoration(
-                                          labelText: 'Taxable rate (GST excluded)',
-                                          helperText: 'GST added on top',
+                                        decoration: InputDecoration(
+                                          labelText: _inclusive == true
+                                              ? 'Rate (GST included)'
+                                              : _inclusive == false
+                                                  ? 'Rate (GST excluded)'
+                                                  : 'Rate — choose GST mode',
+                                          helperText: _inclusive == true
+                                              ? 'GST already inside this rate'
+                                              : _inclusive == false
+                                                  ? 'GST added on top'
+                                                  : 'Choose mode above',
                                         ),
                                       ),
                                     ),
@@ -760,6 +796,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                         SectionCard(
                           title: 'Expected invoice total',
                           child: Wrap(spacing: 28, runSpacing: 12, children: [
+                            _metric('Entered amount', totals['entered'] ?? 0),
                             _metric('Taxable', totals['taxable'] ?? 0),
                             _metric('Estimated GST', totals['gst'] ?? 0),
                             _metric('Expected total', totals['total'] ?? 0),
