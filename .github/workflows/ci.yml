@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   validate:
@@ -18,8 +18,6 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
 
       - uses: subosito/flutter-action@v2
         with:
@@ -29,43 +27,11 @@ jobs:
       - name: Resolve packages
         run: flutter pub get
 
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
       - name: Static project audit
         run: python tool/static_audit.py
-
-      - name: Harden async context guards
-        if: github.ref_name == 'fix/tax-mode-consistency' || github.head_ref == 'fix/tax-mode-consistency'
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          for path in Path('lib').rglob('*.dart'):
-              text = path.read_text()
-              text = text.replace('if (mounted)', 'if (context.mounted)')
-              text = text.replace('if (!mounted)', 'if (!context.mounted)')
-              text = text.replace('    if (ok == true)', '    if (!context.mounted) return;\n    if (ok == true)')
-              if path.as_posix().endswith('core/utils/file_download_web.dart') and 'ignore_for_file: avoid_web_libraries_in_flutter' not in text:
-                  text = '// ignore_for_file: avoid_web_libraries_in_flutter\n' + text
-              path.write_text(text)
-          PY
-
-      - name: Apply safe Dart fixes
-        if: github.ref_name == 'fix/tax-mode-consistency' || github.head_ref == 'fix/tax-mode-consistency'
-        run: dart fix --apply
-
-      - name: Format source
-        run: dart format lib test
-
-      - name: Commit release cleanup
-        if: github.ref_name == 'fix/tax-mode-consistency' || github.head_ref == 'fix/tax-mode-consistency'
-        run: |
-          if git diff --quiet; then
-            echo "Source already clean."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add lib test
-            git commit -m "fix: harden async UI context handling"
-            git push origin HEAD:fix/tax-mode-consistency
-          fi
 
       - name: Analyze
         run: flutter analyze
