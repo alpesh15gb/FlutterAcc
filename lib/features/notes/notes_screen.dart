@@ -421,7 +421,7 @@ class _NoteEditorState extends State<_NoteEditor> {
                         SizedBox(
                           width: 520,
                           child: DropdownButtonFormField<String>(
-                            value: _invoiceId,
+                            initialValue: _invoiceId,
                             isExpanded: true,
                             decoration: const InputDecoration(
                               labelText: 'Posted invoice',
@@ -449,8 +449,9 @@ class _NoteEditorState extends State<_NoteEditor> {
                           child: InkWell(
                             onTap: () async {
                               final picked = await pickDate(context, _date);
-                              if (picked != null)
+                              if (picked != null) {
                                 setState(() => _date = picked);
+                              }
                             },
                             child: InputDecorator(
                               decoration: const InputDecoration(
@@ -501,7 +502,7 @@ class _NoteEditorState extends State<_NoteEditor> {
                           color: (_sourceInclusive
                                   ? AppColors.success
                                   : AppColors.primary)
-                              .withOpacity(.08),
+                              .withValues(alpha: .08),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -523,7 +524,7 @@ class _NoteEditorState extends State<_NoteEditor> {
                           SizedBox(
                             width: 370,
                             child: DropdownButtonFormField<String>(
-                              value: _lineId,
+                              initialValue: _lineId,
                               isExpanded: true,
                               decoration: const InputDecoration(
                                 labelText: 'Invoice line',

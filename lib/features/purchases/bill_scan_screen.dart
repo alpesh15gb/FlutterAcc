@@ -49,7 +49,9 @@ class _BillScanScreenState extends State<BillScanScreen> {
     ]) {
       c.dispose();
     }
-    for (final line in _lines) line.dispose();
+    for (final line in _lines) {
+      line.dispose();
+    }
     super.dispose();
   }
 
@@ -86,17 +88,19 @@ class _BillScanScreenState extends State<BillScanScreen> {
         final jobId = response['job_id'].toString();
         preview = await _poll(jobId);
       }
-      if (preview is! Map)
+      if (preview is! Map) {
         throw ApiException('The scanner returned an invalid preview.');
+      }
       _applyPreview(Map<String, dynamic>.from(preview));
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _scanning = false;
           _progress = null;
         });
+      }
     }
   }
 
@@ -108,15 +112,18 @@ class _BillScanScreenState extends State<BillScanScreen> {
       try {
         final response = await widget.api.get('/bills/scan-status/$jobId');
         if (response is Map) {
-          if (response['vendor'] != null || response['line_items'] != null)
+          if (response['vendor'] != null || response['line_items'] != null) {
             return response;
+          }
           final status = response['status']?.toString().toLowerCase();
-          if (status == 'failed')
+          if (status == 'failed') {
             throw ApiException(
                 response['error']?.toString() ?? 'Bill scan failed.');
+          }
           final progress = response['progress']?.toString();
-          if (progress != null && progress.isNotEmpty && mounted)
+          if (progress != null && progress.isNotEmpty && mounted) {
             setState(() => _progress = progress);
+          }
         }
       } on ApiException catch (e) {
         if (e.statusCode == 404 && attempt < 3) continue;
@@ -145,7 +152,9 @@ class _BillScanScreenState extends State<BillScanScreen> {
     _confidence = double.tryParse('${data['confidence'] ?? ''}');
     _warnings =
         ((data['warnings'] as List?) ?? []).map((e) => e.toString()).toList();
-    for (final line in _lines) line.dispose();
+    for (final line in _lines) {
+      line.dispose();
+    }
     _lines = ((data['line_items'] as List?) ?? [])
         .whereType<Map>()
         .map((raw) => _ScannedLine.fromMap(Map<String, dynamic>.from(raw)))
@@ -156,22 +165,29 @@ class _BillScanScreenState extends State<BillScanScreen> {
 
   String? _validate() {
     if (_vendor.text.trim().isEmpty) return 'Vendor name is required.';
-    if (_pos.text.trim().length != 2 || int.tryParse(_pos.text.trim()) == null)
+    if (_pos.text.trim().length != 2 ||
+        int.tryParse(_pos.text.trim()) == null) {
       return 'Place of supply must be a two-digit GST state code.';
-    if (_dueDate.isBefore(_issueDate))
+    }
+    if (_dueDate.isBefore(_issueDate)) {
       return 'Due date cannot be before bill date.';
+    }
     if (_lines.isEmpty) return 'Add at least one bill line.';
     for (var i = 0; i < _lines.length; i++) {
       final line = _lines[i];
-      if (line.name.text.trim().isEmpty)
+      if (line.name.text.trim().isEmpty) {
         return 'Line ${i + 1}: item name is required.';
-      if ((double.tryParse(line.quantity.text) ?? 0) <= 0)
+      }
+      if ((double.tryParse(line.quantity.text) ?? 0) <= 0) {
         return 'Line ${i + 1}: quantity must be greater than zero.';
-      if ((double.tryParse(line.rate.text) ?? -1) < 0)
+      }
+      if ((double.tryParse(line.rate.text) ?? -1) < 0) {
         return 'Line ${i + 1}: rate cannot be negative.';
+      }
       final hsn = line.hsn.text.trim();
-      if (hsn.length < 4 || int.tryParse(hsn) == null)
+      if (hsn.length < 4 || int.tryParse(hsn) == null) {
         return 'Line ${i + 1}: enter a valid HSN/SAC.';
+      }
     }
     return null;
   }
@@ -419,7 +435,7 @@ class _BillScanScreenState extends State<BillScanScreen> {
           SizedBox(
               width: 110,
               child: DropdownButtonFormField<String>(
-                  value: line.productType,
+                  initialValue: line.productType,
                   decoration: const InputDecoration(labelText: 'Type'),
                   items: const [
                     DropdownMenuItem(value: 'GOODS', child: Text('Goods')),

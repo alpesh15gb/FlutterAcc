@@ -14,14 +14,16 @@ class JsonReportView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (data == null)
+    if (data == null) {
       return EmptyState(
           icon: Icons.analytics_outlined,
           title: 'No data',
           message: emptyMessage);
+    }
     if (data is List) return _list(context, data as List);
-    if (data is Map)
+    if (data is Map) {
       return _map(context, Map<String, dynamic>.from(data as Map));
+    }
     return SelectableText(data.toString());
   }
 
@@ -89,8 +91,9 @@ class JsonReportView extends StatelessWidget {
   }
 
   Widget _list(BuildContext context, List list) {
-    if (list.isEmpty)
+    if (list.isEmpty) {
       return const Text('No rows', style: TextStyle(color: AppColors.muted));
+    }
     if (list.first is! Map) {
       return Wrap(
           spacing: 8,
@@ -102,8 +105,9 @@ class JsonReportView extends StatelessWidget {
     final keys = <String>[];
     for (final row in rows.take(20)) {
       for (final key in row.keys) {
-        if (!keys.contains(key) && row[key] is! Map && row[key] is! List)
+        if (!keys.contains(key) && row[key] is! Map && row[key] is! List) {
           keys.add(key);
+        }
       }
     }
     if (keys.isEmpty) {

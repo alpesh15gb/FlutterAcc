@@ -40,11 +40,12 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
   }
 
   Future<void> _load() async {
-    if (mounted)
+    if (mounted) {
       setState(() {
         _loading = true;
         _error = null;
       });
+    }
     try {
       final q = <String, dynamic>{'page': 1, 'limit': 100};
       if (_status != 'ALL') q['status'] = _status;
@@ -330,11 +331,12 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     try {
       final data = await widget.api.post('/invoices/$id/e-invoice');
       final irn = data is Map ? data['irn']?.toString() : null;
-      if (mounted)
+      if (mounted) {
         showMessage(
           context,
           irn == null ? 'E-invoice generated.' : 'IRN generated: $irn',
         );
+      }
       await _load();
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -355,7 +357,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
-                  value: reason,
+                  initialValue: reason,
                   decoration: const InputDecoration(
                     labelText: 'Cancellation reason',
                   ),
@@ -439,8 +441,9 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
               ) ??
           id;
       final saved = await saveDownloadedFile(bytes, 'Invoice_$number.pdf');
-      if (mounted)
+      if (mounted) {
         showMessage(context, saved ? 'Invoice PDF saved.' : 'Save cancelled.');
+      }
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     }
@@ -488,7 +491,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
                   SizedBox(
                     width: 210,
                     child: DropdownButtonFormField<String>(
-                      value: _status,
+                      initialValue: _status,
                       decoration: const InputDecoration(labelText: 'Status'),
                       items: const [
                         DropdownMenuItem(
@@ -726,7 +729,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(.08),
+        color: color.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(

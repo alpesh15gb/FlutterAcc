@@ -36,11 +36,12 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     });
     try {
       final data = await widget.api.get(endpoint, query: {'limit': 100});
-      if (mounted)
+      if (mounted) {
         setState(() => _items = (data as List)
             .whereType<Map>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList());
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
@@ -201,9 +202,10 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         'reason': note,
         'cancellation_date': apiDate(date),
       });
-      if (mounted)
+      if (mounted) {
         showMessage(context,
             '${widget.vendor ? 'Payment' : 'Receipt'} cancelled and reversed.');
+      }
       await _load();
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -291,7 +293,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
             leading: CircleAvatar(
               backgroundColor:
                   (widget.vendor ? AppColors.danger : AppColors.success)
-                      .withOpacity(.08),
+                      .withValues(alpha: .08),
               child: Icon(
                   widget.vendor
                       ? Icons.north_east_rounded
@@ -350,7 +352,9 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
     _amount.dispose();
     _reference.dispose();
     _description.dispose();
-    for (final c in _allocations.values) c.dispose();
+    for (final c in _allocations.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -360,10 +364,11 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
         'contact_type': widget.vendor ? 'VENDOR' : 'CUSTOMER',
         'limit': 100
       });
-      if (mounted)
+      if (mounted) {
         setState(() => _contacts = (d as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList());
+      }
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -373,7 +378,9 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
 
   Future<void> _chooseContact(String? id) async {
     setState(() => _contactId = id);
-    for (final c in _allocations.values) c.dispose();
+    for (final c in _allocations.values) {
+      c.dispose();
+    }
     _allocations.clear();
     _outstanding = [];
     if (id == null) return;
@@ -383,7 +390,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
           ? '/payments/disbursements/outstanding/$id'
           : '/payments/receipts/outstanding/$id';
       final d = await widget.api.get(path);
-      if (mounted)
+      if (mounted) {
         setState(() {
           _outstanding = (d as List)
               .map((e) => Map<String, dynamic>.from(e as Map))
@@ -393,6 +400,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
                 TextEditingController(text: '0');
           }
         });
+      }
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
@@ -425,9 +433,10 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
     final allocations = <Map<String, dynamic>>[];
     for (final row in _outstanding) {
       final v = double.tryParse(_allocations[row['id'].toString()]!.text) ?? 0;
-      if (v > 0)
+      if (v > 0) {
         allocations.add(
             {widget.vendor ? 'bill_id' : 'invoice_id': row['id'], 'amount': v});
+      }
     }
     setState(() => _saving = true);
     try {
@@ -444,8 +453,9 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
             _description.text.trim().isEmpty ? null : _description.text.trim(),
         'allocations': allocations
       };
-      if (!widget.vendor && amount - allocated > .005)
+      if (!widget.vendor && amount - allocated > .005) {
         body['advance_supply_type'] = _advanceSupplyType;
+      }
       await widget.api.post(endpoint, body: body);
       if (mounted) {
         showMessage(
@@ -492,7 +502,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
                               SizedBox(
                                   width: 330,
                                   child: DropdownButtonFormField<String>(
-                                      value: _contactId,
+                                      initialValue: _contactId,
                                       isExpanded: true,
                                       decoration: InputDecoration(
                                           labelText: widget.vendor
@@ -520,8 +530,9 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
                                       onTap: () async {
                                         final d =
                                             await pickDate(context, _date);
-                                        if (d != null)
+                                        if (d != null) {
                                           setState(() => _date = d);
+                                        }
                                       },
                                       child: InputDecorator(
                                           decoration: const InputDecoration(
@@ -533,7 +544,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
                               SizedBox(
                                   width: 190,
                                   child: DropdownButtonFormField<String>(
-                                      value: _mode,
+                                      initialValue: _mode,
                                       decoration: const InputDecoration(
                                           labelText: 'Mode'),
                                       items: const [
@@ -667,7 +678,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
                                     SizedBox(
                                         width: 240,
                                         child: DropdownButtonFormField<String>(
-                                            value: _advanceSupplyType,
+                                            initialValue: _advanceSupplyType,
                                             decoration: const InputDecoration(
                                                 labelText: 'Intended supply'),
                                             items: const [

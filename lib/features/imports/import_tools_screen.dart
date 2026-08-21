@@ -195,7 +195,7 @@ class _ImportToolsScreenState extends State<ImportToolsScreen> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             CircleAvatar(
-                backgroundColor: AppColors.primary.withOpacity(.08),
+                backgroundColor: AppColors.primary.withValues(alpha: .08),
                 child: Icon(d.icon, color: AppColors.primary)),
             const SizedBox(height: 12),
             Text(d.title,

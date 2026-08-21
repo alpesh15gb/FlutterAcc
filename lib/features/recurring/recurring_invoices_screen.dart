@@ -638,7 +638,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                 SizedBox(
                                   width: 360,
                                   child: DropdownButtonFormField<String>(
-                                    value: _contactId,
+                                    initialValue: _contactId,
                                     isExpanded: true,
                                     decoration: const InputDecoration(
                                       labelText: 'Customer',
@@ -658,7 +658,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                 SizedBox(
                                   width: 180,
                                   child: DropdownButtonFormField<String>(
-                                    value: _frequency,
+                                    initialValue: _frequency,
                                     decoration: const InputDecoration(
                                       labelText: 'Frequency',
                                     ),
@@ -682,7 +682,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                 SizedBox(
                                   width: 120,
                                   child: DropdownButtonFormField<int>(
-                                    value: _interval,
+                                    initialValue: _interval,
                                     decoration: const InputDecoration(
                                       labelText: 'Every',
                                     ),
@@ -703,8 +703,9 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                     onTap: () async {
                                       final d =
                                           await pickDate(context, _nextDate);
-                                      if (d != null)
+                                      if (d != null) {
                                         setState(() => _nextDate = d);
+                                      }
                                     },
                                     child: InputDecorator(
                                       decoration: const InputDecoration(
@@ -720,7 +721,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                 SizedBox(
                                   width: 180,
                                   child: DropdownButtonFormField<String>(
-                                    value: _endMode,
+                                    initialValue: _endMode,
                                     decoration: const InputDecoration(
                                       labelText: 'Ends',
                                     ),
@@ -754,8 +755,9 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                                 const Duration(days: 365),
                                               ),
                                         );
-                                        if (d != null)
+                                        if (d != null) {
                                           setState(() => _endDate = d);
+                                        }
                                       },
                                       child: InputDecorator(
                                         decoration: const InputDecoration(
@@ -820,7 +822,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
                                       SizedBox(
                                         width: 290,
                                         child: DropdownButtonFormField<String>(
-                                          value: line.productId,
+                                          initialValue: line.productId,
                                           isExpanded: true,
                                           decoration: InputDecoration(
                                             labelText: 'Item ${index + 1}',

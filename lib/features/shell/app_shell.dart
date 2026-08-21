@@ -265,10 +265,11 @@ class _AppShellState extends State<AppShell> {
                       icon: Icon(Icons.grid_view_rounded), label: 'More')
                 ],
                 onDestinationSelected: (i) {
-                  if (i < 4)
+                  if (i < 4) {
                     _select(bottomIds[i]);
-                  else
+                  } else {
                     _scaffoldKey.currentState?.openDrawer();
+                  }
                 }));
       });
 }
@@ -319,7 +320,7 @@ class _SideNavigation extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(.06),
+                  color: AppColors.primary.withValues(alpha: .06),
                   borderRadius: BorderRadius.circular(12)),
               child: Row(children: [
                 const Icon(Icons.business_outlined,
@@ -365,7 +366,8 @@ class _SideNavigation extends StatelessWidget {
                         child: ListTile(
                           dense: true,
                           selected: selected == item.id,
-                          selectedTileColor: AppColors.primary.withOpacity(.08),
+                          selectedTileColor:
+                              AppColors.primary.withValues(alpha: .08),
                           selectedColor: AppColors.primary,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(9)),

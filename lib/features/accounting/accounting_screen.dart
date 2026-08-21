@@ -78,9 +78,10 @@ class _AccountingScreenState extends State<AccountingScreen>
       await widget.api.put('/masters/accounts/${account['id']}', body: {
         'is_active': !active,
       });
-      if (mounted)
+      if (mounted) {
         showMessage(
             context, active ? 'Account deactivated.' : 'Account activated.');
+      }
       await _load();
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -622,7 +623,9 @@ class _AccountDialogState extends State<_AccountDialog> {
   Widget build(BuildContext context) {
     final parentChoices = widget.accounts.where((a) {
       if (widget.existing != null &&
-          '${a['id']}' == '${widget.existing!['id']}') return false;
+          '${a['id']}' == '${widget.existing!['id']}') {
+        return false;
+      }
       return '${a['account_type']}' == _type && a['is_active'] != false;
     }).toList();
     if (_parentId != null &&
@@ -649,7 +652,7 @@ class _AccountDialogState extends State<_AccountDialog> {
           SizedBox(
             width: 230,
             child: DropdownButtonFormField<String>(
-              value: _type,
+              initialValue: _type,
               decoration: const InputDecoration(labelText: 'Type'),
               items: const [
                 DropdownMenuItem(value: 'ASSET', child: Text('Asset')),
@@ -671,7 +674,7 @@ class _AccountDialogState extends State<_AccountDialog> {
           SizedBox(
             width: 280,
             child: DropdownButtonFormField<String?>(
-              value: _parentId,
+              initialValue: _parentId,
               isExpanded: true,
               decoration:
                   const InputDecoration(labelText: 'Parent account (optional)'),
@@ -888,7 +891,7 @@ class _ContraDialogState extends State<_ContraDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _debitId,
+              initialValue: _debitId,
               isExpanded: true,
               decoration: const InputDecoration(
                   labelText: 'Money moves into (debit) *'),
@@ -901,7 +904,7 @@ class _ContraDialogState extends State<_ContraDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _creditId,
+              initialValue: _creditId,
               isExpanded: true,
               decoration: const InputDecoration(
                   labelText: 'Money moves out of (credit) *'),
@@ -1149,7 +1152,7 @@ class _JournalLineEditor extends StatelessWidget {
           SizedBox(
             width: 330,
             child: DropdownButtonFormField<String>(
-              value: line.accountId,
+              initialValue: line.accountId,
               isExpanded: true,
               decoration: const InputDecoration(labelText: 'Account'),
               items: accounts
@@ -1166,7 +1169,7 @@ class _JournalLineEditor extends StatelessWidget {
           SizedBox(
             width: 145,
             child: DropdownButtonFormField<String>(
-              value: line.direction,
+              initialValue: line.direction,
               decoration: const InputDecoration(labelText: 'Direction'),
               items: const [
                 DropdownMenuItem(value: 'DEBIT', child: Text('Debit')),

@@ -203,12 +203,13 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     if (ok != true) return;
     try {
       await widget.api.post('/expenses/$id/$action');
-      if (mounted)
+      if (mounted) {
         showMessage(
             context,
             action == 'post'
                 ? 'Expense posted.'
                 : 'Expense cancelled and reversed.');
+      }
       await _load();
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -445,8 +446,9 @@ class _ExpenseEditorScreenState extends State<ExpenseEditorScreen> {
         'gst_rate': double.tryParse(_gst.text) ?? 0,
         'place_of_supply_state_code': _pos.text,
       });
-      if (mounted)
+      if (mounted) {
         setState(() => _preview = Map<String, dynamic>.from(data as Map));
+      }
     } catch (_) {
       // The create/update endpoint remains authoritative if preview is unavailable.
     } finally {
@@ -532,7 +534,7 @@ class _ExpenseEditorScreenState extends State<ExpenseEditorScreen> {
                               SizedBox(
                                 width: 300,
                                 child: DropdownButtonFormField<String>(
-                                  value: _categoryId,
+                                  initialValue: _categoryId,
                                   isExpanded: true,
                                   decoration: const InputDecoration(
                                       labelText: 'Expense category'),
@@ -548,7 +550,7 @@ class _ExpenseEditorScreenState extends State<ExpenseEditorScreen> {
                               SizedBox(
                                 width: 300,
                                 child: DropdownButtonFormField<String?>(
-                                  value: _accountId,
+                                  initialValue: _accountId,
                                   isExpanded: true,
                                   decoration: const InputDecoration(
                                       labelText: 'Paid from (optional)'),
@@ -726,11 +728,12 @@ class _ExpenseCategoriesDialogState extends State<_ExpenseCategoriesDialog> {
         _loading = false;
       });
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _error = e.toString();
           _loading = false;
         });
+      }
     }
   }
 
@@ -905,7 +908,7 @@ class _ExpenseCategoryEditorState extends State<_ExpenseCategoryEditor> {
                 decoration: const InputDecoration(labelText: 'Description')),
             const SizedBox(height: 12),
             DropdownButtonFormField<String?>(
-              value: _accountId,
+              initialValue: _accountId,
               isExpanded: true,
               decoration:
                   const InputDecoration(labelText: 'Linked ledger account'),

@@ -36,11 +36,12 @@ class _ComplianceToolsScreenState extends State<ComplianceToolsScreen>
   }
 
   Future<void> _loadReminders() async {
-    if (mounted)
+    if (mounted) {
       setState(() {
         _loadingReminders = true;
         _reminderError = null;
       });
+    }
     try {
       final data = await widget.api.get('/reminders');
       if (mounted) {
@@ -90,11 +91,13 @@ class _ComplianceToolsScreenState extends State<ComplianceToolsScreen>
       );
 
   Widget _remindersTab() {
-    if (_loadingReminders)
+    if (_loadingReminders) {
       return const Padding(
           padding: EdgeInsets.all(50), child: CircularProgressIndicator());
-    if (_reminderError != null)
+    }
+    if (_reminderError != null) {
       return ErrorPanel(message: _reminderError!, onRetry: _loadReminders);
+    }
     return SectionCard(
       title: 'Business reminders',
       trailing: IconButton(
@@ -183,8 +186,9 @@ class _GstinVerifyCardState extends State<_GstinVerifyCard> {
         'captcha': _captcha.text.trim(),
         'session_id': _sessionId,
       });
-      if (mounted)
+      if (mounted) {
         setState(() => _result = Map<String, dynamic>.from(data as Map));
+      }
     } catch (e) {
       if (mounted) {
         showMessage(context, e.toString(), error: true);
@@ -304,8 +308,9 @@ class _HsnLookupCardState extends State<_HsnLookupCard> {
     setState(() => _loading = true);
     try {
       final data = await widget.api.get('/gst/hsn/$code');
-      if (mounted)
+      if (mounted) {
         setState(() => _result = Map<String, dynamic>.from(data as Map));
+      }
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     } finally {

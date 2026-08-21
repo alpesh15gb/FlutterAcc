@@ -294,7 +294,7 @@ class _ReturnEditorState extends State<_ReturnEditor> {
                     SizedBox(
                       width: 500,
                       child: DropdownButtonFormField<String>(
-                        value: _documentId,
+                        initialValue: _documentId,
                         isExpanded: true,
                         decoration: InputDecoration(
                             labelText: widget.purchase

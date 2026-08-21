@@ -95,9 +95,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: _TrendChart(
                             revenue: _revenue, expenses: _expenses));
                     final gst = _gstCard();
-                    if (!wide)
+                    if (!wide) {
                       return Column(
                           children: [trend, const SizedBox(height: 14), gst]);
+                    }
                     return Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -263,7 +264,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   .map((a) => ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: CircleAvatar(
-                            backgroundColor: AppColors.danger.withOpacity(.08),
+                            backgroundColor:
+                                AppColors.danger.withValues(alpha: .08),
                             child: const Icon(Icons.schedule_rounded,
                                 color: AppColors.danger)),
                         title: Text(
@@ -295,11 +297,12 @@ class _TrendChart extends StatelessWidget {
     final ordered = keys.toList()..sort();
     final shown =
         ordered.length > 8 ? ordered.sublist(ordered.length - 8) : ordered;
-    if (shown.isEmpty)
+    if (shown.isEmpty) {
       return const EmptyState(
           icon: Icons.show_chart_rounded,
           title: 'No trend data',
           message: 'Posted sales and expenses will create a monthly trend.');
+    }
     double val(List<Map<String, dynamic>> source, String key) {
       final parts = key.split('-');
       final matches = source.where(
@@ -354,7 +357,8 @@ class _TrendChart extends StatelessWidget {
                               heightFactor: (r / maxValue).clamp(.02, 1),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withOpacity(.75),
+                                  color:
+                                      AppColors.primary.withValues(alpha: .75),
                                   borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(5)),
                                 ),
@@ -367,7 +371,8 @@ class _TrendChart extends StatelessWidget {
                               heightFactor: (e / maxValue).clamp(.02, 1),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: AppColors.warning.withOpacity(.65),
+                                  color:
+                                      AppColors.warning.withValues(alpha: .65),
                                   borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(5)),
                                 ),

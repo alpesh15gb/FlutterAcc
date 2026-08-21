@@ -552,7 +552,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
           SizedBox(
             width: 350,
             child: DropdownButtonFormField<String>(
-              value: _contactId,
+              initialValue: _contactId,
               isExpanded: true,
               decoration: InputDecoration(
                 labelText: def.vendor ? 'Vendor' : 'Customer',
@@ -628,7 +628,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
             SizedBox(
               width: 210,
               child: DropdownButtonFormField<String>(
-                value: _supplyType,
+                initialValue: _supplyType,
                 decoration: const InputDecoration(labelText: 'Supply type'),
                 items: const [
                   DropdownMenuItem(value: 'DOMESTIC', child: Text('Domestic')),
@@ -668,9 +668,9 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
           width: double.infinity,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppColors.warning.withOpacity(.08),
+            color: AppColors.warning.withValues(alpha: .08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.warning.withOpacity(.25)),
+            border: Border.all(color: AppColors.warning.withValues(alpha: .25)),
           ),
           child: const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -769,7 +769,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                   SizedBox(
                     width: 310,
                     child: DropdownButtonFormField<String>(
-                      value: line.productId,
+                      initialValue: line.productId,
                       isExpanded: true,
                       decoration: InputDecoration(
                         labelText: 'Item ${index + 1}',
@@ -1018,7 +1018,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
               color: (_inclusive == null && _requiresTaxChoice
                       ? AppColors.danger
                       : AppColors.primary)
-                  .withOpacity(.08),
+                  .withValues(alpha: .08),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

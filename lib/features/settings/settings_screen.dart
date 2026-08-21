@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -47,8 +46,9 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   List<Map<String, dynamic>> _rows(dynamic value) {
-    if (value is List)
+    if (value is List) {
       return value.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    }
     return const [];
   }
 
@@ -176,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               SizedBox(
                 width: 230,
                 child: DropdownButtonFormField<String>(
-                  value: taxMode,
+                  initialValue: taxMode,
                   decoration: const InputDecoration(labelText: 'Tax mode'),
                   items: const [
                     DropdownMenuItem(value: 'NON_GST', child: Text('Non-GST')),
@@ -411,8 +411,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 }
                 if (context.mounted) Navigator.pop(context, true);
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   showMessage(context, e.toString(), error: true);
+                }
               }
             },
             child: const Text('Save'),
@@ -546,10 +547,12 @@ class _SettingsScreenState extends State<SettingsScreen>
                       ? null
                       : ewayUser.text.trim(),
                 };
-                if (einPass.text.isNotEmpty)
+                if (einPass.text.isNotEmpty) {
                   body['e_invoice_password'] = einPass.text;
-                if (ewayPass.text.isNotEmpty)
+                }
+                if (ewayPass.text.isNotEmpty) {
                   body['e_way_bill_password'] = ewayPass.text;
+                }
                 final data = await widget.api.put('/settings', body: body);
                 if (mounted) {
                   setState(
@@ -628,7 +631,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               SizedBox(
                 width: 480,
                 child: DropdownButtonFormField<String>(
-                  value: type,
+                  initialValue: type,
                   decoration: const InputDecoration(labelText: 'Document type'),
                   items: types
                       .map((t) => DropdownMenuItem(value: t, child: Text(t)))
@@ -678,8 +681,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                   });
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Create'),
@@ -750,8 +754,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 });
                 if (context.mounted) Navigator.pop(context, true);
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   showMessage(context, e.toString(), error: true);
+                }
               }
             },
             child: const Text('Save'),
@@ -851,8 +856,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 }
                 if (context.mounted) Navigator.pop(context, true);
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   showMessage(context, e.toString(), error: true);
+                }
               }
             },
             child: const Text('Save'),
@@ -943,7 +949,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                   decoration: const InputDecoration(labelText: 'Email')),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: role,
+                initialValue: role,
                 decoration: const InputDecoration(labelText: 'Role'),
                 items: const [
                   DropdownMenuItem(value: 'owner', child: Text('Owner')),
@@ -968,8 +974,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       body: {'email': email.text.trim(), 'role': role});
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Send invite'),
@@ -993,7 +1000,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         builder: (context, setLocal) => AlertDialog(
           title: const Text('Change role'),
           content: DropdownButtonFormField<String>(
-            value: role,
+            initialValue: role,
             items: const [
               DropdownMenuItem(value: 'owner', child: Text('Owner')),
               DropdownMenuItem(value: 'accountant', child: Text('Accountant')),
@@ -1015,8 +1022,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       body: {'role': role, 'is_active': true});
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Save'),
@@ -1109,8 +1117,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       body: {'token': code.text.trim()});
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Verify'),
@@ -1150,8 +1159,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                     body: {'token': code.text.trim()});
                 if (context.mounted) Navigator.pop(context, true);
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   showMessage(context, e.toString(), error: true);
+                }
               }
             },
             child: const Text('Disable'),
@@ -1224,9 +1234,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       final data = await widget.api.get('/companies/$_tenantId/export');
       final encoded = const JsonEncoder.withIndent('  ').convert(data);
       await Clipboard.setData(ClipboardData(text: encoded));
-      if (mounted)
+      if (mounted) {
         showMessage(context,
             'Backup JSON copied to clipboard (${encoded.length} characters).');
+      }
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     }
@@ -1313,8 +1324,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                       .post('/purge/verify', body: {'otp': otp.text.trim()});
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Purge data'),
@@ -1323,8 +1335,9 @@ class _SettingsScreenState extends State<SettingsScreen>
         ),
       );
       otp.dispose();
-      if (verified == true && mounted)
+      if (verified == true && mounted) {
         showMessage(context, 'Company data purged.');
+      }
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     }
@@ -1385,8 +1398,9 @@ class _ChangePasswordState extends State<_ChangePassword> {
                         showMessage(context, 'Password changed.');
                       }
                     } catch (e) {
-                      if (mounted)
+                      if (mounted) {
                         showMessage(context, e.toString(), error: true);
+                      }
                     } finally {
                       if (mounted) setState(() => saving = false);
                     }

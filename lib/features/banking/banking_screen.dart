@@ -121,8 +121,9 @@ class _BankingScreenState extends State<BankingScreen> {
 
   Future<void> _deleteBank(Map<String, dynamic> bank) async {
     if (!await _confirm('Delete bank profile?',
-        'Delete ${bank['bank_name'] ?? 'this bank account'} from master data?'))
+        'Delete ${bank['bank_name'] ?? 'this bank account'} from master data?')) {
       return;
+    }
     try {
       await widget.api.delete('/masters/banking-profiles/${bank['id']}');
       if (mounted) {
@@ -151,7 +152,7 @@ class _BankingScreenState extends State<BankingScreen> {
         content: SizedBox(
           width: 440,
           child: DropdownButtonFormField<String>(
-            value: profileId,
+            initialValue: profileId,
             isExpanded: true,
             items: activeProfiles
                 .map((p) => DropdownMenuItem(
@@ -186,9 +187,10 @@ class _BankingScreenState extends State<BankingScreen> {
         file.files.single,
         query: {'banking_profile_id': chosen},
       );
-      if (mounted)
+      if (mounted) {
         showMessage(context,
             'Imported ${data['transactions_imported'] ?? ''} bank transactions.');
+      }
       await _load();
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -199,7 +201,9 @@ class _BankingScreenState extends State<BankingScreen> {
     if (!await _confirm(
       'Delete imported statement?',
       'Statements with reconciled transactions cannot be deleted until those reconciliations are undone.',
-    )) return;
+    )) {
+      return;
+    }
     try {
       await widget.api
           .delete('/bank-reconciliation/statements/${statement['id']}');
@@ -225,9 +229,10 @@ class _BankingScreenState extends State<BankingScreen> {
     try {
       final data = await widget.api
           .post('/bank-reconciliation/statements/$id/auto-match');
-      if (mounted)
+      if (mounted) {
         showMessage(
             context, 'Auto-matched ${data['matched'] ?? 0} transactions.');
+      }
       await _selectStatement(_selected!);
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -318,7 +323,7 @@ class _BankingScreenState extends State<BankingScreen> {
                     style: const TextStyle(color: AppColors.muted)),
                 const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
-                  value: selectedId,
+                  initialValue: selectedId,
                   isExpanded: true,
                   decoration: const InputDecoration(
                       labelText: 'Receipt / disbursement'),
@@ -435,12 +440,13 @@ class _BankingScreenState extends State<BankingScreen> {
                           final right = _selected == null
                               ? _emptyDetail()
                               : _statementDetail();
-                          if (!wide)
+                          if (!wide) {
                             return Column(children: [
                               left,
                               const SizedBox(height: 14),
                               right
                             ]);
+                          }
                           return Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -547,7 +553,8 @@ class _BankingScreenState extends State<BankingScreen> {
                 children: _statements
                     .map((s) => ListTile(
                           selected: _selected?['id'] == s['id'],
-                          selectedTileColor: AppColors.primary.withOpacity(.07),
+                          selectedTileColor:
+                              AppColors.primary.withValues(alpha: .07),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(9)),
                           contentPadding:
@@ -666,7 +673,7 @@ class _BankingScreenState extends State<BankingScreen> {
                       leading: CircleAvatar(
                         backgroundColor:
                             (amount >= 0 ? AppColors.success : AppColors.danger)
-                                .withOpacity(.08),
+                                .withValues(alpha: .08),
                         child: Icon(
                             amount >= 0
                                 ? Icons.south_west_rounded
@@ -765,8 +772,9 @@ class _BankDialogState extends State<_BankDialog> {
 
   @override
   void dispose() {
-    for (final c in [_bank, _account, _ifsc, _branch, _holder, _upi])
+    for (final c in [_bank, _account, _ifsc, _branch, _holder, _upi]) {
       c.dispose();
+    }
     super.dispose();
   }
 
@@ -876,8 +884,9 @@ class _BankDialogState extends State<_BankDialog> {
 }
 
 List<Map<String, dynamic>> _rows(dynamic data) {
-  if (data is List)
+  if (data is List) {
     return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
   if (data is Map) {
     for (final key in const ['items', 'results', 'entries']) {
       if (data[key] is List) {

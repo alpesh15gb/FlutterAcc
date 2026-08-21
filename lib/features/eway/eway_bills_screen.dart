@@ -23,8 +23,9 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
   }
 
   List<Map<String, dynamic>> _rows(dynamic raw) {
-    if (raw is List)
+    if (raw is List) {
       return raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    }
     if (raw is Map && raw['items'] is List) {
       return (raw['items'] as List)
           .map((e) => Map<String, dynamic>.from(e as Map))
@@ -91,7 +92,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   SizedBox(
                     width: 280,
                     child: DropdownButtonFormField<String>(
-                      value: source,
+                      initialValue: source,
                       decoration:
                           const InputDecoration(labelText: 'Source document'),
                       items: [
@@ -112,7 +113,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                     SizedBox(
                       width: 640,
                       child: DropdownButtonFormField<String>(
-                        value: invoiceId,
+                        initialValue: invoiceId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                             labelText: 'Finalized invoice'),
@@ -129,7 +130,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                     SizedBox(
                       width: 640,
                       child: DropdownButtonFormField<String>(
-                        value: billId,
+                        initialValue: billId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                             labelText: 'Finalized purchase bill'),
@@ -145,7 +146,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   SizedBox(
                     width: 200,
                     child: DropdownButtonFormField<String>(
-                      value: supply,
+                      initialValue: supply,
                       decoration:
                           const InputDecoration(labelText: 'Supply type'),
                       items: const [
@@ -160,7 +161,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   SizedBox(
                     width: 220,
                     child: DropdownButtonFormField<String>(
-                      value: sub,
+                      initialValue: sub,
                       decoration:
                           const InputDecoration(labelText: 'Sub-supply'),
                       items: const [
@@ -181,7 +182,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   SizedBox(
                     width: 200,
                     child: DropdownButtonFormField<String>(
-                      value: mode,
+                      initialValue: mode,
                       decoration:
                           const InputDecoration(labelText: 'Transport mode'),
                       items: const ['ROAD', 'RAIL', 'AIR', 'SHIP']
@@ -194,7 +195,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   SizedBox(
                     width: 200,
                     child: DropdownButtonFormField<String>(
-                      value: vehicleType,
+                      initialValue: vehicleType,
                       decoration:
                           const InputDecoration(labelText: 'Vehicle type'),
                       items: const [
@@ -297,8 +298,9 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                     });
                     if (context.mounted) Navigator.pop(context, true);
                   } catch (e) {
-                    if (context.mounted)
+                    if (context.mounted) {
                       showMessage(context, e.toString(), error: true);
+                    }
                   }
                 },
                 child: const Text('Generate'),
@@ -335,7 +337,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
           title: const Text('Cancel e-Way Bill'),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             DropdownButtonFormField<String>(
-              value: reason,
+              initialValue: reason,
               decoration: const InputDecoration(labelText: 'Reason'),
               items: const [
                 DropdownMenuItem(value: '1', child: Text('Duplicate')),
@@ -367,8 +369,9 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   });
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Cancel e-Way Bill'),
@@ -404,7 +407,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                       const InputDecoration(labelText: 'Vehicle number *')),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: vehicleType,
+                initialValue: vehicleType,
                 decoration: const InputDecoration(labelText: 'Vehicle type'),
                 items: const [
                   DropdownMenuItem(value: 'REGULAR', child: Text('Regular')),
@@ -426,7 +429,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                       labelText: 'From state code *', counterText: '')),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
-                value: reason,
+                initialValue: reason,
                 decoration: const InputDecoration(labelText: 'Reason'),
                 items: const [
                   DropdownMenuItem(
@@ -473,8 +476,9 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   });
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Update vehicle'),
@@ -525,7 +529,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                       const InputDecoration(labelText: 'Vehicle number *')),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
-                value: vehicleType,
+                initialValue: vehicleType,
                 decoration: const InputDecoration(labelText: 'Vehicle type'),
                 items: const [
                   DropdownMenuItem(value: 'REGULAR', child: Text('Regular')),
@@ -595,8 +599,9 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                   });
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Generate'),
@@ -670,8 +675,9 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
                                           ? PopupMenuButton<String>(
                                               onSelected: (v) {
                                                 if (v == 'cancel') _cancel(e);
-                                                if (v == 'vehicle')
+                                                if (v == 'vehicle') {
                                                   _updateVehicle(e);
+                                                }
                                               },
                                               itemBuilder: (_) => const [
                                                 PopupMenuItem(

@@ -45,10 +45,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (_type != 'ALL') query['contact_type'] = _type;
       if (_search.text.trim().isNotEmpty) query['search'] = _search.text.trim();
       final data = await widget.api.get('/masters/contacts', query: query);
-      if (mounted)
+      if (mounted) {
         setState(() => _items = (data as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList());
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
@@ -306,7 +307,9 @@ class _ContactDialogState extends State<_ContactDialog> {
       _city,
       _state,
       _pincode
-    ]) c.dispose();
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -374,7 +377,7 @@ class _ContactDialogState extends State<_ContactDialog> {
                         SizedBox(
                             width: 180,
                             child: DropdownButtonFormField<String>(
-                                value: _type,
+                                initialValue: _type,
                                 decoration:
                                     const InputDecoration(labelText: 'Type'),
                                 items: const [
@@ -390,7 +393,7 @@ class _ContactDialogState extends State<_ContactDialog> {
                         SizedBox(
                             width: 190,
                             child: DropdownButtonFormField<String>(
-                                value: _registration,
+                                initialValue: _registration,
                                 decoration: const InputDecoration(
                                     labelText: 'GST registration'),
                                 items: const [

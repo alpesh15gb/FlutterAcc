@@ -23,12 +23,14 @@ class _GoodsReceiptsScreenState extends State<GoodsReceiptsScreen> {
   }
 
   List<Map<String, dynamic>> _rows(dynamic d) {
-    if (d is List)
+    if (d is List) {
       return d.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-    if (d is Map && d['items'] is List)
+    }
+    if (d is Map && d['items'] is List) {
       return (d['items'] as List)
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList();
+    }
     return [];
   }
 
@@ -187,7 +189,9 @@ class _GoodsReceiptEditorState extends State<_GoodsReceiptEditor> {
   @override
   void dispose() {
     _notes.dispose();
-    for (final l in _lines) l.dispose();
+    for (final l in _lines) {
+      l.dispose();
+    }
     super.dispose();
   }
 
@@ -199,7 +203,9 @@ class _GoodsReceiptEditorState extends State<_GoodsReceiptEditor> {
     try {
       final d = Map<String, dynamic>.from(
           await widget.api.get('/purchase-orders/$_poId') as Map);
-      for (final l in _lines) l.dispose();
+      for (final l in _lines) {
+        l.dispose();
+      }
       final raw = d['lines'] is List ? d['lines'] as List : const [];
       _lines = raw.map((e) {
         final x = Map<String, dynamic>.from(e as Map);
@@ -279,7 +285,7 @@ class _GoodsReceiptEditorState extends State<_GoodsReceiptEditor> {
                           SizedBox(
                               width: 460,
                               child: DropdownButtonFormField<String>(
-                                  value: _poId,
+                                  initialValue: _poId,
                                   isExpanded: true,
                                   decoration: const InputDecoration(
                                       labelText: 'Purchase order'),
@@ -368,7 +374,7 @@ class _GoodsReceiptEditorState extends State<_GoodsReceiptEditor> {
                                           width: 220,
                                           child: DropdownButtonFormField<
                                                   String>(
-                                              value: l.warehouseId,
+                                              initialValue: l.warehouseId,
                                               isExpanded: true,
                                               decoration: const InputDecoration(
                                                   labelText: 'Warehouse'),
@@ -403,7 +409,7 @@ class _ReceiveLine {
             '${data['quantity_remaining'] ?? data['quantity'] ?? 0}') ??
         0;
     received.text = remaining > 0
-        ? '${remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 2)}'
+        ? remaining.toStringAsFixed(remaining % 1 == 0 ? 0 : 2)
         : '';
   }
   final Map<String, dynamic> data;

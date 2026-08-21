@@ -77,13 +77,15 @@ class _InventoryScreenState extends State<InventoryScreen>
 }
 
 List<Map<String, dynamic>> _rows(dynamic data) {
-  if (data is List)
+  if (data is List) {
     return data.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+  }
   if (data is Map) {
     for (final key in ['items', 'results', 'entries']) {
       final value = data[key];
-      if (value is List)
+      if (value is List) {
         return value.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      }
     }
   }
   return [];
@@ -220,8 +222,9 @@ class _WarehousesTabState extends State<_WarehousesTab> {
                         });
                         if (context.mounted) Navigator.pop(context, true);
                       } catch (e) {
-                        if (context.mounted)
+                        if (context.mounted) {
                           showMessage(context, e.toString(), error: true);
+                        }
                       }
                     },
                     child: const Text('Create')),
@@ -312,9 +315,10 @@ class _WarehousesTabState extends State<_WarehousesTab> {
                                             }
                                             _load();
                                           } catch (e) {
-                                            if (mounted)
+                                            if (mounted) {
                                               showMessage(context, e.toString(),
                                                   error: true);
+                                            }
                                           }
                                         },
                                         itemBuilder: (_) => [
@@ -421,7 +425,7 @@ class _TransfersTabState extends State<_TransfersTab> {
                                   }),
                               const SizedBox(height: 8),
                               DropdownButtonFormField<String>(
-                                  value: from,
+                                  initialValue: from,
                                   decoration: const InputDecoration(
                                       labelText: 'From warehouse'),
                                   items: warehouses
@@ -432,7 +436,7 @@ class _TransfersTabState extends State<_TransfersTab> {
                                   onChanged: (v) => setLocal(() => from = v)),
                               const SizedBox(height: 10),
                               DropdownButtonFormField<String>(
-                                  value: to,
+                                  initialValue: to,
                                   decoration: const InputDecoration(
                                       labelText: 'To warehouse'),
                                   items: warehouses
@@ -446,7 +450,7 @@ class _TransfersTabState extends State<_TransfersTab> {
                                 Expanded(
                                     flex: 3,
                                     child: DropdownButtonFormField<String>(
-                                        value: product,
+                                        initialValue: product,
                                         decoration: const InputDecoration(
                                             labelText: 'Item'),
                                         items: products
@@ -508,8 +512,9 @@ class _TransfersTabState extends State<_TransfersTab> {
                               });
                               if (context.mounted) Navigator.pop(context, true);
                             } catch (e) {
-                              if (context.mounted)
+                              if (context.mounted) {
                                 showMessage(context, e.toString(), error: true);
+                              }
                             }
                           },
                           child: const Text('Create draft'))
@@ -684,7 +689,7 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
                                     }),
                                 const SizedBox(height: 8),
                                 DropdownButtonFormField<String>(
-                                    value: product,
+                                    initialValue: product,
                                     decoration: const InputDecoration(
                                         labelText: 'Item'),
                                     items: products
@@ -756,12 +761,14 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
                                     }
                                   ]
                                 });
-                                if (context.mounted)
+                                if (context.mounted) {
                                   Navigator.pop(context, true);
+                                }
                               } catch (e) {
-                                if (context.mounted)
+                                if (context.mounted) {
                                   showMessage(context, e.toString(),
                                       error: true);
+                                }
                               }
                             },
                             child: const Text('Create draft'))

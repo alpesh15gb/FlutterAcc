@@ -99,7 +99,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                                         color: (overdue
                                                 ? AppColors.danger
                                                 : AppColors.primary)
-                                            .withOpacity(.08),
+                                            .withValues(alpha: .08),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Icon(

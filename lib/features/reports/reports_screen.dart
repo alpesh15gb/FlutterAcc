@@ -254,8 +254,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         bytes,
         '${safe}_${apiDate(_to)}.$ext',
       );
-      if (mounted && saved)
+      if (mounted && saved) {
         showMessage(context, '${report.title} $format saved.');
+      }
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
@@ -278,8 +279,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
           final wide = c.maxWidth >= 1050;
           final nav = _reportNav();
           final body = _reportBody();
-          if (!wide)
+          if (!wide) {
             return Column(children: [nav, const SizedBox(height: 14), body]);
+          }
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -302,7 +304,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(9)),
                   selected: report.id == _selected,
-                  selectedTileColor: AppColors.primary.withOpacity(.07),
+                  selectedTileColor: AppColors.primary.withValues(alpha: .07),
                   leading: Icon(report.icon, size: 20),
                   title: Text(
                     report.title,
@@ -384,7 +386,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       SizedBox(
                         width: 320,
                         child: DropdownButtonFormField<String>(
-                          value: _contacts
+                          initialValue: _contacts
                                   .any((c) => c['id']?.toString() == _contactId)
                               ? _contactId
                               : null,

@@ -105,8 +105,9 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
                   });
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: const Text('Create & switch'),
@@ -164,8 +165,9 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
                       _load();
                     }
                   } catch (e) {
-                    if (context.mounted)
+                    if (context.mounted) {
                       showMessage(context, e.toString(), error: true);
+                    }
                   }
                 },
                 child: const Text('Close financial year'),
@@ -212,8 +214,9 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
                     query: {'reason': reason.text.trim()});
                 if (context.mounted) Navigator.pop(context, true);
               } catch (e) {
-                if (context.mounted)
+                if (context.mounted) {
                   showMessage(context, e.toString(), error: true);
+                }
               }
             },
             child: const Text('Reopen'),
@@ -251,8 +254,9 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
                 trailing: const Icon(Icons.calendar_month_outlined),
                 onTap: () async {
                   final d = await pickDate(context, date);
-                  if (d != null)
+                  if (d != null) {
                     setLocal(() => date = DateTime(d.year, d.month, 1));
+                  }
                 },
               ),
               TextField(
@@ -276,8 +280,9 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
                       });
                   if (context.mounted) Navigator.pop(context, true);
                 } catch (e) {
-                  if (context.mounted)
+                  if (context.mounted) {
                     showMessage(context, e.toString(), error: true);
+                  }
                 }
               },
               child: Text(lock ? 'Lock' : 'Unlock'),
@@ -330,7 +335,7 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
                                     color: (current
                                             ? AppColors.success
                                             : AppColors.primary)
-                                        .withOpacity(.09),
+                                        .withValues(alpha: .09),
                                     borderRadius: BorderRadius.circular(12)),
                                 child: Icon(Icons.calendar_month_outlined,
                                     color: current

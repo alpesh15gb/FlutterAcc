@@ -71,11 +71,12 @@ class _GstCenterScreenState extends State<GstCenterScreen>
       });
       if (mounted) setState(() => _data = data);
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _error = e.toString();
           _data = null;
         });
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -132,8 +133,9 @@ class _GstCenterScreenState extends State<GstCenterScreen>
       });
       final filename = '${_returnType}_${apiDate(_from)}_${apiDate(_to)}.$ext';
       final saved = await saveDownloadedFile(bytes, filename);
-      if (mounted)
+      if (mounted) {
         showMessage(context, saved ? '$filename saved.' : 'Save cancelled.');
+      }
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
     }
@@ -156,7 +158,7 @@ class _GstCenterScreenState extends State<GstCenterScreen>
               SizedBox(
                 width: 180,
                 child: DropdownButtonFormField<String>(
-                  value: type,
+                  initialValue: type,
                   decoration: const InputDecoration(labelText: 'Return'),
                   items: const ['GSTR1', 'GSTR2', 'GSTR3B']
                       .map((v) => DropdownMenuItem(value: v, child: Text(v)))
@@ -169,7 +171,7 @@ class _GstCenterScreenState extends State<GstCenterScreen>
               SizedBox(
                 width: 180,
                 child: DropdownButtonFormField<String>(
-                  value: status,
+                  initialValue: status,
                   decoration: const InputDecoration(labelText: 'Status'),
                   items: const ['DRAFT', 'READY', 'FILED', 'REVISED']
                       .map((v) =>
@@ -265,7 +267,7 @@ class _GstCenterScreenState extends State<GstCenterScreen>
             width: 480,
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               DropdownButtonFormField<String>(
-                value: status,
+                initialValue: status,
                 decoration: const InputDecoration(labelText: 'Filing status'),
                 items: const ['DRAFT', 'READY', 'FILED', 'REVISED']
                     .map((v) =>

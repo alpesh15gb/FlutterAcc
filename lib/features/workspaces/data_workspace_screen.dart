@@ -67,11 +67,12 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
   }
 
   Future<void> _load() async {
-    if (mounted)
+    if (mounted) {
       setState(() {
         _loading = true;
         _error = null;
       });
+    }
     try {
       final query = <String, dynamic>{};
       final text = _search.text.trim();
@@ -273,8 +274,9 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
           : 'GST EXCLUDED; added on top';
     }
     if (key.contains('date') || key.endsWith('_at')) return displayDate(value);
-    if (['total', 'amount_paid', 'amount_received', 'subtotal'].contains(key))
+    if (['total', 'amount_paid', 'amount_received', 'subtotal'].contains(key)) {
       return money(value);
+    }
     return displayValue(value);
   }
 
@@ -307,8 +309,9 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
 
     switch (id) {
       case 'proforma':
-        if (status == 'DRAFT')
+        if (status == 'DRAFT') {
           add('Issue', Icons.send_outlined, 'post', suffix: 'issue');
+        }
         if (status == 'ISSUED') {
           add(
             'Convert to invoice',
@@ -323,7 +326,7 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
             suffix: 'convert-to-sales-order',
           );
         }
-        if (status != 'CONVERTED' && status != 'CANCELLED')
+        if (status != 'CONVERTED' && status != 'CANCELLED') {
           add(
             'Cancel',
             Icons.cancel_outlined,
@@ -331,33 +334,38 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
             suffix: 'cancel',
             destructive: true,
           );
-        if (status == 'DRAFT')
+        }
+        if (status == 'DRAFT') {
           add(
             'Delete draft',
             Icons.delete_outline,
             'delete',
             destructive: true,
           );
+        }
         add('PDF', Icons.picture_as_pdf_outlined, 'print');
         break;
       case 'sales-orders':
-        if (status == 'DRAFT')
+        if (status == 'DRAFT') {
           add('Confirm', Icons.check_circle_outline, 'post', suffix: 'confirm');
-        if (status == 'DRAFT' || status == 'CONFIRMED')
+        }
+        if (status == 'DRAFT' || status == 'CONFIRMED') {
           add(
             'Mark delivered',
             Icons.local_shipping_outlined,
             'post',
             suffix: 'deliver',
           );
-        if (status == 'CONFIRMED')
+        }
+        if (status == 'CONFIRMED') {
           add(
             'Create challan',
             Icons.move_to_inbox_outlined,
             'post',
             suffix: 'create-delivery-challan',
           );
-        if (status != 'DELIVERED' && status != 'CANCELLED')
+        }
+        if (status != 'DELIVERED' && status != 'CANCELLED') {
           add(
             'Cancel',
             Icons.cancel_outlined,
@@ -365,19 +373,22 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
             suffix: 'cancel',
             destructive: true,
           );
+        }
         add('PDF', Icons.picture_as_pdf_outlined, 'print');
         break;
       case 'purchase-orders':
-        if (status == 'DRAFT')
+        if (status == 'DRAFT') {
           add('Confirm', Icons.check_circle_outline, 'post', suffix: 'confirm');
-        if (status == 'DRAFT' || status == 'CONFIRMED')
+        }
+        if (status == 'DRAFT' || status == 'CONFIRMED') {
           add(
             'Mark received',
             Icons.inventory_2_outlined,
             'post',
             suffix: 'receive',
           );
-        if (status != 'RECEIVED' && status != 'CANCELLED')
+        }
+        if (status != 'RECEIVED' && status != 'CANCELLED') {
           add(
             'Cancel',
             Icons.cancel_outlined,
@@ -385,24 +396,27 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
             suffix: 'cancel',
             destructive: true,
           );
+        }
         add('PDF', Icons.picture_as_pdf_outlined, 'print');
         break;
       case 'challans':
-        if (status == 'DRAFT')
+        if (status == 'DRAFT') {
           add(
             'Issue / dispatch',
             Icons.local_shipping_outlined,
             'post',
             suffix: 'issue',
           );
-        if (status == 'ISSUED')
+        }
+        if (status == 'ISSUED') {
           add(
             'Convert to invoice',
             Icons.receipt_long_outlined,
             'post',
             suffix: 'convert-to-invoice',
           );
-        if (status != 'CANCELLED' && item['converted_to_invoice_id'] == null)
+        }
+        if (status != 'CANCELLED' && item['converted_to_invoice_id'] == null) {
           add(
             'Cancel',
             Icons.cancel_outlined,
@@ -410,6 +424,7 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
             suffix: 'cancel',
             destructive: true,
           );
+        }
         add('PDF', Icons.picture_as_pdf_outlined, 'print');
         break;
       case 'bills':
@@ -422,7 +437,7 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
             destructive: true,
           );
         }
-        if (status == 'POSTED' || status == 'PARTIALLY_PAID')
+        if (status == 'POSTED' || status == 'PARTIALLY_PAID') {
           add(
             'Cancel',
             Icons.cancel_outlined,
@@ -430,6 +445,7 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
             suffix: 'cancel',
             destructive: true,
           );
+        }
         add('Clone', Icons.copy_outlined, 'post', suffix: 'clone');
         add('PDF', Icons.picture_as_pdf_outlined, 'print');
         break;
@@ -482,8 +498,9 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
         final fileName =
             '${widget.config.id}_${_recordTitle(item).replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_')}.pdf';
         final saved = await saveDownloadedFile(bytes, fileName);
-        if (mounted)
+        if (mounted) {
           showMessage(context, saved ? 'PDF saved.' : 'Save cancelled.');
+        }
         return;
       }
       if (action.kind == 'delete') {
@@ -738,7 +755,7 @@ class _ResponsiveWorkspace extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
         decoration: BoxDecoration(
-          color: color.withOpacity(.08),
+          color: color.withValues(alpha: .08),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(

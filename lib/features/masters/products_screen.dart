@@ -44,12 +44,13 @@ class _ProductsScreenState extends State<ProductsScreen> {
       if (_type != 'ALL') q['product_type'] = _type;
       if (_search.text.trim().isNotEmpty) q['search'] = _search.text.trim();
       final d = await widget.api.get('/masters/products', query: q);
-      if (mounted)
+      if (mounted) {
         setState(
           () => _items = (d as List)
               .map((e) => Map<String, dynamic>.from(e as Map))
               .toList(),
         );
+      }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
@@ -355,7 +356,9 @@ class _ProductDialogState extends State<_ProductDialog> {
       _gst,
       _opening,
       _reorder,
-    ]) c.dispose();
+    ]) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -418,7 +421,7 @@ class _ProductDialogState extends State<_ProductDialog> {
                   SizedBox(
                     width: 180,
                     child: DropdownButtonFormField<String>(
-                      value: _type,
+                      initialValue: _type,
                       decoration: const InputDecoration(labelText: 'Type'),
                       items: const [
                         DropdownMenuItem(value: 'GOODS', child: Text('Goods')),

@@ -249,8 +249,9 @@ class ApiClient {
         return download(path, query: query, allowRefresh: false);
       }
     }
-    if (response.statusCode >= 200 && response.statusCode < 300)
+    if (response.statusCode >= 200 && response.statusCode < 300) {
       return response.bodyBytes;
+    }
     _decode(response);
     throw ApiException('Download failed.');
   }

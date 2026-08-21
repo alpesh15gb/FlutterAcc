@@ -91,7 +91,7 @@ class _MasterDataScreenState extends State<MasterDataScreen>
                   decoration: const InputDecoration(labelText: 'Description')),
               const SizedBox(height: 12),
               DropdownButtonFormField<String?>(
-                value: accountId,
+                initialValue: accountId,
                 isExpanded: true,
                 decoration: const InputDecoration(
                     labelText: 'Linked expense/purchase ledger'),

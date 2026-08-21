@@ -148,8 +148,9 @@ class SessionController extends ChangeNotifier {
   Future<void> _acceptTokens(Map<String, dynamic> data) async {
     final access = data['access_token']?.toString();
     final refresh = data['refresh_token']?.toString();
-    if (access == null || refresh == null)
+    if (access == null || refresh == null) {
       throw ApiException('Login did not return session tokens.');
+    }
     api.configure(
         accessToken: access, refreshToken: refresh, tenantId: tenantId);
     await _persistTokens(access, refresh);
