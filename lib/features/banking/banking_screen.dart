@@ -40,14 +40,10 @@ class _BankingScreenState extends State<BankingScreen> {
     try {
       final r = await Future.wait([
         widget.api.get('/masters/banking-profiles'),
-        widget.api.get(
-          '/bank-reconciliation/statements',
-          query: {'limit': 100},
-        ),
-        widget.api.get(
-          '/bank-reconciliation/reconciliations',
-          query: {'limit': 500},
-        ),
+        widget.api
+            .get('/bank-reconciliation/statements', query: {'limit': 100}),
+        widget.api
+            .get('/bank-reconciliation/reconciliations', query: {'limit': 500}),
       ]);
       if (!mounted) return;
       setState(() {
@@ -57,9 +53,8 @@ class _BankingScreenState extends State<BankingScreen> {
       });
       final selectedId = _selected?['id']?.toString();
       if (selectedId != null) {
-        final current = _statements
-            .where((s) => '${s['id']}' == selectedId)
-            .firstOrNull;
+        final current =
+            _statements.where((s) => '${s['id']}' == selectedId).firstOrNull;
         if (current != null) await _selectStatement(current);
       }
     } catch (e) {
@@ -80,10 +75,8 @@ class _BankingScreenState extends State<BankingScreen> {
         widget.api.get('/bank-reconciliation/statements/$id/stats'),
         widget.api.get('/bank-reconciliation/statements/$id/transactions'),
         widget.api.get('/bank-reconciliation/statements/$id/suggestions'),
-        widget.api.get(
-          '/bank-reconciliation/reconciliations',
-          query: {'limit': 500},
-        ),
+        widget.api
+            .get('/bank-reconciliation/reconciliations', query: {'limit': 500}),
       ]);
       if (!mounted) return;
       setState(() {
@@ -115,11 +108,10 @@ class _BankingScreenState extends State<BankingScreen> {
       );
       if (mounted) {
         showMessage(
-          context,
-          bank['is_active'] == false
-              ? 'Bank account activated.'
-              : 'Bank account deactivated.',
-        );
+            context,
+            bank['is_active'] == false
+                ? 'Bank account activated.'
+                : 'Bank account deactivated.');
         _load();
       }
     } catch (e) {
@@ -128,10 +120,8 @@ class _BankingScreenState extends State<BankingScreen> {
   }
 
   Future<void> _deleteBank(Map<String, dynamic> bank) async {
-    if (!await _confirm(
-      'Delete bank profile?',
-      'Delete ${bank['bank_name'] ?? 'this bank account'} from master data?',
-    ))
+    if (!await _confirm('Delete bank profile?',
+        'Delete ${bank['bank_name'] ?? 'this bank account'} from master data?'))
       return;
     try {
       await widget.api.delete('/masters/banking-profiles/${bank['id']}');
@@ -145,15 +135,12 @@ class _BankingScreenState extends State<BankingScreen> {
   }
 
   Future<void> _upload() async {
-    final activeProfiles = _profiles
-        .where((p) => p['is_active'] != false)
-        .toList();
+    final activeProfiles =
+        _profiles.where((p) => p['is_active'] != false).toList();
     if (activeProfiles.isEmpty) {
-      showMessage(
-        context,
-        'Create an active bank profile before importing a statement.',
-        error: true,
-      );
+      showMessage(context,
+          'Create an active bank profile before importing a statement.',
+          error: true);
       return;
     }
     String? profileId = '${activeProfiles.first['id']}';
@@ -167,27 +154,22 @@ class _BankingScreenState extends State<BankingScreen> {
             value: profileId,
             isExpanded: true,
             items: activeProfiles
-                .map(
-                  (p) => DropdownMenuItem(
-                    value: '${p['id']}',
-                    child: Text(
-                      '${p['bank_name'] ?? ''} • ${p['account_number'] ?? ''}',
-                    ),
-                  ),
-                )
+                .map((p) => DropdownMenuItem(
+                      value: '${p['id']}',
+                      child: Text(
+                          '${p['bank_name'] ?? ''} • ${p['account_number'] ?? ''}'),
+                    ))
                 .toList(),
             onChanged: (v) => profileId = v,
           ),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
           FilledButton(
-            onPressed: () => Navigator.pop(context, profileId),
-            child: const Text('Continue'),
-          ),
+              onPressed: () => Navigator.pop(context, profileId),
+              child: const Text('Continue')),
         ],
       ),
     );
@@ -205,10 +187,8 @@ class _BankingScreenState extends State<BankingScreen> {
         query: {'banking_profile_id': chosen},
       );
       if (mounted)
-        showMessage(
-          context,
-          'Imported ${data['transactions_imported'] ?? ''} bank transactions.',
-        );
+        showMessage(context,
+            'Imported ${data['transactions_imported'] ?? ''} bank transactions.');
       await _load();
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -219,12 +199,10 @@ class _BankingScreenState extends State<BankingScreen> {
     if (!await _confirm(
       'Delete imported statement?',
       'Statements with reconciled transactions cannot be deleted until those reconciliations are undone.',
-    ))
-      return;
+    )) return;
     try {
-      await widget.api.delete(
-        '/bank-reconciliation/statements/${statement['id']}',
-      );
+      await widget.api
+          .delete('/bank-reconciliation/statements/${statement['id']}');
       if (mounted) {
         setState(() {
           if (_selected?['id'] == statement['id']) {
@@ -245,14 +223,11 @@ class _BankingScreenState extends State<BankingScreen> {
     final id = _selected?['id'];
     if (id == null) return;
     try {
-      final data = await widget.api.post(
-        '/bank-reconciliation/statements/$id/auto-match',
-      );
+      final data = await widget.api
+          .post('/bank-reconciliation/statements/$id/auto-match');
       if (mounted)
         showMessage(
-          context,
-          'Auto-matched ${data['matched'] ?? 0} transactions.',
-        );
+            context, 'Auto-matched ${data['matched'] ?? 0} transactions.');
       await _selectStatement(_selected!);
     } catch (e) {
       if (mounted) showMessage(context, e.toString(), error: true);
@@ -277,8 +252,8 @@ class _BankingScreenState extends State<BankingScreen> {
     final suggestion = _suggestionFor('${txn['id']}');
     final suggestions = suggestion?['suggested_matches'] is List
         ? (suggestion!['suggested_matches'] as List)
-              .map((e) => Map<String, dynamic>.from(e as Map))
-              .toList()
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList()
         : <Map<String, dynamic>>[];
 
     List<Map<String, dynamic>> candidates = suggestions;
@@ -291,28 +266,24 @@ class _BankingScreenState extends State<BankingScreen> {
         candidates = [
           ..._rows(result[0])
               .where((p) => p['status'] != 'CANCELLED')
-              .map(
-                (p) => {
-                  'type': 'payment',
-                  'id': p['id'],
-                  'amount': p['amount'],
-                  'date': p['payment_date'],
-                  'reference': p['payment_number'],
-                  'score': null,
-                },
-              ),
+              .map((p) => {
+                    'type': 'payment',
+                    'id': p['id'],
+                    'amount': p['amount'],
+                    'date': p['payment_date'],
+                    'reference': p['payment_number'],
+                    'score': null,
+                  }),
           ..._rows(result[1])
               .where((p) => p['status'] != 'CANCELLED')
-              .map(
-                (p) => {
-                  'type': 'bill_payment',
-                  'id': p['id'],
-                  'amount': p['amount'],
-                  'date': p['payment_date'],
-                  'reference': p['payment_number'],
-                  'score': null,
-                },
-              ),
+              .map((p) => {
+                    'type': 'bill_payment',
+                    'id': p['id'],
+                    'amount': p['amount'],
+                    'date': p['payment_date'],
+                    'reference': p['payment_number'],
+                    'score': null,
+                  }),
         ];
       } catch (e) {
         if (mounted) showMessage(context, e.toString(), error: true);
@@ -322,10 +293,8 @@ class _BankingScreenState extends State<BankingScreen> {
     if (!mounted) return;
     if (candidates.isEmpty) {
       showMessage(
-        context,
-        'No active receipt or disbursement is available to match.',
-        error: true,
-      );
+          context, 'No active receipt or disbursement is available to match.',
+          error: true);
       return;
     }
 
@@ -343,52 +312,43 @@ class _BankingScreenState extends State<BankingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${displayDate(txn['transaction_date'])} • ${money(txn['amount'])}',
-                  style: const TextStyle(fontWeight: FontWeight.w800),
-                ),
-                Text(
-                  txn['description']?.toString() ?? '',
-                  style: const TextStyle(color: AppColors.muted),
-                ),
+                    '${displayDate(txn['transaction_date'])} • ${money(txn['amount'])}',
+                    style: const TextStyle(fontWeight: FontWeight.w800)),
+                Text(txn['description']?.toString() ?? '',
+                    style: const TextStyle(color: AppColors.muted)),
                 const SizedBox(height: 14),
                 DropdownButtonFormField<String>(
                   value: selectedId,
                   isExpanded: true,
                   decoration: const InputDecoration(
-                    labelText: 'Receipt / disbursement',
-                  ),
+                      labelText: 'Receipt / disbursement'),
                   items: candidates
-                      .map(
-                        (c) => DropdownMenuItem(
-                          value: '${c['id']}',
-                          child: Text(
-                            '${c['type'] == 'payment' ? 'Receipt' : 'Vendor payment'} • ${money(c['amount'])} • ${c['date'] ?? ''}${c['score'] == null ? '' : ' • score ${c['score']}'}',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      )
+                      .map((c) => DropdownMenuItem(
+                            value: '${c['id']}',
+                            child: Text(
+                              '${c['type'] == 'payment' ? 'Receipt' : 'Vendor payment'} • ${money(c['amount'])} • ${c['date'] ?? ''}${c['score'] == null ? '' : ' • score ${c['score']}'}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ))
                       .toList(),
                   onChanged: (v) => setLocal(() => selectedId = v),
                 ),
                 const SizedBox(height: 12),
                 TextField(
-                  controller: notes,
-                  maxLines: 2,
-                  decoration: const InputDecoration(labelText: 'Notes'),
-                ),
+                    controller: notes,
+                    maxLines: 2,
+                    decoration: const InputDecoration(labelText: 'Notes')),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel')),
             FilledButton(
               onPressed: () {
-                final candidate = candidates.firstWhere(
-                  (c) => '${c['id']}' == selectedId,
-                );
+                final candidate =
+                    candidates.firstWhere((c) => '${c['id']}' == selectedId);
                 Navigator.pop(context, candidate);
               },
               child: const Text('Reconcile'),
@@ -405,9 +365,8 @@ class _BankingScreenState extends State<BankingScreen> {
         '/bank-reconciliation/transactions/${txn['id']}/reconcile',
         body: {
           'payment_id': chosen['type'] == 'payment' ? chosen['id'] : null,
-          'bill_payment_id': chosen['type'] == 'bill_payment'
-              ? chosen['id']
-              : null,
+          'bill_payment_id':
+              chosen['type'] == 'bill_payment' ? chosen['id'] : null,
           'amount': (num.tryParse('${txn['amount']}') ?? 0).abs(),
           'notes': noteText.isEmpty
               ? 'Manually reconciled from Flutter app'
@@ -426,17 +385,14 @@ class _BankingScreenState extends State<BankingScreen> {
   Future<void> _undo(Map<String, dynamic> txn) async {
     final recon = _reconciliationFor('${txn['id']}');
     if (recon == null) {
-      showMessage(
-        context,
-        'Reconciliation record was not found. Refresh the statement.',
-        error: true,
-      );
+      showMessage(context,
+          'Reconciliation record was not found. Refresh the statement.',
+          error: true);
       return;
     }
     try {
-      await widget.api.post(
-        '/bank-reconciliation/reconciliations/${recon['id']}/undo',
-      );
+      await widget.api
+          .post('/bank-reconciliation/reconciliations/${recon['id']}/undo');
       if (mounted) {
         showMessage(context, 'Reconciliation undone.');
         _selectStatement(_selected!);
@@ -448,222 +404,195 @@ class _BankingScreenState extends State<BankingScreen> {
 
   @override
   Widget build(BuildContext context) => PageFrame(
-    title: 'Banking & Reconciliation',
-    subtitle: 'Indian bank profiles, statement imports, suggestions, manual matching and reversals.',
-    actions: [
-      IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
-      OutlinedButton.icon(
-        onPressed: () => _newBank(),
-        icon: const Icon(Icons.account_balance_outlined),
-        label: const Text('Add bank'),
-      ),
-      FilledButton.icon(
-        onPressed: _upload,
-        icon: const Icon(Icons.upload_file_rounded),
-        label: const Text('Import statement'),
-      ),
-    ],
-    child: _loading
-        ? const Padding(
-            padding: EdgeInsets.all(60),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : _error != null
-        ? ErrorPanel(message: _error!, onRetry: _load)
-        : Column(
-            children: [
-              _profilesCard(),
-              const SizedBox(height: 14),
-              LayoutBuilder(
-                builder: (context, c) {
-                  final wide = c.maxWidth >= 1000;
-                  final left = _statementList();
-                  final right = _selected == null
-                      ? _emptyDetail()
-                      : _statementDetail();
-                  if (!wide)
-                    return Column(
-                      children: [left, const SizedBox(height: 14), right],
-                    );
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        title: 'Banking & Reconciliation',
+        subtitle:
+            'Indian bank profiles, statement imports, suggestions, manual matching and reversals.',
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
+          OutlinedButton.icon(
+              onPressed: () => _newBank(),
+              icon: const Icon(Icons.account_balance_outlined),
+              label: const Text('Add bank')),
+          FilledButton.icon(
+              onPressed: _upload,
+              icon: const Icon(Icons.upload_file_rounded),
+              label: const Text('Import statement')),
+        ],
+        child: _loading
+            ? const Padding(
+                padding: EdgeInsets.all(60),
+                child: Center(child: CircularProgressIndicator()))
+            : _error != null
+                ? ErrorPanel(message: _error!, onRetry: _load)
+                : Column(
                     children: [
-                      SizedBox(width: 390, child: left),
-                      const SizedBox(width: 14),
-                      Expanded(child: right),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-  );
-
-  Widget _profilesCard() => SectionCard(
-    title: 'Bank accounts',
-    child: _profiles.isEmpty
-        ? const Text(
-            'No bank profiles configured.',
-            style: TextStyle(color: AppColors.muted),
-          )
-        : Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _profiles
-                .map(
-                  (p) => Container(
-                    width: 310,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.account_balance_outlined,
-                          color: p['is_active'] == false
-                              ? AppColors.muted
-                              : AppColors.primary,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
+                      _profilesCard(),
+                      const SizedBox(height: 14),
+                      LayoutBuilder(
+                        builder: (context, c) {
+                          final wide = c.maxWidth >= 1000;
+                          final left = _statementList();
+                          final right = _selected == null
+                              ? _emptyDetail()
+                              : _statementDetail();
+                          if (!wide)
+                            return Column(children: [
+                              left,
+                              const SizedBox(height: 14),
+                              right
+                            ]);
+                          return Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                p['bank_name']?.toString() ?? '',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
+                              SizedBox(width: 390, child: left),
+                              const SizedBox(width: 14),
+                              Expanded(child: right),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+      );
+
+  Widget _profilesCard() => SectionCard(
+        title: 'Bank accounts',
+        child: _profiles.isEmpty
+            ? const Text('No bank profiles configured.',
+                style: TextStyle(color: AppColors.muted))
+            : Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: _profiles
+                    .map((p) => Container(
+                          width: 310,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .outlineVariant),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.account_balance_outlined,
+                                  color: p['is_active'] == false
+                                      ? AppColors.muted
+                                      : AppColors.primary),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(p['bank_name']?.toString() ?? '',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w800)),
+                                    Text(
+                                        '${p['account_number'] ?? ''} • ${p['ifsc_code'] ?? ''}',
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppColors.muted)),
+                                    Text(
+                                        p['is_active'] == false
+                                            ? 'Inactive'
+                                            : (p['is_primary'] == true
+                                                ? 'Primary'
+                                                : 'Active'),
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            color: AppColors.muted)),
+                                  ],
                                 ),
                               ),
-                              Text(
-                                '${p['account_number'] ?? ''} • ${p['ifsc_code'] ?? ''}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.muted,
-                                ),
-                              ),
-                              Text(
-                                p['is_active'] == false
-                                    ? 'Inactive'
-                                    : (p['is_primary'] == true
-                                          ? 'Primary'
-                                          : 'Active'),
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AppColors.muted,
-                                ),
+                              PopupMenuButton<String>(
+                                onSelected: (v) {
+                                  if (v == 'edit') _newBank(p);
+                                  if (v == 'toggle') _toggleBank(p);
+                                  if (v == 'delete') _deleteBank(p);
+                                },
+                                itemBuilder: (_) => [
+                                  const PopupMenuItem(
+                                      value: 'edit', child: Text('Edit')),
+                                  PopupMenuItem(
+                                      value: 'toggle',
+                                      child: Text(p['is_active'] == false
+                                          ? 'Activate'
+                                          : 'Deactivate')),
+                                  const PopupMenuItem(
+                                      value: 'delete', child: Text('Delete')),
+                                ],
                               ),
                             ],
                           ),
-                        ),
-                        PopupMenuButton<String>(
-                          onSelected: (v) {
-                            if (v == 'edit') _newBank(p);
-                            if (v == 'toggle') _toggleBank(p);
-                            if (v == 'delete') _deleteBank(p);
-                          },
-                          itemBuilder: (_) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Text('Edit'),
-                            ),
-                            PopupMenuItem(
-                              value: 'toggle',
-                              child: Text(
-                                p['is_active'] == false
-                                    ? 'Activate'
-                                    : 'Deactivate',
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-  );
+                        ))
+                    .toList(),
+              ),
+      );
 
   Widget _statementList() => SectionCard(
-    title: 'Imported statements',
-    child: _statements.isEmpty
-        ? EmptyState(
-            icon: Icons.upload_file_outlined,
-            title: 'No statements',
-            message:
-                'Import CSV or Excel from SBI, HDFC, ICICI or another bank.',
-            action: FilledButton.icon(
-              onPressed: _upload,
-              icon: const Icon(Icons.upload_rounded),
-              label: const Text('Import statement'),
-            ),
-          )
-        : Column(
-            children: _statements
-                .map(
-                  (s) => ListTile(
-                    selected: _selected?['id'] == s['id'],
-                    selectedTileColor: AppColors.primary.withOpacity(.07),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(9),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.description_outlined),
-                    ),
-                    title: Text(
-                      '${s['bank_name'] ?? 'Bank'} • ${displayDate(s['statement_date'])}',
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                    subtitle: Text(
-                      '${s['account_number'] ?? ''} • ${s['status'] ?? ''}',
-                    ),
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (v) {
-                        if (v == 'open') _selectStatement(s);
-                        if (v == 'delete') _deleteStatement(s);
-                      },
-                      itemBuilder: (_) => const [
-                        PopupMenuItem(value: 'open', child: Text('Open')),
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Text('Delete statement'),
-                        ),
-                      ],
-                    ),
-                    onTap: () => _selectStatement(s),
-                  ),
-                )
-                .toList(),
-          ),
-  );
+        title: 'Imported statements',
+        child: _statements.isEmpty
+            ? EmptyState(
+                icon: Icons.upload_file_outlined,
+                title: 'No statements',
+                message:
+                    'Import CSV or Excel from SBI, HDFC, ICICI or another bank.',
+                action: FilledButton.icon(
+                    onPressed: _upload,
+                    icon: const Icon(Icons.upload_rounded),
+                    label: const Text('Import statement')),
+              )
+            : Column(
+                children: _statements
+                    .map((s) => ListTile(
+                          selected: _selected?['id'] == s['id'],
+                          selectedTileColor: AppColors.primary.withOpacity(.07),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(9)),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 8),
+                          leading: const CircleAvatar(
+                              child: Icon(Icons.description_outlined)),
+                          title: Text(
+                              '${s['bank_name'] ?? 'Bank'} • ${displayDate(s['statement_date'])}',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700)),
+                          subtitle: Text(
+                              '${s['account_number'] ?? ''} • ${s['status'] ?? ''}'),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (v) {
+                              if (v == 'open') _selectStatement(s);
+                              if (v == 'delete') _deleteStatement(s);
+                            },
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(value: 'open', child: Text('Open')),
+                              PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('Delete statement')),
+                            ],
+                          ),
+                          onTap: () => _selectStatement(s),
+                        ))
+                    .toList(),
+              ),
+      );
 
   Widget _emptyDetail() => const SectionCard(
-    child: EmptyState(
-      icon: Icons.compare_arrows_rounded,
-      title: 'Select a bank statement',
-      message:
-          'Review transactions, match suggestions and reconciliation status.',
-    ),
-  );
+        child: EmptyState(
+          icon: Icons.compare_arrows_rounded,
+          title: 'Select a bank statement',
+          message:
+              'Review transactions, match suggestions and reconciliation status.',
+        ),
+      );
 
   Widget _statementDetail() {
     if (_detailLoading) {
       return const SectionCard(
-        child: Padding(
-          padding: EdgeInsets.all(50),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      );
+          child: Padding(
+              padding: EdgeInsets.all(50),
+              child: Center(child: CircularProgressIndicator())));
     }
     final s = _stats ?? {};
     return Column(
@@ -675,25 +604,25 @@ class _BankingScreenState extends State<BankingScreen> {
                 'Transactions',
                 s['total_transactions'],
                 Icons.list_alt_rounded,
-                AppColors.primary,
+                AppColors.primary
               ),
               (
                 'Reconciled',
                 s['reconciled'],
                 Icons.check_circle_outline_rounded,
-                AppColors.success,
+                AppColors.success
               ),
               (
                 'Pending',
                 s['pending'],
                 Icons.schedule_rounded,
-                AppColors.warning,
+                AppColors.warning
               ),
               (
                 'Matched %',
                 '${s['reconciliation_pct'] ?? 0}%',
                 Icons.donut_large_rounded,
-                AppColors.primary,
+                AppColors.primary
               ),
             ];
             final cols = c.maxWidth >= 750 ? 4 : 2;
@@ -703,17 +632,13 @@ class _BankingScreenState extends State<BankingScreen> {
               spacing: gap,
               runSpacing: gap,
               children: metrics
-                  .map(
-                    (m) => SizedBox(
+                  .map((m) => SizedBox(
                       width: w,
                       child: MetricCard(
-                        label: m.$1,
-                        value: '${m.$2 ?? 0}',
-                        icon: m.$3,
-                        tone: m.$4,
-                      ),
-                    ),
-                  )
+                          label: m.$1,
+                          value: '${m.$2 ?? 0}',
+                          icon: m.$3,
+                          tone: m.$4)))
                   .toList(),
             );
           },
@@ -722,10 +647,9 @@ class _BankingScreenState extends State<BankingScreen> {
         SectionCard(
           title: 'Transactions',
           trailing: FilledButton.icon(
-            onPressed: _autoMatch,
-            icon: const Icon(Icons.auto_fix_high_rounded),
-            label: const Text('Auto-match'),
-          ),
+              onPressed: _autoMatch,
+              icon: const Icon(Icons.auto_fix_high_rounded),
+              label: const Text('Auto-match')),
           child: _transactions.isEmpty
               ? const Text('No transactions')
               : Column(
@@ -735,8 +659,8 @@ class _BankingScreenState extends State<BankingScreen> {
                     final suggestion = _suggestionFor('${t['id']}');
                     final suggestionCount =
                         suggestion?['suggested_matches'] is List
-                        ? (suggestion!['suggested_matches'] as List).length
-                        : 0;
+                            ? (suggestion!['suggested_matches'] as List).length
+                            : 0;
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: CircleAvatar(
@@ -744,42 +668,36 @@ class _BankingScreenState extends State<BankingScreen> {
                             (amount >= 0 ? AppColors.success : AppColors.danger)
                                 .withOpacity(.08),
                         child: Icon(
-                          amount >= 0
-                              ? Icons.south_west_rounded
-                              : Icons.north_east_rounded,
-                          color: amount >= 0
-                              ? AppColors.success
-                              : AppColors.danger,
-                        ),
+                            amount >= 0
+                                ? Icons.south_west_rounded
+                                : Icons.north_east_rounded,
+                            color: amount >= 0
+                                ? AppColors.success
+                                : AppColors.danger),
                       ),
                       title: Text(
-                        t['description']?.toString() ?? 'Bank transaction',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                          t['description']?.toString() ?? 'Bank transaction',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                       subtitle: Text(
-                        '${displayDate(t['transaction_date'])} • ${t['reference_number'] ?? 'No reference'} • ${t['status'] ?? ''}${!reconciled && suggestionCount > 0 ? ' • $suggestionCount suggestion(s)' : ''}',
-                      ),
+                          '${displayDate(t['transaction_date'])} • ${t['reference_number'] ?? 'No reference'} • ${t['status'] ?? ''}${!reconciled && suggestionCount > 0 ? ' • $suggestionCount suggestion(s)' : ''}'),
                       trailing: Wrap(
                         spacing: 8,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text(
-                            money(t['amount']),
-                            style: const TextStyle(fontWeight: FontWeight.w800),
-                          ),
+                          Text(money(t['amount']),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w800)),
                           if (reconciled)
                             TextButton(
-                              onPressed: () => _undo(t),
-                              child: const Text('Undo'),
-                            )
+                                onPressed: () => _undo(t),
+                                child: const Text('Undo'))
                           else
                             FilledButton.tonal(
-                              onPressed: () => _manualMatch(t),
-                              child: Text(
-                                suggestionCount > 0 ? 'Review match' : 'Match',
-                              ),
-                            ),
+                                onPressed: () => _manualMatch(t),
+                                child: Text(suggestionCount > 0
+                                    ? 'Review match'
+                                    : 'Match')),
                         ],
                       ),
                     );
@@ -798,13 +716,11 @@ class _BankingScreenState extends State<BankingScreen> {
           content: Text(message),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
-            ),
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel')),
             FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: const Text('Confirm'),
-            ),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Confirm')),
           ],
         ),
       ) ??
@@ -836,14 +752,12 @@ class _BankDialogState extends State<_BankDialog> {
     super.initState();
     final p = widget.item ?? {};
     _bank = TextEditingController(text: p['bank_name']?.toString() ?? '');
-    _account = TextEditingController(
-      text: p['account_number']?.toString() ?? '',
-    );
+    _account =
+        TextEditingController(text: p['account_number']?.toString() ?? '');
     _ifsc = TextEditingController(text: p['ifsc_code']?.toString() ?? '');
     _branch = TextEditingController(text: p['branch_name']?.toString() ?? '');
-    _holder = TextEditingController(
-      text: p['account_holder_name']?.toString() ?? '',
-    );
+    _holder =
+        TextEditingController(text: p['account_holder_name']?.toString() ?? '');
     _upi = TextEditingController(text: p['upi_id']?.toString() ?? '');
     _primary = p['is_primary'] == true;
     _active = p['is_active'] != false;
@@ -861,11 +775,9 @@ class _BankDialogState extends State<_BankDialog> {
         _account.text.trim().isEmpty ||
         _ifsc.text.trim().length != 11 ||
         _holder.text.trim().isEmpty) {
-      showMessage(
-        context,
-        'Bank, account number, 11-character IFSC and holder name are required.',
-        error: true,
-      );
+      showMessage(context,
+          'Bank, account number, 11-character IFSC and holder name are required.',
+          error: true);
       return;
     }
     setState(() => _saving = true);
@@ -883,10 +795,8 @@ class _BankDialogState extends State<_BankDialog> {
       if (widget.item == null) {
         await widget.api.post('/masters/banking-profiles', body: body);
       } else {
-        await widget.api.put(
-          '/masters/banking-profiles/${widget.item!['id']}',
-          body: body,
-        );
+        await widget.api
+            .put('/masters/banking-profiles/${widget.item!['id']}', body: body);
       }
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -898,85 +808,71 @@ class _BankDialogState extends State<_BankDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.item == null ? 'Add bank account' : 'Edit bank account'),
-    content: SizedBox(
-      width: 650,
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: [
-          SizedBox(
-            width: 280,
-            child: TextField(
-              controller: _bank,
-              decoration: const InputDecoration(labelText: 'Bank name'),
-            ),
+        title: Text(
+            widget.item == null ? 'Add bank account' : 'Edit bank account'),
+        content: SizedBox(
+          width: 650,
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              SizedBox(
+                  width: 280,
+                  child: TextField(
+                      controller: _bank,
+                      decoration:
+                          const InputDecoration(labelText: 'Bank name'))),
+              SizedBox(
+                  width: 280,
+                  child: TextField(
+                      controller: _account,
+                      decoration:
+                          const InputDecoration(labelText: 'Account number'))),
+              SizedBox(
+                  width: 220,
+                  child: TextField(
+                      controller: _ifsc,
+                      textCapitalization: TextCapitalization.characters,
+                      maxLength: 11,
+                      decoration: const InputDecoration(
+                          labelText: 'IFSC', counterText: ''))),
+              SizedBox(
+                  width: 260,
+                  child: TextField(
+                      controller: _branch,
+                      decoration: const InputDecoration(labelText: 'Branch'))),
+              SizedBox(
+                  width: 280,
+                  child: TextField(
+                      controller: _holder,
+                      decoration:
+                          const InputDecoration(labelText: 'Account holder'))),
+              SizedBox(
+                  width: 260,
+                  child: TextField(
+                      controller: _upi,
+                      decoration: const InputDecoration(labelText: 'UPI ID'))),
+              FilterChip(
+                  label: const Text('Primary account'),
+                  selected: _primary,
+                  onSelected: (v) => setState(() => _primary = v)),
+              if (widget.item != null)
+                FilterChip(
+                    label: const Text('Active'),
+                    selected: _active,
+                    onSelected: (v) => setState(() => _active = v)),
+            ],
           ),
-          SizedBox(
-            width: 280,
-            child: TextField(
-              controller: _account,
-              decoration: const InputDecoration(labelText: 'Account number'),
-            ),
-          ),
-          SizedBox(
-            width: 220,
-            child: TextField(
-              controller: _ifsc,
-              textCapitalization: TextCapitalization.characters,
-              maxLength: 11,
-              decoration: const InputDecoration(
-                labelText: 'IFSC',
-                counterText: '',
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 260,
-            child: TextField(
-              controller: _branch,
-              decoration: const InputDecoration(labelText: 'Branch'),
-            ),
-          ),
-          SizedBox(
-            width: 280,
-            child: TextField(
-              controller: _holder,
-              decoration: const InputDecoration(labelText: 'Account holder'),
-            ),
-          ),
-          SizedBox(
-            width: 260,
-            child: TextField(
-              controller: _upi,
-              decoration: const InputDecoration(labelText: 'UPI ID'),
-            ),
-          ),
-          FilterChip(
-            label: const Text('Primary account'),
-            selected: _primary,
-            onSelected: (v) => setState(() => _primary = v),
-          ),
-          if (widget.item != null)
-            FilterChip(
-              label: const Text('Active'),
-              selected: _active,
-              onSelected: (v) => setState(() => _active = v),
-            ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel')),
+          FilledButton(
+              onPressed: _saving ? null : _save,
+              child: Text(_saving ? 'Saving…' : 'Save')),
         ],
-      ),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
-      ),
-      FilledButton(
-        onPressed: _saving ? null : _save,
-        child: Text(_saving ? 'Saving…' : 'Save'),
-      ),
-    ],
-  );
+      );
 }
 
 List<Map<String, dynamic>> _rows(dynamic data) {

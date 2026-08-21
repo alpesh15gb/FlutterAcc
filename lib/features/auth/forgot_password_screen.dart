@@ -31,9 +31,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       await widget.session.forgotPassword(_email.text);
       if (mounted) {
         showMessage(
-          context,
-          'If the email is registered, a reset link has been sent.',
-        );
+            context, 'If the email is registered, a reset link has been sent.');
         Navigator.pop(context);
       }
     } catch (e) {
@@ -45,38 +43,36 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Reset password')),
-    body: Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 430),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Enter the email used for your ApexBooks account. We will request a password-reset email from the server.',
-                  ),
-                  const SizedBox(height: 18),
-                  TextField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-                  const SizedBox(height: 18),
-                  FilledButton(
-                    onPressed: _loading ? null : _submit,
-                    child: Text(_loading ? 'Sending…' : 'Send reset link'),
-                  ),
-                ],
+        appBar: AppBar(title: const Text('Reset password')),
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 430),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                            'Enter the email used for your ApexBooks account. We will request a password-reset email from the server.'),
+                        const SizedBox(height: 18),
+                        TextField(
+                            controller: _email,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration:
+                                const InputDecoration(labelText: 'Email')),
+                        const SizedBox(height: 18),
+                        FilledButton(
+                            onPressed: _loading ? null : _submit,
+                            child: Text(
+                                _loading ? 'Sending…' : 'Send reset link')),
+                      ]),
+                ),
               ),
             ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 }

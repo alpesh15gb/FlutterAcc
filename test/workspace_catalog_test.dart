@@ -7,9 +7,7 @@ void main() {
     expect(workspaceCatalog['purchase-returns']!.endpoint, '/returns/purchase');
     expect(workspaceCatalog['payments']!.endpoint, '/payments/receipts');
     expect(
-      workspaceCatalog['bill-payments']!.endpoint,
-      '/payments/disbursements',
-    );
+        workspaceCatalog['bill-payments']!.endpoint, '/payments/disbursements');
   });
 
   test('transaction document workspaces use the tax document editor', () {
@@ -18,13 +16,10 @@ void main() {
       'sales-orders',
       'challans',
       'bills',
-      'purchase-orders',
+      'purchase-orders'
     ]) {
-      expect(
-        workspaceCatalog[id]!.editor,
-        WorkspaceEditor.taxDocument,
-        reason: id,
-      );
+      expect(workspaceCatalog[id]!.editor, WorkspaceEditor.taxDocument,
+          reason: id);
       expect(workspaceCatalog[id]!.documentKind, isNotNull, reason: id);
     }
   });

@@ -32,7 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _company,
       _gstin,
       _pan,
-      _password,
+      _password
     ]) {
       c.dispose();
     }
@@ -75,139 +75,108 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        'Owner details',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 14),
-                      Wrap(
-                        spacing: 14,
-                        runSpacing: 14,
-                        children: [
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text('Owner details',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 14),
+                        Wrap(spacing: 14, runSpacing: 14, children: [
                           SizedBox(
-                            width: 310,
-                            child: TextFormField(
-                              controller: _name,
-                              decoration: const InputDecoration(
-                                labelText: 'Full name',
-                              ),
-                              validator: _required,
-                            ),
-                          ),
+                              width: 310,
+                              child: TextFormField(
+                                  controller: _name,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Full name'),
+                                  validator: _required)),
                           SizedBox(
-                            width: 310,
-                            child: TextFormField(
-                              controller: _email,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                              ),
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (v) => v != null && v.contains('@')
-                                  ? null
-                                  : 'Enter a valid email',
-                            ),
-                          ),
+                              width: 310,
+                              child: TextFormField(
+                                  controller: _email,
+                                  decoration:
+                                      const InputDecoration(labelText: 'Email'),
+                                  keyboardType: TextInputType.emailAddress,
+                                  validator: (v) => v != null && v.contains('@')
+                                      ? null
+                                      : 'Enter a valid email')),
                           SizedBox(
-                            width: 310,
-                            child: TextFormField(
-                              controller: _phone,
-                              decoration: const InputDecoration(
-                                labelText: 'Phone (optional)',
-                              ),
-                              keyboardType: TextInputType.phone,
-                            ),
-                          ),
+                              width: 310,
+                              child: TextFormField(
+                                  controller: _phone,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Phone (optional)'),
+                                  keyboardType: TextInputType.phone)),
                           SizedBox(
-                            width: 310,
-                            child: TextFormField(
-                              controller: _password,
-                              obscureText: _obscure,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                helperText: 'Upper/lowercase, digit and special character',
-                                suffixIcon: IconButton(
-                                  onPressed: () =>
-                                      setState(() => _obscure = !_obscure),
-                                  icon: Icon(
-                                    _obscure
-                                        ? Icons.visibility_outlined
-                                        : Icons.visibility_off_outlined,
-                                  ),
-                                ),
-                              ),
-                              validator: (v) => (v?.length ?? 0) < 8
-                                  ? 'Use at least 8 characters'
-                                  : null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Business details',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w800),
-                      ),
-                      const SizedBox(height: 14),
-                      Wrap(
-                        spacing: 14,
-                        runSpacing: 14,
-                        children: [
+                              width: 310,
+                              child: TextFormField(
+                                  controller: _password,
+                                  obscureText: _obscure,
+                                  decoration: InputDecoration(
+                                      labelText: 'Password',
+                                      helperText:
+                                          'Upper/lowercase, digit and special character',
+                                      suffixIcon: IconButton(
+                                          onPressed: () => setState(
+                                              () => _obscure = !_obscure),
+                                          icon: Icon(_obscure
+                                              ? Icons.visibility_outlined
+                                              : Icons
+                                                  .visibility_off_outlined))),
+                                  validator: (v) => (v?.length ?? 0) < 8
+                                      ? 'Use at least 8 characters'
+                                      : null)),
+                        ]),
+                        const SizedBox(height: 24),
+                        Text('Business details',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(fontWeight: FontWeight.w800)),
+                        const SizedBox(height: 14),
+                        Wrap(spacing: 14, runSpacing: 14, children: [
                           SizedBox(
-                            width: 310,
-                            child: TextFormField(
-                              controller: _company,
-                              decoration: const InputDecoration(
-                                labelText: 'Legal business name',
-                              ),
-                              validator: _required,
-                            ),
-                          ),
+                              width: 310,
+                              child: TextFormField(
+                                  controller: _company,
+                                  decoration: const InputDecoration(
+                                      labelText: 'Legal business name'),
+                                  validator: _required)),
                           SizedBox(
-                            width: 310,
-                            child: TextFormField(
-                              controller: _gstin,
-                              textCapitalization: TextCapitalization.characters,
-                              maxLength: 15,
-                              decoration: const InputDecoration(
-                                labelText: 'GSTIN (optional)',
-                                counterText: '',
-                              ),
-                            ),
-                          ),
+                              width: 310,
+                              child: TextFormField(
+                                  controller: _gstin,
+                                  textCapitalization:
+                                      TextCapitalization.characters,
+                                  maxLength: 15,
+                                  decoration: const InputDecoration(
+                                      labelText: 'GSTIN (optional)',
+                                      counterText: ''))),
                           SizedBox(
-                            width: 310,
-                            child: TextFormField(
-                              controller: _pan,
-                              textCapitalization: TextCapitalization.characters,
-                              maxLength: 10,
-                              decoration: const InputDecoration(
-                                labelText: 'PAN (optional)',
-                                counterText: '',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      FilledButton.icon(
-                        onPressed: _loading ? null : _submit,
-                        icon: _loading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.business_rounded),
-                        label: const Text('Create account'),
-                      ),
-                    ],
-                  ),
+                              width: 310,
+                              child: TextFormField(
+                                  controller: _pan,
+                                  textCapitalization:
+                                      TextCapitalization.characters,
+                                  maxLength: 10,
+                                  decoration: const InputDecoration(
+                                      labelText: 'PAN (optional)',
+                                      counterText: ''))),
+                        ]),
+                        const SizedBox(height: 24),
+                        FilledButton.icon(
+                          onPressed: _loading ? null : _submit,
+                          icon: _loading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2))
+                              : const Icon(Icons.business_rounded),
+                          label: const Text('Create account'),
+                        ),
+                      ]),
                 ),
               ),
             ),

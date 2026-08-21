@@ -19,14 +19,13 @@ class ApiException implements Exception {
 
 class ApiClient {
   ApiClient({String? baseUrl, http.Client? httpClient})
-    : baseUrl =
-          (baseUrl ??
-                  const String.fromEnvironment(
-                    'API_BASE_URL',
-                    defaultValue: 'http://127.0.0.1:8000/api/v1',
-                  ))
-              .replaceAll(RegExp(r'/$'), ''),
-      _http = httpClient ?? http.Client();
+      : baseUrl = (baseUrl ??
+                const String.fromEnvironment(
+                  'API_BASE_URL',
+                  defaultValue: 'http://127.0.0.1:8000/api/v1',
+                ))
+            .replaceAll(RegExp(r'/$'), ''),
+        _http = httpClient ?? http.Client();
 
   final String baseUrl;
   final http.Client _http;
@@ -34,13 +33,10 @@ class ApiClient {
   String? refreshToken;
   String? tenantId;
   Future<void> Function(String accessToken, String refreshToken)?
-  onTokenRotation;
+      onTokenRotation;
 
-  void configure({
-    String? accessToken,
-    String? refreshToken,
-    String? tenantId,
-  }) {
+  void configure(
+      {String? accessToken, String? refreshToken, String? tenantId}) {
     if (accessToken != null) this.accessToken = accessToken;
     if (refreshToken != null) this.refreshToken = refreshToken;
     this.tenantId = tenantId;
@@ -57,9 +53,8 @@ class ApiClient {
     final base = Uri.parse('$baseUrl$normalized');
     if (query == null || query.isEmpty) return base;
     return base.replace(
-      queryParameters: query.map(
-        (key, value) => MapEntry(key, value?.toString() ?? ''),
-      ),
+      queryParameters:
+          query.map((key, value) => MapEntry(key, value?.toString() ?? '')),
     );
   }
 
@@ -80,48 +75,33 @@ class ApiClient {
   String _newIdempotencyKey() {
     final random = Random.secure();
     final nonce = List.generate(
-      16,
-      (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
-    ).join();
+            16, (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'))
+        .join();
     return 'flutter-${DateTime.now().microsecondsSinceEpoch}-$nonce';
   }
 
   bool _isMutation(String method) =>
       const {'POST', 'PUT', 'PATCH', 'DELETE'}.contains(method);
 
-  Future<dynamic> get(
-    String path, {
-    Map<String, dynamic>? query,
-    bool tenant = true,
-  }) => _request('GET', path, query: query, tenant: tenant);
+  Future<dynamic> get(String path,
+          {Map<String, dynamic>? query, bool tenant = true}) =>
+      _request('GET', path, query: query, tenant: tenant);
 
-  Future<dynamic> post(
-    String path, {
-    Object? body,
-    Map<String, dynamic>? query,
-    bool tenant = true,
-  }) => _request('POST', path, body: body, query: query, tenant: tenant);
+  Future<dynamic> post(String path,
+          {Object? body, Map<String, dynamic>? query, bool tenant = true}) =>
+      _request('POST', path, body: body, query: query, tenant: tenant);
 
-  Future<dynamic> put(
-    String path, {
-    Object? body,
-    Map<String, dynamic>? query,
-    bool tenant = true,
-  }) => _request('PUT', path, body: body, query: query, tenant: tenant);
+  Future<dynamic> put(String path,
+          {Object? body, Map<String, dynamic>? query, bool tenant = true}) =>
+      _request('PUT', path, body: body, query: query, tenant: tenant);
 
-  Future<dynamic> patch(
-    String path, {
-    Object? body,
-    Map<String, dynamic>? query,
-    bool tenant = true,
-  }) => _request('PATCH', path, body: body, query: query, tenant: tenant);
+  Future<dynamic> patch(String path,
+          {Object? body, Map<String, dynamic>? query, bool tenant = true}) =>
+      _request('PATCH', path, body: body, query: query, tenant: tenant);
 
-  Future<dynamic> delete(
-    String path, {
-    Object? body,
-    Map<String, dynamic>? query,
-    bool tenant = true,
-  }) => _request('DELETE', path, body: body, query: query, tenant: tenant);
+  Future<dynamic> delete(String path,
+          {Object? body, Map<String, dynamic>? query, bool tenant = true}) =>
+      _request('DELETE', path, body: body, query: query, tenant: tenant);
 
   Future<dynamic> _request(
     String method,
@@ -132,8 +112,7 @@ class ApiClient {
     bool allowRefresh = true,
     String? idempotencyKey,
   }) async {
-    final mutationKey =
-        idempotencyKey ??
+    final mutationKey = idempotencyKey ??
         (_isMutation(method) && tenant && tenantId != null
             ? _newIdempotencyKey()
             : null);
@@ -169,7 +148,7 @@ class ApiClient {
       _uri('/auth/refresh'),
       headers: {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: jsonEncode({'refresh_token': token}),
     );
@@ -209,9 +188,8 @@ class ApiClient {
       );
     }
     throw ApiException(
-      data?.toString() ?? 'Request failed (${response.statusCode})',
-      statusCode: response.statusCode,
-    );
+        data?.toString() ?? 'Request failed (${response.statusCode})',
+        statusCode: response.statusCode);
   }
 
   Future<dynamic> upload(
@@ -229,21 +207,11 @@ class ApiClient {
     request.headers.addAll(_headers(json: false, idempotencyKey: mutationKey));
     request.fields.addAll(fields ?? const {});
     if (file.bytes != null) {
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          fieldName,
-          file.bytes!,
-          filename: file.name,
-        ),
-      );
+      request.files.add(http.MultipartFile.fromBytes(fieldName, file.bytes!,
+          filename: file.name));
     } else if (file.path != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          fieldName,
-          file.path!,
-          filename: file.name,
-        ),
-      );
+      request.files.add(await http.MultipartFile.fromPath(fieldName, file.path!,
+          filename: file.name));
     } else {
       throw ApiException('The selected file could not be read.');
     }
@@ -270,10 +238,8 @@ class ApiClient {
     Map<String, dynamic>? query,
     bool allowRefresh = true,
   }) async {
-    final response = await _http.get(
-      _uri(path, query),
-      headers: _headers(json: false),
-    );
+    final response =
+        await _http.get(_uri(path, query), headers: _headers(json: false));
     if (response.statusCode == 401 &&
         allowRefresh &&
         refreshToken != null &&

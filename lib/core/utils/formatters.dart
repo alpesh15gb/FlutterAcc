@@ -1,10 +1,7 @@
 import 'package:intl/intl.dart';
 
-final _currency = NumberFormat.currency(
-  locale: 'en_IN',
-  symbol: '₹',
-  decimalDigits: 2,
-);
+final _currency =
+    NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 2);
 final _dateDisplay = DateFormat('dd MMM yyyy');
 final _dateApi = DateFormat('yyyy-MM-dd');
 
@@ -15,9 +12,8 @@ String money(Object? value) {
 }
 
 String shortMoney(Object? value) {
-  final n = value is num
-      ? value.toDouble()
-      : double.tryParse('${value ?? 0}') ?? 0;
+  final n =
+      value is num ? value.toDouble() : double.tryParse('${value ?? 0}') ?? 0;
   if (n.abs() >= 10000000) return '₹${(n / 10000000).toStringAsFixed(2)} Cr';
   if (n.abs() >= 100000) return '₹${(n / 100000).toStringAsFixed(2)} L';
   if (n.abs() >= 1000) return '₹${(n / 1000).toStringAsFixed(1)}K';
@@ -44,9 +40,8 @@ String titleCase(String raw) {
       .replaceAll('_', ' ')
       .split(' ')
       .where((part) => part.isNotEmpty)
-      .map(
-        (part) => '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}',
-      )
+      .map((part) =>
+          '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}')
       .join(' ');
 }
 

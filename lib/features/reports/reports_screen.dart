@@ -173,19 +173,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Future<void> _loadContacts() async {
     try {
-      final data = await widget.api.get(
-        '/masters/contacts',
-        query: {'limit': 100},
-      );
+      final data =
+          await widget.api.get('/masters/contacts', query: {'limit': 100});
       final contacts = (data as List)
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList();
       if (!mounted) return;
       setState(() {
         _contacts = contacts;
-        _contactId ??= contacts.isEmpty
-            ? null
-            : contacts.first['id']?.toString();
+        _contactId ??=
+            contacts.isEmpty ? null : contacts.first['id']?.toString();
       });
     } catch (_) {
       // Party selection remains disabled until contacts can be loaded.
@@ -223,10 +220,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
       _error = null;
     });
     try {
-      final data = await widget.api.get(
-        report.endpoint,
-        query: _queryFor(report),
-      );
+      final data =
+          await widget.api.get(report.endpoint, query: _queryFor(report));
       if (mounted) setState(() => _data = data);
     } catch (e) {
       if (mounted) {
@@ -270,186 +265,181 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) => PageFrame(
-    title: 'Reports',
-    subtitle: 'Financial statements, aging, analytics and statutory books.',
-    actions: [
-      IconButton(
-        onPressed: _loading ? null : _load,
-        tooltip: 'Refresh report',
-        icon: const Icon(Icons.refresh_rounded),
-      ),
-    ],
-    child: LayoutBuilder(
-      builder: (context, c) {
-        final wide = c.maxWidth >= 1050;
-        final nav = _reportNav();
-        final body = _reportBody();
-        if (!wide)
-          return Column(children: [nav, const SizedBox(height: 14), body]);
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(width: 285, child: nav),
-            const SizedBox(width: 14),
-            Expanded(child: body),
-          ],
-        );
-      },
-    ),
-  );
+        title: 'Reports',
+        subtitle: 'Financial statements, aging, analytics and statutory books.',
+        actions: [
+          IconButton(
+            onPressed: _loading ? null : _load,
+            tooltip: 'Refresh report',
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+        ],
+        child: LayoutBuilder(builder: (context, c) {
+          final wide = c.maxWidth >= 1050;
+          final nav = _reportNav();
+          final body = _reportBody();
+          if (!wide)
+            return Column(children: [nav, const SizedBox(height: 14), body]);
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(width: 285, child: nav),
+              const SizedBox(width: 14),
+              Expanded(child: body),
+            ],
+          );
+        }),
+      );
 
   Widget _reportNav() => SectionCard(
-    title: 'Report library',
-    child: Column(
-      children: _reports
-          .map(
-            (report) => ListTile(
-              dense: true,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(9),
-              ),
-              selected: report.id == _selected,
-              selectedTileColor: AppColors.primary.withOpacity(.07),
-              leading: Icon(report.icon, size: 20),
-              title: Text(
-                report.title,
-                style: TextStyle(
-                  fontWeight: report.id == _selected
-                      ? FontWeight.w800
-                      : FontWeight.w500,
+        title: 'Report library',
+        child: Column(
+          children: _reports
+              .map(
+                (report) => ListTile(
+                  dense: true,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(9)),
+                  selected: report.id == _selected,
+                  selectedTileColor: AppColors.primary.withOpacity(.07),
+                  leading: Icon(report.icon, size: 20),
+                  title: Text(
+                    report.title,
+                    style: TextStyle(
+                      fontWeight: report.id == _selected
+                          ? FontWeight.w800
+                          : FontWeight.w500,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _selected = report.id;
+                      _data = null;
+                      _error = null;
+                    });
+                    _load();
+                  },
                 ),
-              ),
-              onTap: () {
-                setState(() {
-                  _selected = report.id;
-                  _data = null;
-                  _error = null;
-                });
-                _load();
-              },
-            ),
-          )
-          .toList(),
-    ),
-  );
+              )
+              .toList(),
+        ),
+      );
 
   Widget _reportBody() => Column(
-    children: [
-      SectionCard(
-        title: selected.title,
-        trailing: Wrap(
-          spacing: 6,
-          children: [
-            if (selected.exportBase != null)
-              PopupMenuButton<String>(
-                enabled: !_exporting,
-                tooltip: 'Export report',
-                onSelected: _export,
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'pdf', child: Text('Export PDF')),
-                  PopupMenuItem(value: 'excel', child: Text('Export Excel')),
-                ],
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 6,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (_exporting)
-                        const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      else
-                        const Icon(Icons.download_outlined, size: 19),
-                      const SizedBox(width: 6),
-                      const Text('Export'),
-                    ],
-                  ),
-                ),
-              ),
-            TextButton.icon(
-              onPressed: _loading ? null : _load,
-              icon: const Icon(Icons.play_arrow_rounded),
-              label: const Text('Run'),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              selected.subtitle,
-              style: const TextStyle(color: AppColors.muted),
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
+        children: [
+          SectionCard(
+            title: selected.title,
+            trailing: Wrap(
+              spacing: 6,
               children: [
-                if (selected.query == _ReportQuery.party)
-                  SizedBox(
-                    width: 320,
-                    child: DropdownButtonFormField<String>(
-                      value:
-                          _contacts.any(
-                            (c) => c['id']?.toString() == _contactId,
-                          )
-                          ? _contactId
-                          : null,
-                      decoration: const InputDecoration(labelText: 'Party'),
-                      items: _contacts
-                          .map(
-                            (c) => DropdownMenuItem<String>(
-                              value: c['id']?.toString(),
-                              child: Text(c['name']?.toString() ?? 'Party'),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) => setState(() => _contactId = value),
+                if (selected.exportBase != null)
+                  PopupMenuButton<String>(
+                    enabled: !_exporting,
+                    tooltip: 'Export report',
+                    onSelected: _export,
+                    itemBuilder: (_) => const [
+                      PopupMenuItem(value: 'pdf', child: Text('Export PDF')),
+                      PopupMenuItem(
+                          value: 'excel', child: Text('Export Excel')),
+                    ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 6),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_exporting)
+                            const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          else
+                            const Icon(Icons.download_outlined, size: 19),
+                          const SizedBox(width: 6),
+                          const Text('Export'),
+                        ],
+                      ),
                     ),
                   ),
-                if (selected.query == _ReportQuery.range ||
-                    selected.query == _ReportQuery.party)
-                  SizedBox(
-                    width: 210,
-                    child: _DateInput(
-                      label: 'From',
-                      value: _from,
-                      onChanged: (v) => setState(() => _from = v),
-                    ),
-                  ),
-                SizedBox(
-                  width: 210,
-                  child: _DateInput(
-                    label: selected.query == _ReportQuery.asOf ? 'As of' : 'To',
-                    value: _to,
-                    onChanged: (v) => setState(() => _to = v),
-                  ),
+                TextButton.icon(
+                  onPressed: _loading ? null : _load,
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: const Text('Run'),
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 14),
-      if (_loading)
-        const SectionCard(
-          child: Padding(
-            padding: EdgeInsets.all(50),
-            child: Center(child: CircularProgressIndicator()),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(selected.subtitle,
+                    style: const TextStyle(color: AppColors.muted)),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
+                    if (selected.query == _ReportQuery.party)
+                      SizedBox(
+                        width: 320,
+                        child: DropdownButtonFormField<String>(
+                          value: _contacts
+                                  .any((c) => c['id']?.toString() == _contactId)
+                              ? _contactId
+                              : null,
+                          decoration: const InputDecoration(labelText: 'Party'),
+                          items: _contacts
+                              .map(
+                                (c) => DropdownMenuItem<String>(
+                                  value: c['id']?.toString(),
+                                  child: Text(c['name']?.toString() ?? 'Party'),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (value) =>
+                              setState(() => _contactId = value),
+                        ),
+                      ),
+                    if (selected.query == _ReportQuery.range ||
+                        selected.query == _ReportQuery.party)
+                      SizedBox(
+                        width: 210,
+                        child: _DateInput(
+                          label: 'From',
+                          value: _from,
+                          onChanged: (v) => setState(() => _from = v),
+                        ),
+                      ),
+                    SizedBox(
+                      width: 210,
+                      child: _DateInput(
+                        label: selected.query == _ReportQuery.asOf
+                            ? 'As of'
+                            : 'To',
+                        value: _to,
+                        onChanged: (v) => setState(() => _to = v),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        )
-      else if (_error != null)
-        ErrorPanel(message: _error!, onRetry: _load)
-      else
-        JsonReportView(data: _data),
-    ],
-  );
+          const SizedBox(height: 14),
+          if (_loading)
+            const SectionCard(
+              child: Padding(
+                padding: EdgeInsets.all(50),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            )
+          else if (_error != null)
+            ErrorPanel(message: _error!, onRetry: _load)
+          else
+            JsonReportView(data: _data),
+        ],
+      );
 }
 
 enum _ReportQuery { range, asOf, party }
@@ -487,16 +477,16 @@ class _DateInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => InkWell(
-    onTap: () async {
-      final d = await pickDate(context, value);
-      if (d != null) onChanged(d);
-    },
-    child: InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        suffixIcon: const Icon(Icons.calendar_month_outlined),
-      ),
-      child: Text(displayDate(value.toIso8601String())),
-    ),
-  );
+        onTap: () async {
+          final d = await pickDate(context, value);
+          if (d != null) onChanged(d);
+        },
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            suffixIcon: const Icon(Icons.calendar_month_outlined),
+          ),
+          child: Text(displayDate(value.toIso8601String())),
+        ),
+      );
 }

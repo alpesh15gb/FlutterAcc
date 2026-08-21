@@ -24,19 +24,17 @@ class AuthGate extends StatelessWidget {
       animation: session,
       builder: (context, _) {
         return switch (session.stage) {
-          SessionStage.loading => const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ),
+          SessionStage.loading =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
           SessionStage.signedOut => LoginScreen(session: session),
           SessionStage.twoFactor => TwoFactorScreen(session: session),
-          SessionStage.companySelection => CompanySelectorScreen(
-            session: session,
-          ),
+          SessionStage.companySelection =>
+            CompanySelectorScreen(session: session),
           SessionStage.signedIn => AppShell(
-            session: session,
-            themeMode: themeMode,
-            onThemeModeChanged: onThemeModeChanged,
-          ),
+              session: session,
+              themeMode: themeMode,
+              onThemeModeChanged: onThemeModeChanged,
+            ),
         };
       },
     );

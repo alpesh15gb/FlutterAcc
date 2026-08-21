@@ -47,16 +47,16 @@ class _GstCenterScreenState extends State<GstCenterScreen>
   }
 
   String get _endpoint => switch (_tabs.index) {
-    0 => '/reports/gst/gstr1',
-    1 => '/reports/gst/gstr2',
-    _ => '/reports/gst/gstr3b',
-  };
+        0 => '/reports/gst/gstr1',
+        1 => '/reports/gst/gstr2',
+        _ => '/reports/gst/gstr3b',
+      };
 
   String get _returnType => switch (_tabs.index) {
-    0 => 'GSTR1',
-    1 => 'GSTR2',
-    _ => 'GSTR3B',
-  };
+        0 => 'GSTR1',
+        1 => 'GSTR2',
+        _ => 'GSTR3B',
+      };
 
   Future<void> _loadReport() async {
     if (_tabs.index >= 3) return;
@@ -65,10 +65,10 @@ class _GstCenterScreenState extends State<GstCenterScreen>
       _error = null;
     });
     try {
-      final data = await widget.api.get(
-        _endpoint,
-        query: {'start_date': apiDate(_from), 'end_date': apiDate(_to)},
-      );
+      final data = await widget.api.get(_endpoint, query: {
+        'start_date': apiDate(_from),
+        'end_date': apiDate(_to),
+      });
       if (mounted) setState(() => _data = data);
     } catch (e) {
       if (mounted)
@@ -83,20 +83,15 @@ class _GstCenterScreenState extends State<GstCenterScreen>
 
   Future<void> _upload2b() async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
-      withData: true,
-    );
+        type: FileType.custom, allowedExtensions: ['json'], withData: true);
     if (result == null || result.files.isEmpty) return;
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
-      final data = await widget.api.upload(
-        '/gst/gstr2a/upload',
-        result.files.single,
-      );
+      final data =
+          await widget.api.upload('/gst/gstr2a/upload', result.files.single);
       if (mounted) setState(() => _reconciliation = data);
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
@@ -113,12 +108,10 @@ class _GstCenterScreenState extends State<GstCenterScreen>
     try {
       final d = await widget.api.get('/gst/returns');
       if (mounted) {
-        setState(
-          () => _filings = (d as List)
-              .whereType<Map>()
-              .map((e) => Map<String, dynamic>.from(e))
-              .toList(),
-        );
+        setState(() => _filings = (d as List)
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList());
       }
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
@@ -133,10 +126,10 @@ class _GstCenterScreenState extends State<GstCenterScreen>
     final ext = format == 'pdf' ? 'pdf' : 'xlsx';
     final path = '/gst/$report/${format == 'pdf' ? 'pdf' : 'export'}';
     try {
-      final bytes = await widget.api.download(
-        path,
-        query: {'start_date': apiDate(_from), 'end_date': apiDate(_to)},
-      );
+      final bytes = await widget.api.download(path, query: {
+        'start_date': apiDate(_from),
+        'end_date': apiDate(_to),
+      });
       final filename = '${_returnType}_${apiDate(_from)}_${apiDate(_to)}.$ext';
       final saved = await saveDownloadedFile(bytes, filename);
       if (mounted)
@@ -159,96 +152,78 @@ class _GstCenterScreenState extends State<GstCenterScreen>
           title: const Text('Track GST return period'),
           content: SizedBox(
             width: 600,
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                SizedBox(
-                  width: 180,
-                  child: DropdownButtonFormField<String>(
-                    value: type,
-                    decoration: const InputDecoration(labelText: 'Return'),
-                    items: const ['GSTR1', 'GSTR2', 'GSTR3B']
-                        .map((v) => DropdownMenuItem(value: v, child: Text(v)))
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setLocal(() => type = v);
-                    },
-                  ),
+            child: Wrap(spacing: 12, runSpacing: 12, children: [
+              SizedBox(
+                width: 180,
+                child: DropdownButtonFormField<String>(
+                  value: type,
+                  decoration: const InputDecoration(labelText: 'Return'),
+                  items: const ['GSTR1', 'GSTR2', 'GSTR3B']
+                      .map((v) => DropdownMenuItem(value: v, child: Text(v)))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) setLocal(() => type = v);
+                  },
                 ),
-                SizedBox(
-                  width: 180,
-                  child: DropdownButtonFormField<String>(
-                    value: status,
-                    decoration: const InputDecoration(labelText: 'Status'),
-                    items: const ['DRAFT', 'READY', 'FILED', 'REVISED']
-                        .map(
-                          (v) => DropdownMenuItem(
-                            value: v,
-                            child: Text(titleCase(v)),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (v) {
-                      if (v != null) setLocal(() => status = v);
-                    },
-                  ),
+              ),
+              SizedBox(
+                width: 180,
+                child: DropdownButtonFormField<String>(
+                  value: status,
+                  decoration: const InputDecoration(labelText: 'Status'),
+                  items: const ['DRAFT', 'READY', 'FILED', 'REVISED']
+                      .map((v) =>
+                          DropdownMenuItem(value: v, child: Text(titleCase(v))))
+                      .toList(),
+                  onChanged: (v) {
+                    if (v != null) setLocal(() => status = v);
+                  },
                 ),
-                SizedBox(
-                  width: 180,
-                  child: InkWell(
-                    onTap: () async {
-                      final d = await pickDate(context, from);
-                      if (d != null) setLocal(() => from = d);
-                    },
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Period start',
-                      ),
-                      child: Text(displayDate(from.toIso8601String())),
-                    ),
-                  ),
+              ),
+              SizedBox(
+                width: 180,
+                child: InkWell(
+                  onTap: () async {
+                    final d = await pickDate(context, from);
+                    if (d != null) setLocal(() => from = d);
+                  },
+                  child: InputDecorator(
+                      decoration:
+                          const InputDecoration(labelText: 'Period start'),
+                      child: Text(displayDate(from.toIso8601String()))),
                 ),
-                SizedBox(
-                  width: 180,
-                  child: InkWell(
-                    onTap: () async {
-                      final d = await pickDate(context, to);
-                      if (d != null) setLocal(() => to = d);
-                    },
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Period end',
-                      ),
-                      child: Text(displayDate(to.toIso8601String())),
-                    ),
-                  ),
+              ),
+              SizedBox(
+                width: 180,
+                child: InkWell(
+                  onTap: () async {
+                    final d = await pickDate(context, to);
+                    if (d != null) setLocal(() => to = d);
+                  },
+                  child: InputDecorator(
+                      decoration:
+                          const InputDecoration(labelText: 'Period end'),
+                      child: Text(displayDate(to.toIso8601String()))),
                 ),
-                SizedBox(
+              ),
+              SizedBox(
                   width: 380,
                   child: TextField(
-                    controller: arn,
-                    decoration: const InputDecoration(
-                      labelText: 'ARN (when available)',
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                      controller: arn,
+                      decoration: const InputDecoration(
+                          labelText: 'ARN (when available)'))),
+            ]),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Back'),
-            ),
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Back')),
             FilledButton(
               onPressed: () {
                 if (to.isBefore(from)) {
                   showMessage(
-                    context,
-                    'Period end must be on or after period start.',
-                    error: true,
-                  );
+                      context, 'Period end must be on or after period start.',
+                      error: true);
                   return;
                 }
                 Navigator.pop(dialogContext, true);
@@ -263,16 +238,13 @@ class _GstCenterScreenState extends State<GstCenterScreen>
     arn.dispose();
     if (ok != true) return;
     try {
-      await widget.api.post(
-        '/gst/returns',
-        body: {
-          'return_type': type,
-          'period_start': apiDate(from),
-          'period_end': apiDate(to),
-          'status': status,
-          'arn': arnValue.isEmpty ? null : arnValue,
-        },
-      );
+      await widget.api.post('/gst/returns', body: {
+        'return_type': type,
+        'period_start': apiDate(from),
+        'period_end': apiDate(to),
+        'status': status,
+        'arn': arnValue.isEmpty ? null : arnValue,
+      });
       if (mounted) showMessage(context, 'GST filing period added.');
       await _loadFilings();
     } catch (e) {
@@ -288,51 +260,39 @@ class _GstCenterScreenState extends State<GstCenterScreen>
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setLocal) => AlertDialog(
           title: Text(
-            '${row['return_type']} • ${displayDate(row['period_start'])}',
-          ),
+              '${row['return_type']} • ${displayDate(row['period_start'])}'),
           content: SizedBox(
             width: 480,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                DropdownButtonFormField<String>(
-                  value: status,
-                  decoration: const InputDecoration(labelText: 'Filing status'),
-                  items: const ['DRAFT', 'READY', 'FILED', 'REVISED']
-                      .map(
-                        (v) => DropdownMenuItem(
-                          value: v,
-                          child: Text(titleCase(v)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setLocal(() => status = v);
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextField(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              DropdownButtonFormField<String>(
+                value: status,
+                decoration: const InputDecoration(labelText: 'Filing status'),
+                items: const ['DRAFT', 'READY', 'FILED', 'REVISED']
+                    .map((v) =>
+                        DropdownMenuItem(value: v, child: Text(titleCase(v))))
+                    .toList(),
+                onChanged: (v) {
+                  if (v != null) setLocal(() => status = v);
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
                   controller: arn,
                   maxLength: 50,
-                  decoration: const InputDecoration(labelText: 'ARN'),
-                ),
-                const SizedBox(height: 8),
-                const Text(
+                  decoration: const InputDecoration(labelText: 'ARN')),
+              const SizedBox(height: 8),
+              const Text(
                   'Marking a period FILED activates backend filing locks that protect GST-affecting documents in that period.',
-                  style: TextStyle(color: AppColors.muted),
-                ),
-              ],
-            ),
+                  style: TextStyle(color: AppColors.muted)),
+            ]),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Back'),
-            ),
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Back')),
             FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              child: const Text('Update status'),
-            ),
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text('Update status')),
           ],
         ),
       ),
@@ -341,10 +301,10 @@ class _GstCenterScreenState extends State<GstCenterScreen>
     arn.dispose();
     if (ok != true) return;
     try {
-      await widget.api.put(
-        '/gst/returns/${row['id']}',
-        body: {'status': status, 'arn': arnValue.isEmpty ? null : arnValue},
-      );
+      await widget.api.put('/gst/returns/${row['id']}', body: {
+        'status': status,
+        'arn': arnValue.isEmpty ? null : arnValue,
+      });
       if (mounted) showMessage(context, 'GST filing status updated.');
       await _loadFilings();
     } catch (e) {
@@ -354,20 +314,18 @@ class _GstCenterScreenState extends State<GstCenterScreen>
 
   @override
   Widget build(BuildContext context) => PageFrame(
-    title: 'GST Center',
-    subtitle: 'Returns, GSTN exports, 2B reconciliation, filing status and compliance locks.',
-    actions: [
-      OutlinedButton.icon(
-        onPressed: () => _showComplianceGuide(context),
-        icon: const Icon(Icons.info_outline_rounded),
-        label: const Text('GST workflow'),
-      ),
-    ],
-    child: Column(
-      children: [
-        SectionCard(
-          child: Column(
-            children: [
+        title: 'GST Center',
+        subtitle:
+            'Returns, GSTN exports, 2B reconciliation, filing status and compliance locks.',
+        actions: [
+          OutlinedButton.icon(
+              onPressed: () => _showComplianceGuide(context),
+              icon: const Icon(Icons.info_outline_rounded),
+              label: const Text('GST workflow')),
+        ],
+        child: Column(children: [
+          SectionCard(
+            child: Column(children: [
               TabBar(
                 controller: _tabs,
                 isScrollable: true,
@@ -382,148 +340,121 @@ class _GstCenterScreenState extends State<GstCenterScreen>
               const SizedBox(height: 14),
               if (_tabs.index < 3)
                 Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 210,
-                      child: _DateInput(
-                        label: 'From',
-                        value: _from,
-                        onChanged: (d) => setState(() => _from = d),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 210,
-                      child: _DateInput(
-                        label: 'To',
-                        value: _to,
-                        onChanged: (d) => setState(() => _to = d),
-                      ),
-                    ),
-                    FilledButton.icon(
-                      onPressed: _loading ? null : _loadReport,
-                      icon: const Icon(Icons.refresh_rounded),
-                      label: const Text('Compile report'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _loading ? null : () => _export('xlsx'),
-                      icon: const Icon(Icons.table_view_outlined),
-                      label: const Text('GSTN Excel'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: _loading ? null : () => _export('pdf'),
-                      icon: const Icon(Icons.picture_as_pdf_outlined),
-                      label: const Text('PDF'),
-                    ),
-                  ],
-                )
+                    spacing: 12,
+                    runSpacing: 12,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      SizedBox(
+                          width: 210,
+                          child: _DateInput(
+                              label: 'From',
+                              value: _from,
+                              onChanged: (d) => setState(() => _from = d))),
+                      SizedBox(
+                          width: 210,
+                          child: _DateInput(
+                              label: 'To',
+                              value: _to,
+                              onChanged: (d) => setState(() => _to = d))),
+                      FilledButton.icon(
+                          onPressed: _loading ? null : _loadReport,
+                          icon: const Icon(Icons.refresh_rounded),
+                          label: const Text('Compile report')),
+                      OutlinedButton.icon(
+                          onPressed: _loading ? null : () => _export('xlsx'),
+                          icon: const Icon(Icons.table_view_outlined),
+                          label: const Text('GSTN Excel')),
+                      OutlinedButton.icon(
+                          onPressed: _loading ? null : () => _export('pdf'),
+                          icon: const Icon(Icons.picture_as_pdf_outlined),
+                          label: const Text('PDF')),
+                    ])
               else if (_tabs.index == 3)
                 Align(
                   alignment: Alignment.centerLeft,
                   child: FilledButton.icon(
-                    onPressed: _loading ? null : _upload2b,
-                    icon: const Icon(Icons.upload_file_rounded),
-                    label: const Text('Upload GST portal JSON'),
-                  ),
+                      onPressed: _loading ? null : _upload2b,
+                      icon: const Icon(Icons.upload_file_rounded),
+                      label: const Text('Upload GST portal JSON')),
                 )
               else
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Wrap(
-                    spacing: 10,
-                    children: [
-                      FilledButton.icon(
+                  child: Wrap(spacing: 10, children: [
+                    FilledButton.icon(
                         onPressed: _newFiling,
                         icon: const Icon(Icons.add_rounded),
-                        label: const Text('Track filing period'),
-                      ),
-                      OutlinedButton.icon(
+                        label: const Text('Track filing period')),
+                    OutlinedButton.icon(
                         onPressed: _loadFilings,
                         icon: const Icon(Icons.refresh_rounded),
-                        label: const Text('Refresh'),
-                      ),
-                    ],
-                  ),
+                        label: const Text('Refresh')),
+                  ]),
                 ),
-            ],
+            ]),
           ),
-        ),
-        const SizedBox(height: 14),
-        if (_loading)
-          const SectionCard(
-            child: Padding(
-              padding: EdgeInsets.all(50),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          )
-        else if (_error != null)
-          ErrorPanel(
-            message: _error!,
-            onRetry: _tabs.index < 3
-                ? _loadReport
-                : _tabs.index == 3
-                ? null
-                : _loadFilings,
-          )
-        else if (_tabs.index < 3)
-          JsonReportView(data: _data)
-        else if (_tabs.index == 3)
-          _reconciliationView()
-        else
-          _filingsView(),
-      ],
-    ),
-  );
+          const SizedBox(height: 14),
+          if (_loading)
+            const SectionCard(
+                child: Padding(
+                    padding: EdgeInsets.all(50),
+                    child: Center(child: CircularProgressIndicator())))
+          else if (_error != null)
+            ErrorPanel(
+                message: _error!,
+                onRetry: _tabs.index < 3
+                    ? _loadReport
+                    : _tabs.index == 3
+                        ? null
+                        : _loadFilings)
+          else if (_tabs.index < 3)
+            JsonReportView(data: _data)
+          else if (_tabs.index == 3)
+            _reconciliationView()
+          else
+            _filingsView(),
+        ]),
+      );
 
   Widget _filingsView() {
     if (_filings.isEmpty) {
       return EmptyState(
         icon: Icons.verified_user_outlined,
         title: 'No GST filing periods tracked',
-        message: 'Track a GSTR-1, GSTR-2 or GSTR-3B period and mark it ready/filed when the return is submitted.',
+        message:
+            'Track a GSTR-1, GSTR-2 or GSTR-3B period and mark it ready/filed when the return is submitted.',
         action: FilledButton.icon(
-          onPressed: _newFiling,
-          icon: const Icon(Icons.add_rounded),
-          label: const Text('Track filing period'),
-        ),
+            onPressed: _newFiling,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('Track filing period')),
       );
     }
     return Column(
       children: _filings
-          .map(
-            (r) => Padding(
-              padding: const EdgeInsets.only(bottom: 9),
-              child: Card(
-                child: ListTile(
-                  onTap: () => _editFiling(r),
-                  leading: CircleAvatar(
-                    child: Icon(
-                      r['status'] == 'FILED'
-                          ? Icons.lock_outline_rounded
-                          : Icons.fact_check_outlined,
-                    ),
-                  ),
-                  title: Row(
-                    children: [
+          .map((r) => Padding(
+                padding: const EdgeInsets.only(bottom: 9),
+                child: Card(
+                  child: ListTile(
+                    onTap: () => _editFiling(r),
+                    leading: CircleAvatar(
+                        child: Icon(r['status'] == 'FILED'
+                            ? Icons.lock_outline_rounded
+                            : Icons.fact_check_outlined)),
+                    title: Row(children: [
                       Expanded(
-                        child: Text(
-                          '${r['return_type']} • ${displayDate(r['period_start'])} – ${displayDate(r['period_end'])}',
-                          style: const TextStyle(fontWeight: FontWeight.w800),
-                        ),
-                      ),
+                          child: Text(
+                              '${r['return_type']} • ${displayDate(r['period_start'])} – ${displayDate(r['period_end'])}',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w800))),
                       Chip(label: Text('${r['status'] ?? ''}')),
-                    ],
+                    ]),
+                    subtitle: Text(r['arn'] == null
+                        ? 'ARN not recorded'
+                        : 'ARN ${r['arn']}'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
                   ),
-                  subtitle: Text(
-                    r['arn'] == null ? 'ARN not recorded' : 'ARN ${r['arn']}',
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded),
                 ),
-              ),
-            ),
-          )
+              ))
           .toList(),
     );
   }
@@ -534,56 +465,48 @@ class _GstCenterScreenState extends State<GstCenterScreen>
         child: EmptyState(
           icon: Icons.compare_arrows_rounded,
           title: 'Reconcile GSTR-2B',
-          message: 'Upload the B2B JSON downloaded from the GST portal. The backend compares GSTIN, invoice number, value and tax against purchase bills.',
+          message:
+              'Upload the B2B JSON downloaded from the GST portal. The backend compares GSTIN, invoice number, value and tax against purchase bills.',
           action: FilledButton.icon(
-            onPressed: _upload2b,
-            icon: const Icon(Icons.upload_rounded),
-            label: const Text('Select JSON'),
-          ),
+              onPressed: _upload2b,
+              icon: const Icon(Icons.upload_rounded),
+              label: const Text('Select JSON')),
         ),
       );
     }
     final map = Map<String, dynamic>.from(_reconciliation as Map);
-    return Column(
-      children: [
-        LayoutBuilder(
-          builder: (context, c) {
-            final stats = [
-              ('Matched', map['matched'], AppColors.success),
-              ('Partial', map['partially_matched'], AppColors.warning),
-              ('Unmatched', map['unmatched'], AppColors.danger),
-              ('Suppliers / rows', map['total_suppliers'], AppColors.primary),
-            ];
-            final cols = c.maxWidth >= 800
-                ? 4
-                : c.maxWidth >= 450
+    return Column(children: [
+      LayoutBuilder(builder: (context, c) {
+        final stats = [
+          ('Matched', map['matched'], AppColors.success),
+          ('Partial', map['partially_matched'], AppColors.warning),
+          ('Unmatched', map['unmatched'], AppColors.danger),
+          ('Suppliers / rows', map['total_suppliers'], AppColors.primary),
+        ];
+        final cols = c.maxWidth >= 800
+            ? 4
+            : c.maxWidth >= 450
                 ? 2
                 : 1;
-            const gap = 10.0;
-            final w = (c.maxWidth - gap * (cols - 1)) / cols;
-            return Wrap(
-              spacing: gap,
-              runSpacing: gap,
-              children: stats
-                  .map(
-                    (s) => SizedBox(
-                      width: w,
-                      child: MetricCard(
-                        label: s.$1,
-                        value: '${s.$2 ?? 0}',
-                        icon: Icons.receipt_long_outlined,
-                        tone: s.$3,
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          },
-        ),
-        const SizedBox(height: 14),
-        JsonReportView(data: map),
-      ],
-    );
+        const gap = 10.0;
+        final w = (c.maxWidth - gap * (cols - 1)) / cols;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: stats
+              .map((s) => SizedBox(
+                  width: w,
+                  child: MetricCard(
+                      label: s.$1,
+                      value: '${s.$2 ?? 0}',
+                      icon: Icons.receipt_long_outlined,
+                      tone: s.$3)))
+              .toList(),
+        );
+      }),
+      const SizedBox(height: 14),
+      JsonReportView(data: map),
+    ]);
   }
 
   void _showComplianceGuide(BuildContext context) {
@@ -604,9 +527,8 @@ class _GstCenterScreenState extends State<GstCenterScreen>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'))
         ],
       ),
     );
@@ -614,27 +536,23 @@ class _GstCenterScreenState extends State<GstCenterScreen>
 }
 
 class _DateInput extends StatelessWidget {
-  const _DateInput({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
+  const _DateInput(
+      {required this.label, required this.value, required this.onChanged});
   final String label;
   final DateTime value;
   final ValueChanged<DateTime> onChanged;
 
   @override
   Widget build(BuildContext context) => InkWell(
-    onTap: () async {
-      final d = await pickDate(context, value);
-      if (d != null) onChanged(d);
-    },
-    child: InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        suffixIcon: const Icon(Icons.calendar_month_outlined),
-      ),
-      child: Text(displayDate(value.toIso8601String())),
-    ),
-  );
+        onTap: () async {
+          final d = await pickDate(context, value);
+          if (d != null) onChanged(d);
+        },
+        child: InputDecorator(
+          decoration: InputDecoration(
+              labelText: label,
+              suffixIcon: const Icon(Icons.calendar_month_outlined)),
+          child: Text(displayDate(value.toIso8601String())),
+        ),
+      );
 }
