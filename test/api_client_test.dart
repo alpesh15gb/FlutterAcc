@@ -23,26 +23,31 @@ void main() {
     expect(client.tenantId, isNull);
   });
 
-  test('binary download retries once after token refresh on HTTP 401',
-      () async {
-    var calls = 0;
-    final mock = MockClient((request) async {
-      calls += 1;
-      if (request.url.path.endsWith('/auth/refresh')) {
-        return http.Response(
-            '{"access_token":"new-a","refresh_token":"new-r"}', 200);
-      }
-      if (request.headers['Authorization'] == 'Bearer new-a') {
-        return http.Response.bytes([1, 2, 3, 4], 200);
-      }
-      return http.Response('{"detail":"expired"}', 401);
-    });
-    final client = ApiClient(
-        baseUrl: 'https://example.test/api/v1', httpClient: mock)
-      ..configure(accessToken: 'old-a', refreshToken: 'old-r', tenantId: 't');
-    final bytes = await client.download('/invoices/1/print');
-    expect(bytes, [1, 2, 3, 4]);
-    expect(calls, 3);
-    expect(client.accessToken, 'new-a');
-  });
+  test(
+    'binary download retries once after token refresh on HTTP 401',
+    () async {
+      var calls = 0;
+      final mock = MockClient((request) async {
+        calls += 1;
+        if (request.url.path.endsWith('/auth/refresh')) {
+          return http.Response(
+            '{"access_token":"new-a","refresh_token":"new-r"}',
+            200,
+          );
+        }
+        if (request.headers['Authorization'] == 'Bearer new-a') {
+          return http.Response.bytes([1, 2, 3, 4], 200);
+        }
+        return http.Response('{"detail":"expired"}', 401);
+      });
+      final client = ApiClient(
+        baseUrl: 'https://example.test/api/v1',
+        httpClient: mock,
+      )..configure(accessToken: 'old-a', refreshToken: 'old-r', tenantId: 't');
+      final bytes = await client.download('/invoices/1/print');
+      expect(bytes, [1, 2, 3, 4]);
+      expect(calls, 3);
+      expect(client.accessToken, 'new-a');
+    },
+  );
 }

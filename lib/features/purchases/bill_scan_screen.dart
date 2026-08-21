@@ -45,7 +45,7 @@ class _BillScanScreenState extends State<BillScanScreen> {
       _billNumber,
       _pos,
       _reference,
-      _notes
+      _notes,
     ]) {
       c.dispose();
     }
@@ -63,7 +63,7 @@ class _BillScanScreenState extends State<BillScanScreen> {
         'tiff',
         'bmp',
         'webp',
-        'pdf'
+        'pdf',
       ],
       withData: true,
     );
@@ -113,7 +113,8 @@ class _BillScanScreenState extends State<BillScanScreen> {
           final status = response['status']?.toString().toLowerCase();
           if (status == 'failed')
             throw ApiException(
-                response['error']?.toString() ?? 'Bill scan failed.');
+              response['error']?.toString() ?? 'Bill scan failed.',
+            );
           final progress = response['progress']?.toString();
           if (progress != null && progress.isNotEmpty && mounted)
             setState(() => _progress = progress);
@@ -124,7 +125,8 @@ class _BillScanScreenState extends State<BillScanScreen> {
       }
     }
     throw ApiException(
-        'The OCR scan did not finish. Try again or enter the bill manually.');
+      'The OCR scan did not finish. Try again or enter the bill manually.',
+    );
   }
 
   void _applyPreview(Map<String, dynamic> data) {
@@ -137,14 +139,16 @@ class _BillScanScreenState extends State<BillScanScreen> {
     _address.text = vendor['address']?.toString() ?? '';
     _stateCode.text = vendor['state_code']?.toString() ?? '';
     _billNumber.text = data['bill_number']?.toString() ?? '';
-    _issueDate = DateTime.tryParse(data['bill_date']?.toString() ?? '') ??
+    _issueDate =
+        DateTime.tryParse(data['bill_date']?.toString() ?? '') ??
         DateTime.now();
     _dueDate =
         DateTime.tryParse(data['due_date']?.toString() ?? '') ?? _issueDate;
     _pos.text = _stateCode.text.length == 2 ? _stateCode.text : '';
     _confidence = double.tryParse('${data['confidence'] ?? ''}');
-    _warnings =
-        ((data['warnings'] as List?) ?? []).map((e) => e.toString()).toList();
+    _warnings = ((data['warnings'] as List?) ?? [])
+        .map((e) => e.toString())
+        .toList();
     for (final line in _lines) line.dispose();
     _lines = ((data['line_items'] as List?) ?? [])
         .whereType<Map>()
@@ -199,8 +203,9 @@ class _BillScanScreenState extends State<BillScanScreen> {
           'issue_date': apiDate(_issueDate),
           'due_date': apiDate(_dueDate),
           'pos_state_code': _pos.text.trim(),
-          'reference_number':
-              _reference.text.trim().isEmpty ? null : _reference.text.trim(),
+          'reference_number': _reference.text.trim().isEmpty
+              ? null
+              : _reference.text.trim(),
           'notes': _notes.text.trim(),
         },
         'line_items': _lines.map((line) => line.payload).toList(),
@@ -209,10 +214,11 @@ class _BillScanScreenState extends State<BillScanScreen> {
       if (mounted) {
         final number = result is Map ? result['bill_number']?.toString() : null;
         showMessage(
-            context,
-            number == null
-                ? 'Draft bill created.'
-                : 'Draft bill $number created.');
+          context,
+          number == null
+              ? 'Draft bill created.'
+              : 'Draft bill $number created.',
+        );
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -224,179 +230,229 @@ class _BillScanScreenState extends State<BillScanScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Scan purchase bill'),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: FilledButton.icon(
-                  onPressed: _saving || _scanning ? null : _save,
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('Save draft')),
-            ),
-          ],
+    appBar: AppBar(
+      title: const Text('Scan purchase bill'),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: FilledButton.icon(
+            onPressed: _saving || _scanning ? null : _save,
+            icon: const Icon(Icons.save_outlined),
+            label: const Text('Save draft'),
+          ),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1180),
-              child: Column(children: [
-                SectionCard(
-                  title: 'OCR capture',
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                            'Upload a vendor bill image or PDF. OCR suggestions stay editable and are saved only as a draft for review.',
-                            style: TextStyle(color: AppColors.muted)),
-                        const SizedBox(height: 14),
-                        FilledButton.icon(
-                          onPressed: _scanning ? null : _pickAndScan,
-                          icon: _scanning
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child:
-                                      CircularProgressIndicator(strokeWidth: 2))
-                              : const Icon(Icons.document_scanner_outlined),
-                          label: Text(_scanning
-                              ? (_progress ?? 'Scanning…')
-                              : 'Choose bill image / PDF'),
+      ],
+    ),
+    body: SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1180),
+          child: Column(
+            children: [
+              SectionCard(
+                title: 'OCR capture',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Upload a vendor bill image or PDF. OCR suggestions stay editable and are saved only as a draft for review.',
+                      style: TextStyle(color: AppColors.muted),
+                    ),
+                    const SizedBox(height: 14),
+                    FilledButton.icon(
+                      onPressed: _scanning ? null : _pickAndScan,
+                      icon: _scanning
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.document_scanner_outlined),
+                      label: Text(
+                        _scanning
+                            ? (_progress ?? 'Scanning…')
+                            : 'Choose bill image / PDF',
+                      ),
+                    ),
+                    if (_confidence != null) ...[
+                      const SizedBox(height: 10),
+                      Text(
+                        'OCR confidence ${(100 * _confidence!).toStringAsFixed(0)}%',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ],
+                    if (_warnings.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      for (final warning in _warnings)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.warning_amber_rounded,
+                                size: 18,
+                                color: AppColors.warning,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(warning)),
+                            ],
+                          ),
                         ),
-                        if (_confidence != null) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                              'OCR confidence ${(100 * _confidence!).toStringAsFixed(0)}%',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w700)),
-                        ],
-                        if (_warnings.isNotEmpty) ...[
-                          const SizedBox(height: 12),
-                          for (final warning in _warnings)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Icon(Icons.warning_amber_rounded,
-                                        size: 18, color: AppColors.warning),
-                                    const SizedBox(width: 8),
-                                    Expanded(child: Text(warning)),
-                                  ]),
-                            ),
-                        ],
-                      ]),
+                    ],
+                  ],
                 ),
-                const SizedBox(height: 14),
-                SectionCard(
-                  title: 'Vendor & bill',
-                  child: Wrap(spacing: 12, runSpacing: 12, children: [
+              ),
+              const SizedBox(height: 14),
+              SectionCard(
+                title: 'Vendor & bill',
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: [
                     SizedBox(
-                        width: 320,
-                        child: TextField(
-                            controller: _vendor,
-                            decoration: const InputDecoration(
-                                labelText: 'Vendor name'))),
+                      width: 320,
+                      child: TextField(
+                        controller: _vendor,
+                        decoration: const InputDecoration(
+                          labelText: 'Vendor name',
+                        ),
+                      ),
+                    ),
                     SizedBox(
-                        width: 220,
-                        child: TextField(
-                            controller: _gstin,
-                            maxLength: 15,
-                            textCapitalization: TextCapitalization.characters,
-                            decoration: const InputDecoration(
-                                labelText: 'GSTIN', counterText: ''))),
+                      width: 220,
+                      child: TextField(
+                        controller: _gstin,
+                        maxLength: 15,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: const InputDecoration(
+                          labelText: 'GSTIN',
+                          counterText: '',
+                        ),
+                      ),
+                    ),
                     SizedBox(
-                        width: 110,
-                        child: TextField(
-                            controller: _stateCode,
-                            maxLength: 2,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                                labelText: 'Vendor state', counterText: ''))),
+                      width: 110,
+                      child: TextField(
+                        controller: _stateCode,
+                        maxLength: 2,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Vendor state',
+                          counterText: '',
+                        ),
+                      ),
+                    ),
                     SizedBox(
-                        width: 220,
-                        child: TextField(
-                            controller: _billNumber,
-                            decoration: const InputDecoration(
-                                labelText: 'Supplier bill number'))),
+                      width: 220,
+                      child: TextField(
+                        controller: _billNumber,
+                        decoration: const InputDecoration(
+                          labelText: 'Supplier bill number',
+                        ),
+                      ),
+                    ),
                     SizedBox(
-                        width: 210,
-                        child: _ScanDateField(
-                            label: 'Bill date',
-                            value: _issueDate,
-                            onChanged: (v) => setState(() => _issueDate = v))),
+                      width: 210,
+                      child: _ScanDateField(
+                        label: 'Bill date',
+                        value: _issueDate,
+                        onChanged: (v) => setState(() => _issueDate = v),
+                      ),
+                    ),
                     SizedBox(
-                        width: 210,
-                        child: _ScanDateField(
-                            label: 'Due date',
-                            value: _dueDate,
-                            onChanged: (v) => setState(() => _dueDate = v))),
+                      width: 210,
+                      child: _ScanDateField(
+                        label: 'Due date',
+                        value: _dueDate,
+                        onChanged: (v) => setState(() => _dueDate = v),
+                      ),
+                    ),
                     SizedBox(
-                        width: 140,
-                        child: TextField(
-                            controller: _pos,
-                            maxLength: 2,
-                            keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(
-                                labelText: 'Place of supply',
-                                counterText: ''))),
+                      width: 140,
+                      child: TextField(
+                        controller: _pos,
+                        maxLength: 2,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Place of supply',
+                          counterText: '',
+                        ),
+                      ),
+                    ),
                     SizedBox(
-                        width: 260,
-                        child: TextField(
-                            controller: _reference,
-                            decoration:
-                                const InputDecoration(labelText: 'Reference'))),
+                      width: 260,
+                      child: TextField(
+                        controller: _reference,
+                        decoration: const InputDecoration(
+                          labelText: 'Reference',
+                        ),
+                      ),
+                    ),
                     SizedBox(
-                        width: 720,
-                        child: TextField(
-                            controller: _address,
-                            maxLines: 2,
-                            decoration: const InputDecoration(
-                                labelText: 'Vendor address'))),
+                      width: 720,
+                      child: TextField(
+                        controller: _address,
+                        maxLines: 2,
+                        decoration: const InputDecoration(
+                          labelText: 'Vendor address',
+                        ),
+                      ),
+                    ),
                     SizedBox(
-                        width: 720,
-                        child: TextField(
-                            controller: _notes,
-                            maxLines: 2,
-                            decoration:
-                                const InputDecoration(labelText: 'Notes'))),
-                  ]),
+                      width: 720,
+                      child: TextField(
+                        controller: _notes,
+                        maxLines: 2,
+                        decoration: const InputDecoration(labelText: 'Notes'),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 14),
-                SectionCard(
-                  title: 'Scanned items',
-                  trailing: TextButton.icon(
-                    onPressed: () => setState(() => _lines.add(_ScannedLine())),
-                    icon: const Icon(Icons.add_rounded),
-                    label: const Text('Add line'),
-                  ),
-                  child: Column(children: [
+              ),
+              const SizedBox(height: 14),
+              SectionCard(
+                title: 'Scanned items',
+                trailing: TextButton.icon(
+                  onPressed: () => setState(() => _lines.add(_ScannedLine())),
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add line'),
+                ),
+                child: Column(
+                  children: [
                     for (var i = 0; i < _lines.length; i++) ...[
                       _lineEditor(i, _lines[i]),
                       if (i != _lines.length - 1) const Divider(height: 24),
                     ],
-                  ]),
+                  ],
                 ),
-                const SizedBox(height: 18),
-                SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                        onPressed: _saving || _scanning ? null : _save,
-                        icon: const Icon(Icons.save_outlined),
-                        label:
-                            Text(_saving ? 'Saving…' : 'Create draft bill'))),
-              ]),
-            ),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: _saving || _scanning ? null : _save,
+                  icon: const Icon(Icons.save_outlined),
+                  label: Text(_saving ? 'Saving…' : 'Create draft bill'),
+                ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    ),
+  );
 
-  Widget _lineEditor(int index, _ScannedLine line) =>
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Text('Line ${index + 1}',
-              style: const TextStyle(fontWeight: FontWeight.w800)),
+  Widget _lineEditor(int index, _ScannedLine line) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Text(
+            'Line ${index + 1}',
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
           const Spacer(),
           if (_lines.length > 1)
             IconButton(
@@ -406,57 +462,79 @@ class _BillScanScreenState extends State<BillScanScreen> {
               }),
               icon: const Icon(Icons.delete_outline, color: AppColors.danger),
             ),
-        ]),
-        Wrap(spacing: 12, runSpacing: 12, children: [
+        ],
+      ),
+      Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
           SizedBox(
-              width: 310,
-              child: TextField(
-                  controller: line.name,
-                  decoration: InputDecoration(
-                      labelText: line.productId == null
-                          ? 'Item name (new if saved)'
-                          : 'Item name'))),
+            width: 310,
+            child: TextField(
+              controller: line.name,
+              decoration: InputDecoration(
+                labelText: line.productId == null
+                    ? 'Item name (new if saved)'
+                    : 'Item name',
+              ),
+            ),
+          ),
           SizedBox(
-              width: 110,
-              child: DropdownButtonFormField<String>(
-                  value: line.productType,
-                  decoration: const InputDecoration(labelText: 'Type'),
-                  items: const [
-                    DropdownMenuItem(value: 'GOODS', child: Text('Goods')),
-                    DropdownMenuItem(value: 'SERVICE', child: Text('Service'))
-                  ],
-                  onChanged: (v) {
-                    if (v != null) setState(() => line.productType = v);
-                  })),
+            width: 110,
+            child: DropdownButtonFormField<String>(
+              value: line.productType,
+              decoration: const InputDecoration(labelText: 'Type'),
+              items: const [
+                DropdownMenuItem(value: 'GOODS', child: Text('Goods')),
+                DropdownMenuItem(value: 'SERVICE', child: Text('Service')),
+              ],
+              onChanged: (v) {
+                if (v != null) setState(() => line.productType = v);
+              },
+            ),
+          ),
           SizedBox(
-              width: 100,
-              child: TextField(
-                  controller: line.quantity,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Qty'))),
+            width: 100,
+            child: TextField(
+              controller: line.quantity,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Qty'),
+            ),
+          ),
           SizedBox(
-              width: 135,
-              child: TextField(
-                  controller: line.rate,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Rate'))),
+            width: 135,
+            child: TextField(
+              controller: line.rate,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Rate'),
+            ),
+          ),
           SizedBox(
-              width: 130,
-              child: TextField(
-                  controller: line.hsn,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'HSN/SAC'))),
+            width: 130,
+            child: TextField(
+              controller: line.hsn,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'HSN/SAC'),
+            ),
+          ),
           SizedBox(
-              width: 105,
-              child: TextField(
-                  controller: line.gst,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'GST %'))),
-        ]),
-      ]);
+            width: 105,
+            child: TextField(
+              controller: line.gst,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'GST %'),
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
 }
 
 class _ScannedLine {
@@ -467,8 +545,8 @@ class _ScannedLine {
     line.productId = raw['product_id']?.toString();
     line.productType =
         raw['product_type']?.toString().toUpperCase() == 'SERVICE'
-            ? 'SERVICE'
-            : 'GOODS';
+        ? 'SERVICE'
+        : 'GOODS';
     line.name.text = raw['product_name']?.toString() ?? '';
     line.quantity.text = raw['quantity']?.toString() ?? '1';
     line.rate.text = raw['rate']?.toString() ?? '0';
@@ -486,14 +564,14 @@ class _ScannedLine {
   final gst = TextEditingController(text: '18');
 
   Map<String, dynamic> get payload => {
-        'product_id': productId,
-        'product_name': name.text.trim(),
-        'product_type': productType,
-        'quantity': double.tryParse(quantity.text) ?? 0,
-        'rate': double.tryParse(rate.text) ?? 0,
-        'hsn_sac': hsn.text.trim(),
-        'gst_rate': double.tryParse(gst.text) ?? 0,
-      };
+    'product_id': productId,
+    'product_name': name.text.trim(),
+    'product_type': productType,
+    'quantity': double.tryParse(quantity.text) ?? 0,
+    'rate': double.tryParse(rate.text) ?? 0,
+    'hsn_sac': hsn.text.trim(),
+    'gst_rate': double.tryParse(gst.text) ?? 0,
+  };
 
   void dispose() {
     name.dispose();
@@ -505,23 +583,27 @@ class _ScannedLine {
 }
 
 class _ScanDateField extends StatelessWidget {
-  const _ScanDateField(
-      {required this.label, required this.value, required this.onChanged});
+  const _ScanDateField({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
   final String label;
   final DateTime value;
   final ValueChanged<DateTime> onChanged;
 
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: () async {
-          final picked = await pickDate(context, value);
-          if (picked != null) onChanged(picked);
-        },
-        child: InputDecorator(
-          decoration: InputDecoration(
-              labelText: label,
-              suffixIcon: const Icon(Icons.calendar_month_outlined)),
-          child: Text(displayDate(value.toIso8601String())),
-        ),
-      );
+    onTap: () async {
+      final picked = await pickDate(context, value);
+      if (picked != null) onChanged(picked);
+    },
+    child: InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: const Icon(Icons.calendar_month_outlined),
+      ),
+      child: Text(displayDate(value.toIso8601String())),
+    ),
+  );
 }

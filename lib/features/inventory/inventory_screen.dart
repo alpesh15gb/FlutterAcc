@@ -6,8 +6,11 @@ import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_widgets.dart';
 
 class InventoryScreen extends StatefulWidget {
-  const InventoryScreen(
-      {super.key, required this.api, required this.initialTab});
+  const InventoryScreen({
+    super.key,
+    required this.api,
+    required this.initialTab,
+  });
   final ApiClient api;
   final String initialTab;
 
@@ -22,7 +25,7 @@ class _InventoryScreenState extends State<InventoryScreen>
     'warehouses',
     'transfers',
     'adjustments',
-    'stock-ledger'
+    'stock-ledger',
   ];
 
   @override
@@ -30,7 +33,10 @@ class _InventoryScreenState extends State<InventoryScreen>
     super.initState();
     final index = _tabIds.indexOf(widget.initialTab);
     _tabs = TabController(
-        length: 4, vsync: this, initialIndex: index < 0 ? 0 : index);
+      length: 4,
+      vsync: this,
+      initialIndex: index < 0 ? 0 : index,
+    );
   }
 
   @override
@@ -43,35 +49,36 @@ class _InventoryScreenState extends State<InventoryScreen>
   Widget build(BuildContext context) {
     return PageFrame(
       title: 'Inventory & Godowns',
-      subtitle:
-          'Warehouse stock, transfers, physical adjustments and an auditable movement ledger.',
-      child: Column(children: [
-        SectionCard(
-          child: TabBar(
-            controller: _tabs,
-            isScrollable: true,
-            tabs: const [
-              Tab(text: 'Warehouses'),
-              Tab(text: 'Transfers'),
-              Tab(text: 'Adjustments'),
-              Tab(text: 'Stock Ledger'),
-            ],
+      subtitle: 'Warehouse stock, transfers, physical adjustments and an auditable movement ledger.',
+      child: Column(
+        children: [
+          SectionCard(
+            child: TabBar(
+              controller: _tabs,
+              isScrollable: true,
+              tabs: const [
+                Tab(text: 'Warehouses'),
+                Tab(text: 'Transfers'),
+                Tab(text: 'Adjustments'),
+                Tab(text: 'Stock Ledger'),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 14),
-        SizedBox(
-          height: MediaQuery.sizeOf(context).height * .72,
-          child: TabBarView(
-            controller: _tabs,
-            children: [
-              _WarehousesTab(api: widget.api),
-              _TransfersTab(api: widget.api),
-              _AdjustmentsTab(api: widget.api),
-              _StockLedgerTab(api: widget.api),
-            ],
+          const SizedBox(height: 14),
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * .72,
+            child: TabBarView(
+              controller: _tabs,
+              children: [
+                _WarehousesTab(api: widget.api),
+                _TransfersTab(api: widget.api),
+                _AdjustmentsTab(api: widget.api),
+                _StockLedgerTab(api: widget.api),
+              ],
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -113,8 +120,9 @@ class _WarehousesTabState extends State<_WarehousesTab> {
       _error = null;
     });
     try {
-      _items =
-          _rows(await widget.api.get('/warehouses', query: {'limit': 100}));
+      _items = _rows(
+        await widget.api.get('/warehouses', query: {'limit': 100}),
+      );
     } catch (e) {
       _error = e.toString();
     }
@@ -130,103 +138,133 @@ class _WarehousesTabState extends State<_WarehousesTab> {
     final stateCode = TextEditingController();
     final pincode = TextEditingController();
     final ok = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text('New warehouse / godown'),
-              content: SizedBox(
-                  width: 620,
-                  child: SingleChildScrollView(
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    TextField(
-                        controller: name,
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('New warehouse / godown'),
+        content: SizedBox(
+          width: 620,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: name,
+                  decoration: const InputDecoration(
+                    labelText: 'Warehouse name *',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: gstin,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    labelText: 'GSTIN (optional)',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: street,
+                  decoration: const InputDecoration(labelText: 'Address'),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: city,
+                        decoration: const InputDecoration(labelText: 'City'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: state,
+                        decoration: const InputDecoration(labelText: 'State'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: stateCode,
+                        maxLength: 2,
+                        keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                            labelText: 'Warehouse name *')),
-                    const SizedBox(height: 10),
-                    TextField(
-                        controller: gstin,
-                        textCapitalization: TextCapitalization.characters,
+                          labelText: 'GST state code',
+                          counterText: '',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: pincode,
+                        maxLength: 6,
+                        keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                            labelText: 'GSTIN (optional)')),
-                    const SizedBox(height: 10),
-                    TextField(
-                        controller: street,
-                        decoration:
-                            const InputDecoration(labelText: 'Address')),
-                    const SizedBox(height: 10),
-                    Row(children: [
-                      Expanded(
-                          child: TextField(
-                              controller: city,
-                              decoration:
-                                  const InputDecoration(labelText: 'City'))),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: TextField(
-                              controller: state,
-                              decoration:
-                                  const InputDecoration(labelText: 'State'))),
-                    ]),
-                    const SizedBox(height: 10),
-                    Row(children: [
-                      Expanded(
-                          child: TextField(
-                              controller: stateCode,
-                              maxLength: 2,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                  labelText: 'GST state code',
-                                  counterText: ''))),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: TextField(
-                              controller: pincode,
-                              maxLength: 6,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                  labelText: 'Pincode', counterText: ''))),
-                    ]),
-                  ]))),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text('Cancel')),
-                FilledButton(
-                    onPressed: () async {
-                      if (name.text.trim().isEmpty) {
-                        showMessage(context, 'Warehouse name is required.',
-                            error: true);
-                        return;
-                      }
-                      try {
-                        await widget.api.post('/warehouses', body: {
-                          'name': name.text.trim(),
-                          'gstin': gstin.text.trim().isEmpty
-                              ? null
-                              : gstin.text.trim().toUpperCase(),
-                          'address': {
-                            if (street.text.trim().isNotEmpty)
-                              'street': street.text.trim(),
-                            if (city.text.trim().isNotEmpty)
-                              'city': city.text.trim(),
-                            if (state.text.trim().isNotEmpty)
-                              'state': state.text.trim(),
-                            if (stateCode.text.trim().isNotEmpty)
-                              'state_code': stateCode.text.trim(),
-                            if (pincode.text.trim().isNotEmpty)
-                              'pincode': pincode.text.trim(),
-                            'country': 'India',
-                          },
-                          'is_active': true,
-                        });
-                        if (context.mounted) Navigator.pop(context, true);
-                      } catch (e) {
-                        if (context.mounted)
-                          showMessage(context, e.toString(), error: true);
-                      }
-                    },
-                    child: const Text('Create')),
+                          labelText: 'Pincode',
+                          counterText: '',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
-            ));
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              if (name.text.trim().isEmpty) {
+                showMessage(
+                  context,
+                  'Warehouse name is required.',
+                  error: true,
+                );
+                return;
+              }
+              try {
+                await widget.api.post(
+                  '/warehouses',
+                  body: {
+                    'name': name.text.trim(),
+                    'gstin': gstin.text.trim().isEmpty
+                        ? null
+                        : gstin.text.trim().toUpperCase(),
+                    'address': {
+                      if (street.text.trim().isNotEmpty)
+                        'street': street.text.trim(),
+                      if (city.text.trim().isNotEmpty) 'city': city.text.trim(),
+                      if (state.text.trim().isNotEmpty)
+                        'state': state.text.trim(),
+                      if (stateCode.text.trim().isNotEmpty)
+                        'state_code': stateCode.text.trim(),
+                      if (pincode.text.trim().isNotEmpty)
+                        'pincode': pincode.text.trim(),
+                      'country': 'India',
+                    },
+                    'is_active': true,
+                  },
+                );
+                if (context.mounted) Navigator.pop(context, true);
+              } catch (e) {
+                if (context.mounted)
+                  showMessage(context, e.toString(), error: true);
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
     for (final c in [name, gstin, street, city, state, stateCode, pincode]) {
       c.dispose();
     }
@@ -237,102 +275,120 @@ class _WarehousesTabState extends State<_WarehousesTab> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(children: [
-        Row(children: [
+  Widget build(BuildContext context) => Column(
+    children: [
+      Row(
+        children: [
           const Expanded(
-              child: Text('Active stock locations',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
+            child: Text(
+              'Active stock locations',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+          ),
           IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
           const SizedBox(width: 6),
           FilledButton.icon(
-              onPressed: _newWarehouse,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('New warehouse')),
-        ]),
-        const SizedBox(height: 12),
-        Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? ErrorPanel(message: _error!, onRetry: _load)
-                    : _items.isEmpty
-                        ? const EmptyState(
-                            icon: Icons.warehouse_outlined,
-                            title: 'No warehouses',
-                            message:
-                                'Create your first godown to track location-wise stock.')
-                        : ListView.separated(
-                            itemCount: _items.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (context, i) {
-                              final w = _items[i];
-                              final address = w['address'] is Map
-                                  ? Map<String, dynamic>.from(
-                                      w['address'] as Map)
-                                  : <String, dynamic>{};
-                              return Card(
-                                  child: ListTile(
-                                leading: CircleAvatar(
-                                    child: Text('${w['name'] ?? 'W'}'
-                                        .substring(0, 1)
-                                        .toUpperCase())),
-                                title: Text('${w['name'] ?? ''}',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700)),
-                                subtitle: Text([
-                                  w['gstin'],
-                                  address['city'],
-                                  address['state']
-                                ]
-                                    .where((e) => e != null && '$e'.isNotEmpty)
-                                    .join(' • ')),
-                                trailing: Wrap(
-                                    spacing: 6,
-                                    crossAxisAlignment:
-                                        WrapCrossAlignment.center,
-                                    children: [
-                                      Chip(
-                                          label: Text(w['is_active'] == false
-                                              ? 'Inactive'
-                                              : 'Active')),
-                                      PopupMenuButton<String>(
-                                        onSelected: (v) async {
-                                          try {
-                                            if (v == 'toggle') {
-                                              await widget.api.put(
-                                                  '/warehouses/${w['id']}',
-                                                  body: {
-                                                    'is_active':
-                                                        w['is_active'] == false
-                                                  });
-                                            } else if (v == 'delete') {
-                                              await widget.api.delete(
-                                                  '/warehouses/${w['id']}');
-                                            }
-                                            _load();
-                                          } catch (e) {
-                                            if (mounted)
-                                              showMessage(context, e.toString(),
-                                                  error: true);
-                                          }
-                                        },
-                                        itemBuilder: (_) => [
-                                          PopupMenuItem(
-                                              value: 'toggle',
-                                              child: Text(
-                                                  w['is_active'] == false
-                                                      ? 'Activate'
-                                                      : 'Deactivate')),
-                                          const PopupMenuItem(
-                                              value: 'delete',
-                                              child: Text('Delete')),
-                                        ],
-                                      ),
-                                    ]),
-                              ));
-                            })),
-      ]);
+            onPressed: _newWarehouse,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('New warehouse'),
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? ErrorPanel(message: _error!, onRetry: _load)
+            : _items.isEmpty
+            ? const EmptyState(
+                icon: Icons.warehouse_outlined,
+                title: 'No warehouses',
+                message:
+                    'Create your first godown to track location-wise stock.',
+              )
+            : ListView.separated(
+                itemCount: _items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, i) {
+                  final w = _items[i];
+                  final address = w['address'] is Map
+                      ? Map<String, dynamic>.from(w['address'] as Map)
+                      : <String, dynamic>{};
+                  return Card(
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        child: Text(
+                          '${w['name'] ?? 'W'}'.substring(0, 1).toUpperCase(),
+                        ),
+                      ),
+                      title: Text(
+                        '${w['name'] ?? ''}',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: Text(
+                        [w['gstin'], address['city'], address['state']]
+                            .where((e) => e != null && '$e'.isNotEmpty)
+                            .join(' • '),
+                      ),
+                      trailing: Wrap(
+                        spacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Chip(
+                            label: Text(
+                              w['is_active'] == false ? 'Inactive' : 'Active',
+                            ),
+                          ),
+                          PopupMenuButton<String>(
+                            onSelected: (v) async {
+                              try {
+                                if (v == 'toggle') {
+                                  await widget.api.put(
+                                    '/warehouses/${w['id']}',
+                                    body: {
+                                      'is_active': w['is_active'] == false,
+                                    },
+                                  );
+                                } else if (v == 'delete') {
+                                  await widget.api.delete(
+                                    '/warehouses/${w['id']}',
+                                  );
+                                }
+                                _load();
+                              } catch (e) {
+                                if (mounted)
+                                  showMessage(
+                                    context,
+                                    e.toString(),
+                                    error: true,
+                                  );
+                              }
+                            },
+                            itemBuilder: (_) => [
+                              PopupMenuItem(
+                                value: 'toggle',
+                                child: Text(
+                                  w['is_active'] == false
+                                      ? 'Activate'
+                                      : 'Deactivate',
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+      ),
+    ],
+  );
 }
 
 class _TransfersTab extends StatefulWidget {
@@ -367,21 +423,30 @@ class _TransfersTabState extends State<_TransfersTab> {
 
   Future<void> _newTransfer() async {
     try {
-      final warehouses =
-          _rows(await widget.api.get('/warehouses', query: {'limit': 100}))
-              .where((w) => w['is_active'] != false)
-              .toList();
-      final products = _rows(await widget.api.get('/masters/products',
-          query: {'product_type': 'GOODS', 'limit': 100}));
+      final warehouses = _rows(
+        await widget.api.get('/warehouses', query: {'limit': 100}),
+      ).where((w) => w['is_active'] != false).toList();
+      final products = _rows(
+        await widget.api.get(
+          '/masters/products',
+          query: {'product_type': 'GOODS', 'limit': 100},
+        ),
+      );
       if (!mounted) return;
       if (warehouses.length < 2) {
-        showMessage(context, 'Create at least two active warehouses first.',
-            error: true);
+        showMessage(
+          context,
+          'Create at least two active warehouses first.',
+          error: true,
+        );
         return;
       }
       if (products.isEmpty) {
-        showMessage(context, 'Create at least one goods item first.',
-            error: true);
+        showMessage(
+          context,
+          'Create at least one goods item first.',
+          error: true,
+        );
         return;
       }
       String? from = '${warehouses.first['id']}';
@@ -392,129 +457,165 @@ class _TransfersTabState extends State<_TransfersTab> {
       final notes = TextEditingController();
       var date = DateTime.now();
       final ok = await showDialog<bool>(
-          context: context,
-          builder: (context) => StatefulBuilder(
-              builder: (context, setLocal) => AlertDialog(
-                    title: const Text('New stock transfer'),
-                    content: SizedBox(
-                        width: 620,
-                        child: SingleChildScrollView(
-                            child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                              TextField(
-                                  controller: number,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Transfer number',
-                                      helperText:
-                                          'Leave blank for automatic numbering')),
-                              const SizedBox(height: 10),
-                              ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  title: const Text('Transfer date'),
-                                  subtitle: Text(isoDate(date)),
-                                  trailing:
-                                      const Icon(Icons.calendar_month_outlined),
-                                  onTap: () async {
-                                    final d = await pickDate(context, date);
-                                    if (d != null) setLocal(() => date = d);
-                                  }),
-                              const SizedBox(height: 8),
-                              DropdownButtonFormField<String>(
-                                  value: from,
-                                  decoration: const InputDecoration(
-                                      labelText: 'From warehouse'),
-                                  items: warehouses
-                                      .map((w) => DropdownMenuItem(
-                                          value: '${w['id']}',
-                                          child: Text('${w['name']}')))
-                                      .toList(),
-                                  onChanged: (v) => setLocal(() => from = v)),
-                              const SizedBox(height: 10),
-                              DropdownButtonFormField<String>(
-                                  value: to,
-                                  decoration: const InputDecoration(
-                                      labelText: 'To warehouse'),
-                                  items: warehouses
-                                      .map((w) => DropdownMenuItem(
-                                          value: '${w['id']}',
-                                          child: Text('${w['name']}')))
-                                      .toList(),
-                                  onChanged: (v) => setLocal(() => to = v)),
-                              const SizedBox(height: 10),
-                              Row(children: [
-                                Expanded(
-                                    flex: 3,
-                                    child: DropdownButtonFormField<String>(
-                                        value: product,
-                                        decoration: const InputDecoration(
-                                            labelText: 'Item'),
-                                        items: products
-                                            .map((p) => DropdownMenuItem(
-                                                value: '${p['id']}',
-                                                child: Text('${p['name']}')))
-                                            .toList(),
-                                        onChanged: (v) =>
-                                            setLocal(() => product = v))),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                    child: TextField(
-                                        controller: qty,
-                                        keyboardType: const TextInputType
-                                            .numberWithOptions(decimal: true),
-                                        decoration: const InputDecoration(
-                                            labelText: 'Quantity')))
-                              ]),
-                              const SizedBox(height: 10),
-                              TextField(
-                                  controller: notes,
-                                  maxLines: 2,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Notes')),
-                            ]))),
-                    actions: [
-                      TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel')),
-                      FilledButton(
-                          onPressed: () async {
-                            if (from == to) {
-                              showMessage(context,
-                                  'Source and destination must be different.',
-                                  error: true);
-                              return;
-                            }
-                            final q = double.tryParse(qty.text);
-                            if (q == null || q <= 0) {
-                              showMessage(context,
-                                  'Enter a quantity greater than zero.',
-                                  error: true);
-                              return;
-                            }
-                            try {
-                              await widget.api.post('/transfers', body: {
-                                'transfer_number': number.text.trim().isEmpty
-                                    ? null
-                                    : number.text.trim(),
-                                'transfer_date': isoDate(date),
-                                'from_warehouse_id': from,
-                                'to_warehouse_id': to,
-                                'lines': [
-                                  {'product_id': product, 'quantity': q}
-                                ],
-                                'notes': notes.text.trim().isEmpty
-                                    ? null
-                                    : notes.text.trim()
-                              });
-                              if (context.mounted) Navigator.pop(context, true);
-                            } catch (e) {
-                              if (context.mounted)
-                                showMessage(context, e.toString(), error: true);
-                            }
-                          },
-                          child: const Text('Create draft'))
-                    ],
-                  )));
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setLocal) => AlertDialog(
+            title: const Text('New stock transfer'),
+            content: SizedBox(
+              width: 620,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: number,
+                      decoration: const InputDecoration(
+                        labelText: 'Transfer number',
+                        helperText: 'Leave blank for automatic numbering',
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Transfer date'),
+                      subtitle: Text(isoDate(date)),
+                      trailing: const Icon(Icons.calendar_month_outlined),
+                      onTap: () async {
+                        final d = await pickDate(context, date);
+                        if (d != null) setLocal(() => date = d);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: from,
+                      decoration: const InputDecoration(
+                        labelText: 'From warehouse',
+                      ),
+                      items: warehouses
+                          .map(
+                            (w) => DropdownMenuItem(
+                              value: '${w['id']}',
+                              child: Text('${w['name']}'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) => setLocal(() => from = v),
+                    ),
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      value: to,
+                      decoration: const InputDecoration(
+                        labelText: 'To warehouse',
+                      ),
+                      items: warehouses
+                          .map(
+                            (w) => DropdownMenuItem(
+                              value: '${w['id']}',
+                              child: Text('${w['name']}'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) => setLocal(() => to = v),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: DropdownButtonFormField<String>(
+                            value: product,
+                            decoration: const InputDecoration(
+                              labelText: 'Item',
+                            ),
+                            items: products
+                                .map(
+                                  (p) => DropdownMenuItem(
+                                    value: '${p['id']}',
+                                    child: Text('${p['name']}'),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) => setLocal(() => product = v),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: qty,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: const InputDecoration(
+                              labelText: 'Quantity',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: notes,
+                      maxLines: 2,
+                      decoration: const InputDecoration(labelText: 'Notes'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (from == to) {
+                    showMessage(
+                      context,
+                      'Source and destination must be different.',
+                      error: true,
+                    );
+                    return;
+                  }
+                  final q = double.tryParse(qty.text);
+                  if (q == null || q <= 0) {
+                    showMessage(
+                      context,
+                      'Enter a quantity greater than zero.',
+                      error: true,
+                    );
+                    return;
+                  }
+                  try {
+                    await widget.api.post(
+                      '/transfers',
+                      body: {
+                        'transfer_number': number.text.trim().isEmpty
+                            ? null
+                            : number.text.trim(),
+                        'transfer_date': isoDate(date),
+                        'from_warehouse_id': from,
+                        'to_warehouse_id': to,
+                        'lines': [
+                          {'product_id': product, 'quantity': q},
+                        ],
+                        'notes': notes.text.trim().isEmpty
+                            ? null
+                            : notes.text.trim(),
+                      },
+                    );
+                    if (context.mounted) Navigator.pop(context, true);
+                  } catch (e) {
+                    if (context.mounted)
+                      showMessage(context, e.toString(), error: true);
+                  }
+                },
+                child: const Text('Create draft'),
+              ),
+            ],
+          ),
+        ),
+      );
       number.dispose();
       qty.dispose();
       notes.dispose();
@@ -532,10 +633,11 @@ class _TransfersTabState extends State<_TransfersTab> {
       await widget.api.post('/transfers/${row['id']}/$action');
       if (mounted) {
         showMessage(
-            context,
-            action == 'complete'
-                ? 'Transfer completed and stock moved.'
-                : 'Transfer cancelled.');
+          context,
+          action == 'complete'
+              ? 'Transfer completed and stock moved.'
+              : 'Transfer cancelled.',
+        );
         _load();
       }
     } catch (e) {
@@ -544,68 +646,80 @@ class _TransfersTabState extends State<_TransfersTab> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(children: [
-        Row(children: [
+  Widget build(BuildContext context) => Column(
+    children: [
+      Row(
+        children: [
           const Expanded(
-              child: Text('Inter-godown transfers',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
+            child: Text(
+              'Inter-godown transfers',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+          ),
           IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
           const SizedBox(width: 6),
           FilledButton.icon(
-              onPressed: _newTransfer,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('New transfer'))
-        ]),
-        const SizedBox(height: 12),
-        Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? ErrorPanel(message: _error!, onRetry: _load)
-                    : _items.isEmpty
-                        ? const EmptyState(
-                            icon: Icons.swap_horiz_rounded,
-                            title: 'No transfers',
-                            message:
-                                'Transfers between godowns will appear here.')
-                        : ListView.separated(
-                            itemCount: _items.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (context, i) {
-                              final t = _items[i];
-                              final status = '${t['status'] ?? 'DRAFT'}';
-                              return Card(
-                                  child: ListTile(
-                                      title: Text(
-                                          '${t['transfer_number'] ?? ''}',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w700)),
-                                      subtitle: Text(
-                                          '${t['transfer_date'] ?? ''} • ${t['from_warehouse_name'] ?? ''} → ${t['to_warehouse_name'] ?? ''}'),
-                                      trailing: Wrap(
-                                          spacing: 6,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
-                                          children: [
-                                            Chip(label: Text(status)),
-                                            if (status == 'DRAFT')
-                                              PopupMenuButton<String>(
-                                                  onSelected: (v) =>
-                                                      _action(t, v),
-                                                  itemBuilder: (_) => const [
-                                                        PopupMenuItem(
-                                                            value: 'complete',
-                                                            child: Text(
-                                                                'Complete transfer')),
-                                                        PopupMenuItem(
-                                                            value: 'cancel',
-                                                            child: Text(
-                                                                'Cancel transfer'))
-                                                      ])
-                                          ])));
-                            }))
-      ]);
+            onPressed: _newTransfer,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('New transfer'),
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? ErrorPanel(message: _error!, onRetry: _load)
+            : _items.isEmpty
+            ? const EmptyState(
+                icon: Icons.swap_horiz_rounded,
+                title: 'No transfers',
+                message: 'Transfers between godowns will appear here.',
+              )
+            : ListView.separated(
+                itemCount: _items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, i) {
+                  final t = _items[i];
+                  final status = '${t['status'] ?? 'DRAFT'}';
+                  return Card(
+                    child: ListTile(
+                      title: Text(
+                        '${t['transfer_number'] ?? ''}',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: Text(
+                        '${t['transfer_date'] ?? ''} • ${t['from_warehouse_name'] ?? ''} → ${t['to_warehouse_name'] ?? ''}',
+                      ),
+                      trailing: Wrap(
+                        spacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Chip(label: Text(status)),
+                          if (status == 'DRAFT')
+                            PopupMenuButton<String>(
+                              onSelected: (v) => _action(t, v),
+                              itemBuilder: (_) => const [
+                                PopupMenuItem(
+                                  value: 'complete',
+                                  child: Text('Complete transfer'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'cancel',
+                                  child: Text('Cancel transfer'),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+      ),
+    ],
+  );
 }
 
 class _AdjustmentsTab extends StatefulWidget {
@@ -631,8 +745,9 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
       _error = null;
     });
     try {
-      _items = _rows(await widget.api
-          .get('/inventory-adjustments', query: {'limit': 100}));
+      _items = _rows(
+        await widget.api.get('/inventory-adjustments', query: {'limit': 100}),
+      );
     } catch (e) {
       _error = e.toString();
     }
@@ -641,8 +756,12 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
 
   Future<void> _new() async {
     try {
-      final products = _rows(await widget.api.get('/masters/products',
-          query: {'product_type': 'GOODS', 'limit': 100}));
+      final products = _rows(
+        await widget.api.get(
+          '/masters/products',
+          query: {'product_type': 'GOODS', 'limit': 100},
+        ),
+      );
       if (!mounted) return;
       if (products.isEmpty) {
         showMessage(context, 'Create a goods item first.', error: true);
@@ -650,122 +769,145 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
       }
       String? product = '${products.first['id']}';
       final number = TextEditingController(
-          text:
-              'ADJ-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}');
+        text:
+            'ADJ-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}',
+      );
       final qty = TextEditingController();
       final cost = TextEditingController();
       final reason = TextEditingController();
       var date = DateTime.now();
       final ok = await showDialog<bool>(
-          context: context,
-          builder: (context) => StatefulBuilder(
-              builder: (context, setLocal) => AlertDialog(
-                      title: const Text('New stock adjustment'),
-                      content: SizedBox(
-                          width: 600,
-                          child: SingleChildScrollView(
-                              child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                TextField(
-                                    controller: number,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Adjustment number *')),
-                                const SizedBox(height: 10),
-                                ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: const Text('Date'),
-                                    subtitle: Text(isoDate(date)),
-                                    trailing: const Icon(
-                                        Icons.calendar_month_outlined),
-                                    onTap: () async {
-                                      final d = await pickDate(context, date);
-                                      if (d != null) setLocal(() => date = d);
-                                    }),
-                                const SizedBox(height: 8),
-                                DropdownButtonFormField<String>(
-                                    value: product,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Item'),
-                                    items: products
-                                        .map((p) => DropdownMenuItem(
-                                            value: '${p['id']}',
-                                            child: Text('${p['name']}')))
-                                        .toList(),
-                                    onChanged: (v) =>
-                                        setLocal(() => product = v)),
-                                const SizedBox(height: 10),
-                                Row(children: [
-                                  Expanded(
-                                      child: TextField(
-                                          controller: qty,
-                                          keyboardType: const TextInputType
-                                              .numberWithOptions(
-                                              decimal: true, signed: true),
-                                          decoration: const InputDecoration(
-                                              labelText: 'Quantity change',
-                                              helperText:
-                                                  '+ increase, − decrease'))),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                      child: TextField(
-                                          controller: cost,
-                                          keyboardType: const TextInputType
-                                              .numberWithOptions(decimal: true),
-                                          decoration: const InputDecoration(
-                                              labelText: 'Unit cost',
-                                              helperText:
-                                                  'Blank uses purchase price')))
-                                ]),
-                                const SizedBox(height: 10),
-                                TextField(
-                                    controller: reason,
-                                    maxLines: 2,
-                                    decoration: const InputDecoration(
-                                        labelText: 'Reason *'))
-                              ]))),
-                      actions: [
-                        TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancel')),
-                        FilledButton(
-                            onPressed: () async {
-                              final q = double.tryParse(qty.text);
-                              if (q == null ||
-                                  q == 0 ||
-                                  reason.text.trim().isEmpty ||
-                                  number.text.trim().isEmpty) {
-                                showMessage(context,
-                                    'Number, non-zero quantity and reason are required.',
-                                    error: true);
-                                return;
-                              }
-                              try {
-                                await widget.api
-                                    .post('/inventory-adjustments', body: {
-                                  'adjustment_number': number.text.trim(),
-                                  'adjustment_date': isoDate(date),
-                                  'reason': reason.text.trim(),
-                                  'line_items': [
-                                    {
-                                      'product_id': product,
-                                      'quantity_change': q,
-                                      'unit_cost': cost.text.trim().isEmpty
-                                          ? null
-                                          : double.tryParse(cost.text)
-                                    }
-                                  ]
-                                });
-                                if (context.mounted)
-                                  Navigator.pop(context, true);
-                              } catch (e) {
-                                if (context.mounted)
-                                  showMessage(context, e.toString(),
-                                      error: true);
-                              }
-                            },
-                            child: const Text('Create draft'))
-                      ])));
+        context: context,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setLocal) => AlertDialog(
+            title: const Text('New stock adjustment'),
+            content: SizedBox(
+              width: 600,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: number,
+                      decoration: const InputDecoration(
+                        labelText: 'Adjustment number *',
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Date'),
+                      subtitle: Text(isoDate(date)),
+                      trailing: const Icon(Icons.calendar_month_outlined),
+                      onTap: () async {
+                        final d = await pickDate(context, date);
+                        if (d != null) setLocal(() => date = d);
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<String>(
+                      value: product,
+                      decoration: const InputDecoration(labelText: 'Item'),
+                      items: products
+                          .map(
+                            (p) => DropdownMenuItem(
+                              value: '${p['id']}',
+                              child: Text('${p['name']}'),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (v) => setLocal(() => product = v),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: qty,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                              signed: true,
+                            ),
+                            decoration: const InputDecoration(
+                              labelText: 'Quantity change',
+                              helperText: '+ increase, − decrease',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: cost,
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            decoration: const InputDecoration(
+                              labelText: 'Unit cost',
+                              helperText: 'Blank uses purchase price',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: reason,
+                      maxLines: 2,
+                      decoration: const InputDecoration(labelText: 'Reason *'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  final q = double.tryParse(qty.text);
+                  if (q == null ||
+                      q == 0 ||
+                      reason.text.trim().isEmpty ||
+                      number.text.trim().isEmpty) {
+                    showMessage(
+                      context,
+                      'Number, non-zero quantity and reason are required.',
+                      error: true,
+                    );
+                    return;
+                  }
+                  try {
+                    await widget.api.post(
+                      '/inventory-adjustments',
+                      body: {
+                        'adjustment_number': number.text.trim(),
+                        'adjustment_date': isoDate(date),
+                        'reason': reason.text.trim(),
+                        'line_items': [
+                          {
+                            'product_id': product,
+                            'quantity_change': q,
+                            'unit_cost': cost.text.trim().isEmpty
+                                ? null
+                                : double.tryParse(cost.text),
+                          },
+                        ],
+                      },
+                    );
+                    if (context.mounted) Navigator.pop(context, true);
+                  } catch (e) {
+                    if (context.mounted)
+                      showMessage(context, e.toString(), error: true);
+                  }
+                },
+                child: const Text('Create draft'),
+              ),
+            ],
+          ),
+        ),
+      );
       number.dispose();
       qty.dispose();
       cost.dispose();
@@ -804,63 +946,76 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(children: [
-        Row(children: [
+  Widget build(BuildContext context) => Column(
+    children: [
+      Row(
+        children: [
           const Expanded(
-              child: Text('Physical stock corrections',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
+            child: Text(
+              'Physical stock corrections',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+          ),
           IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
           const SizedBox(width: 6),
           FilledButton.icon(
-              onPressed: _new,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('New adjustment'))
-        ]),
-        const SizedBox(height: 12),
-        Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? ErrorPanel(message: _error!, onRetry: _load)
-                    : _items.isEmpty
-                        ? const EmptyState(
-                            icon: Icons.tune_rounded,
-                            title: 'No adjustments',
-                            message:
-                                'Damage, shrinkage and physical count corrections appear here.')
-                        : ListView.separated(
-                            itemCount: _items.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (context, i) {
-                              final a = _items[i];
-                              final status = '${a['status'] ?? ''}';
-                              return Card(
-                                  child: ListTile(
-                                      title: Text(
-                                          '${a['adjustment_number'] ?? ''}',
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w700)),
-                                      subtitle: Text(
-                                          '${a['adjustment_date'] ?? ''}${a['reason'] != null ? ' • ${a['reason']}' : ''}'),
-                                      trailing: Wrap(
-                                          spacing: 8,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
-                                          children: [
-                                            Chip(label: Text(status)),
-                                            if (status == 'DRAFT')
-                                              FilledButton.tonal(
-                                                  onPressed: () => _confirm(a),
-                                                  child: const Text('Confirm')),
-                                            if (status == 'DRAFT')
-                                              TextButton(
-                                                  onPressed: () =>
-                                                      _cancelAdj(a),
-                                                  child: const Text('Cancel'))
-                                          ])));
-                            }))
-      ]);
+            onPressed: _new,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('New adjustment'),
+          ),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? ErrorPanel(message: _error!, onRetry: _load)
+            : _items.isEmpty
+            ? const EmptyState(
+                icon: Icons.tune_rounded,
+                title: 'No adjustments',
+                message: 'Damage, shrinkage and physical count corrections appear here.',
+              )
+            : ListView.separated(
+                itemCount: _items.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, i) {
+                  final a = _items[i];
+                  final status = '${a['status'] ?? ''}';
+                  return Card(
+                    child: ListTile(
+                      title: Text(
+                        '${a['adjustment_number'] ?? ''}',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: Text(
+                        '${a['adjustment_date'] ?? ''}${a['reason'] != null ? ' • ${a['reason']}' : ''}',
+                      ),
+                      trailing: Wrap(
+                        spacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Chip(label: Text(status)),
+                          if (status == 'DRAFT')
+                            FilledButton.tonal(
+                              onPressed: () => _confirm(a),
+                              child: const Text('Confirm'),
+                            ),
+                          if (status == 'DRAFT')
+                            TextButton(
+                              onPressed: () => _cancelAdj(a),
+                              child: const Text('Cancel'),
+                            ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+      ),
+    ],
+  );
 }
 
 class _StockLedgerTab extends StatefulWidget {
@@ -886,8 +1041,9 @@ class _StockLedgerTabState extends State<_StockLedgerTab> {
       _error = null;
     });
     try {
-      _items =
-          _rows(await widget.api.get('/stock-ledger', query: {'limit': 100}));
+      _items = _rows(
+        await widget.api.get('/stock-ledger', query: {'limit': 100}),
+      );
     } catch (e) {
       _error = e.toString();
     }
@@ -895,62 +1051,72 @@ class _StockLedgerTabState extends State<_StockLedgerTab> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(children: [
-        Row(children: [
+  Widget build(BuildContext context) => Column(
+    children: [
+      Row(
+        children: [
           const Expanded(
-              child: Text('Latest stock movements',
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16))),
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded))
-        ]),
-        const SizedBox(height: 12),
-        Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? ErrorPanel(message: _error!, onRetry: _load)
-                    : _items.isEmpty
-                        ? const EmptyState(
-                            icon: Icons.list_alt_rounded,
-                            title: 'No stock movements',
-                            message:
-                                'Posted invoices, bills, transfers and adjustments will populate the stock ledger.')
-                        : ListView.separated(
-                            itemCount: _items.length,
-                            separatorBuilder: (_, __) =>
-                                const Divider(height: 1),
-                            itemBuilder: (context, i) {
-                              final r = _items[i];
-                              final q =
-                                  double.tryParse('${r['quantity'] ?? 0}') ?? 0;
-                              return ListTile(
-                                  leading: Icon(
-                                      q < 0
-                                          ? Icons.arrow_upward_rounded
-                                          : Icons.arrow_downward_rounded,
-                                      color: q < 0
-                                          ? AppColors.danger
-                                          : AppColors.success),
-                                  title: Text('${r['product_name'] ?? ''}',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.w700)),
-                                  subtitle: Text(
-                                      '${r['warehouse_name'] ?? 'Default warehouse'} • ${r['reference_type'] ?? ''} • ${r['created_at'] ?? ''}'),
-                                  trailing: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Text(
-                                            '${q > 0 ? '+' : ''}${formatNumber(q)}',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.w800)),
-                                        Text(
-                                            'Bal ${formatNumber(r['balance_quantity'])}',
-                                            style: const TextStyle(
-                                                fontSize: 11,
-                                                color: AppColors.muted))
-                                      ]));
-                            }))
-      ]);
+            child: Text(
+              'Latest stock movements',
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+            ),
+          ),
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
+        ],
+      ),
+      const SizedBox(height: 12),
+      Expanded(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+            ? ErrorPanel(message: _error!, onRetry: _load)
+            : _items.isEmpty
+            ? const EmptyState(
+                icon: Icons.list_alt_rounded,
+                title: 'No stock movements',
+                message: 'Posted invoices, bills, transfers and adjustments will populate the stock ledger.',
+              )
+            : ListView.separated(
+                itemCount: _items.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (context, i) {
+                  final r = _items[i];
+                  final q = double.tryParse('${r['quantity'] ?? 0}') ?? 0;
+                  return ListTile(
+                    leading: Icon(
+                      q < 0
+                          ? Icons.arrow_upward_rounded
+                          : Icons.arrow_downward_rounded,
+                      color: q < 0 ? AppColors.danger : AppColors.success,
+                    ),
+                    title: Text(
+                      '${r['product_name'] ?? ''}',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                    subtitle: Text(
+                      '${r['warehouse_name'] ?? 'Default warehouse'} • ${r['reference_type'] ?? ''} • ${r['created_at'] ?? ''}',
+                    ),
+                    trailing: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${q > 0 ? '+' : ''}${formatNumber(q)}',
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                        Text(
+                          'Bal ${formatNumber(r['balance_quantity'])}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+      ),
+    ],
+  );
 }

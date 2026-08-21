@@ -23,11 +23,14 @@ class WorkspaceField {
 }
 
 class WorkspaceColumn {
-  const WorkspaceColumn(this.key, this.label,
-      {this.money = false,
-      this.date = false,
-      this.status = false,
-      this.taxMode = false});
+  const WorkspaceColumn(
+    this.key,
+    this.label, {
+    this.money = false,
+    this.date = false,
+    this.status = false,
+    this.taxMode = false,
+  });
   final String key;
   final String label;
   final bool money;
@@ -68,8 +71,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
     title: 'Quotations / Proforma',
     endpoint: '/proforma-invoices',
     icon: Icons.request_quote_outlined,
-    subtitle:
-        'Issue estimates and convert accepted documents into orders or invoices.',
+    subtitle: 'Issue estimates and convert accepted documents into orders or invoices.',
     editor: WorkspaceEditor.taxDocument,
     documentKind: 'proforma',
     columns: [
@@ -77,7 +79,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Customer'),
       WorkspaceColumn('issue_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Total', money: true)
+      WorkspaceColumn('total', 'Total', money: true),
     ],
   ),
   'sales-orders': WorkspaceConfig(
@@ -93,7 +95,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Customer'),
       WorkspaceColumn('order_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Total', money: true)
+      WorkspaceColumn('total', 'Total', money: true),
     ],
   ),
   'challans': WorkspaceConfig(
@@ -101,8 +103,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
     title: 'Delivery Challans',
     endpoint: '/delivery-challans',
     icon: Icons.local_shipping_outlined,
-    subtitle:
-        'Move goods against customer delivery documents and later convert to invoices.',
+    subtitle: 'Move goods against customer delivery documents and later convert to invoices.',
     editor: WorkspaceEditor.taxDocument,
     documentKind: 'challan',
     columns: [
@@ -110,7 +111,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Customer'),
       WorkspaceColumn('challan_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Value', money: true)
+      WorkspaceColumn('total', 'Value', money: true),
     ],
   ),
   'recurring': WorkspaceConfig(
@@ -123,7 +124,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('name', 'Template'),
       WorkspaceColumn('frequency', 'Frequency'),
       WorkspaceColumn('next_run_date', 'Next run', date: true),
-      WorkspaceColumn('is_active', 'Active')
+      WorkspaceColumn('is_active', 'Active'),
     ],
   ),
   'credit-notes': WorkspaceConfig(
@@ -138,7 +139,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Customer'),
       WorkspaceColumn('issue_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Total', money: true)
+      WorkspaceColumn('total', 'Total', money: true),
     ],
   ),
   'debit-notes': WorkspaceConfig(
@@ -152,7 +153,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Customer'),
       WorkspaceColumn('issue_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Total', money: true)
+      WorkspaceColumn('total', 'Total', money: true),
     ],
   ),
   'sales-returns': WorkspaceConfig(
@@ -166,7 +167,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Customer'),
       WorkspaceColumn('return_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Total', money: true)
+      WorkspaceColumn('total', 'Total', money: true),
     ],
   ),
   'bills': WorkspaceConfig(
@@ -184,7 +185,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('status', 'Status', status: true),
       WorkspaceColumn('is_gst_inclusive', 'Rate mode', taxMode: true),
       WorkspaceColumn('total', 'Total', money: true),
-      WorkspaceColumn('amount_paid', 'Paid', money: true)
+      WorkspaceColumn('amount_paid', 'Paid', money: true),
     ],
   ),
   'purchase-orders': WorkspaceConfig(
@@ -200,7 +201,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Vendor'),
       WorkspaceColumn('order_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Total', money: true)
+      WorkspaceColumn('total', 'Total', money: true),
     ],
   ),
   'goods-receipts': WorkspaceConfig(
@@ -213,7 +214,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('receipt_number', 'GRN'),
       WorkspaceColumn('vendor_name', 'Vendor'),
       WorkspaceColumn('receipt_date', 'Date', date: true),
-      WorkspaceColumn('status', 'Status', status: true)
+      WorkspaceColumn('status', 'Status', status: true),
     ],
   ),
   'bill-payments': WorkspaceConfig(
@@ -228,7 +229,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('payment_date', 'Date', date: true),
       WorkspaceColumn('payment_mode', 'Mode'),
       WorkspaceColumn('amount', 'Amount', money: true),
-      WorkspaceColumn('status', 'Status', status: true)
+      WorkspaceColumn('status', 'Status', status: true),
     ],
   ),
   'purchase-returns': WorkspaceConfig(
@@ -243,7 +244,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('contact_name', 'Vendor'),
       WorkspaceColumn('return_date', 'Date', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('total', 'Total', money: true)
+      WorkspaceColumn('total', 'Total', money: true),
     ],
   ),
   'expenses': WorkspaceConfig(
@@ -258,7 +259,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('vendor_name', 'Vendor'),
       WorkspaceColumn('description', 'Description'),
       WorkspaceColumn('total', 'Total', money: true),
-      WorkspaceColumn('status', 'Status', status: true)
+      WorkspaceColumn('status', 'Status', status: true),
     ],
   ),
   'warehouses': WorkspaceConfig(
@@ -271,7 +272,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('name', 'Warehouse'),
       WorkspaceColumn('code', 'Code'),
       WorkspaceColumn('gstin', 'GSTIN'),
-      WorkspaceColumn('is_active', 'Active')
+      WorkspaceColumn('is_active', 'Active'),
     ],
   ),
   'transfers': WorkspaceConfig(
@@ -286,7 +287,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('transfer_date', 'Date', date: true),
       WorkspaceColumn('from_warehouse_name', 'From'),
       WorkspaceColumn('to_warehouse_name', 'To'),
-      WorkspaceColumn('status', 'Status', status: true)
+      WorkspaceColumn('status', 'Status', status: true),
     ],
   ),
   'adjustments': WorkspaceConfig(
@@ -294,13 +295,12 @@ const workspaceCatalog = <String, WorkspaceConfig>{
     title: 'Stock Adjustments',
     endpoint: '/inventory-adjustments',
     icon: Icons.tune_rounded,
-    subtitle:
-        'Physical stock corrections, damage, shrinkage and opening corrections.',
+    subtitle: 'Physical stock corrections, damage, shrinkage and opening corrections.',
     columns: [
       WorkspaceColumn('adjustment_number', 'Adjustment'),
       WorkspaceColumn('adjustment_date', 'Date', date: true),
       WorkspaceColumn('reason', 'Reason'),
-      WorkspaceColumn('status', 'Status', status: true)
+      WorkspaceColumn('status', 'Status', status: true),
     ],
   ),
   'stock-ledger': WorkspaceConfig(
@@ -315,7 +315,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('warehouse_name', 'Warehouse'),
       WorkspaceColumn('reference_type', 'Reference'),
       WorkspaceColumn('quantity', 'Qty'),
-      WorkspaceColumn('balance_quantity', 'Balance')
+      WorkspaceColumn('balance_quantity', 'Balance'),
     ],
   ),
   'payments': WorkspaceConfig(
@@ -331,7 +331,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('payment_date', 'Date', date: true),
       WorkspaceColumn('payment_mode', 'Mode'),
       WorkspaceColumn('amount', 'Amount', money: true),
-      WorkspaceColumn('status', 'Status', status: true)
+      WorkspaceColumn('status', 'Status', status: true),
     ],
   ),
   'eway-bills': WorkspaceConfig(
@@ -344,7 +344,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('eway_bill_number', 'E-Way Bill'),
       WorkspaceColumn('document_number', 'Document'),
       WorkspaceColumn('generated_date', 'Generated', date: true),
-      WorkspaceColumn('status', 'Status', status: true)
+      WorkspaceColumn('status', 'Status', status: true),
     ],
   ),
   'financial-years': WorkspaceConfig(
@@ -358,7 +358,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('start_date', 'Starts', date: true),
       WorkspaceColumn('end_date', 'Ends', date: true),
       WorkspaceColumn('status', 'Status', status: true),
-      WorkspaceColumn('is_current', 'Current')
+      WorkspaceColumn('is_current', 'Current'),
     ],
   ),
   'audit': WorkspaceConfig(
@@ -371,7 +371,7 @@ const workspaceCatalog = <String, WorkspaceConfig>{
       WorkspaceColumn('created_at', 'When', date: true),
       WorkspaceColumn('action', 'Action'),
       WorkspaceColumn('entity_type', 'Entity'),
-      WorkspaceColumn('actor_email', 'User')
+      WorkspaceColumn('actor_email', 'User'),
     ],
   ),
 };

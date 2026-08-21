@@ -6,23 +6,26 @@ import '../network/api_client.dart';
 enum SessionStage { loading, signedOut, twoFactor, companySelection, signedIn }
 
 class Membership {
-  Membership(
-      {required this.tenantId, required this.tenantName, required this.role});
+  Membership({
+    required this.tenantId,
+    required this.tenantName,
+    required this.role,
+  });
   final String tenantId;
   final String tenantName;
   final String role;
 
   factory Membership.fromJson(Map<String, dynamic> json) => Membership(
-        tenantId: json['tenant_id'].toString(),
-        tenantName: (json['tenant_name'] ?? 'Company').toString(),
-        role: (json['role'] ?? 'member').toString(),
-      );
+    tenantId: json['tenant_id'].toString(),
+    tenantName: (json['tenant_name'] ?? 'Company').toString(),
+    role: (json['role'] ?? 'member').toString(),
+  );
 }
 
 class SessionController extends ChangeNotifier {
   SessionController({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage(),
-        api = ApiClient() {
+    : _storage = storage ?? const FlutterSecureStorage(),
+      api = ApiClient() {
     api.onTokenRotation = _persistTokens;
   }
 
@@ -52,7 +55,10 @@ class SessionController extends ChangeNotifier {
       return;
     }
     api.configure(
-        accessToken: access, refreshToken: refresh, tenantId: tenantId);
+      accessToken: access,
+      refreshToken: refresh,
+      tenantId: tenantId,
+    );
     try {
       await _loadIdentity();
       _resolveTenant();
@@ -67,8 +73,11 @@ class SessionController extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      final data = await api.post('/auth/login',
-          body: {'email': email.trim(), 'password': password}, tenant: false);
+      final data = await api.post(
+        '/auth/login',
+        body: {'email': email.trim(), 'password': password},
+        tenant: false,
+      );
       if (data is Map && data['requires_2fa'] == true) {
         challengeToken = data['challenge_token']?.toString();
         stage = SessionStage.twoFactor;
@@ -91,12 +100,11 @@ class SessionController extends ChangeNotifier {
     if (challenge == null) return;
     error = null;
     try {
-      final data = await api.post('/auth/2fa/challenge',
-          body: {
-            'challenge_token': challenge,
-            'totp_code': code.trim(),
-          },
-          tenant: false);
+      final data = await api.post(
+        '/auth/2fa/challenge',
+        body: {'challenge_token': challenge, 'totp_code': code.trim()},
+        tenant: false,
+      );
       await _acceptTokens(Map<String, dynamic>.from(data as Map));
       challengeToken = null;
       await _loadIdentity();
@@ -120,17 +128,23 @@ class SessionController extends ChangeNotifier {
   }) async {
     error = null;
     try {
-      await api.post('/auth/register', tenant: false, body: {
-        'email': email.trim(),
-        'password': password,
-        'full_name': fullName.trim(),
-        'phone_number': phone?.trim().isEmpty == true ? null : phone?.trim(),
-        'company_legal_name': companyName.trim(),
-        'company_gstin':
-            gstin?.trim().isEmpty == true ? null : gstin?.trim().toUpperCase(),
-        'company_pan':
-            pan?.trim().isEmpty == true ? null : pan?.trim().toUpperCase(),
-      });
+      await api.post(
+        '/auth/register',
+        tenant: false,
+        body: {
+          'email': email.trim(),
+          'password': password,
+          'full_name': fullName.trim(),
+          'phone_number': phone?.trim().isEmpty == true ? null : phone?.trim(),
+          'company_legal_name': companyName.trim(),
+          'company_gstin': gstin?.trim().isEmpty == true
+              ? null
+              : gstin?.trim().toUpperCase(),
+          'company_pan': pan?.trim().isEmpty == true
+              ? null
+              : pan?.trim().toUpperCase(),
+        },
+      );
       await login(email, password);
     } catch (e) {
       error = e.toString();
@@ -141,8 +155,11 @@ class SessionController extends ChangeNotifier {
   }
 
   Future<void> forgotPassword(String email) async {
-    await api.post('/auth/forgot-password',
-        tenant: false, body: {'email': email.trim()});
+    await api.post(
+      '/auth/forgot-password',
+      tenant: false,
+      body: {'email': email.trim()},
+    );
   }
 
   Future<void> _acceptTokens(Map<String, dynamic> data) async {
@@ -151,7 +168,10 @@ class SessionController extends ChangeNotifier {
     if (access == null || refresh == null)
       throw ApiException('Login did not return session tokens.');
     api.configure(
-        accessToken: access, refreshToken: refresh, tenantId: tenantId);
+      accessToken: access,
+      refreshToken: refresh,
+      tenantId: tenantId,
+    );
     await _persistTokens(access, refresh);
   }
 
@@ -162,7 +182,8 @@ class SessionController extends ChangeNotifier {
 
   Future<void> _loadIdentity() async {
     final me = Map<String, dynamic>.from(
-        await api.get('/auth/me', tenant: false) as Map);
+      await api.get('/auth/me', tenant: false) as Map,
+    );
     userName = me['full_name']?.toString();
     userEmail = me['email']?.toString();
     totpEnabled = me['totp_enabled'] == true;
@@ -210,8 +231,11 @@ class SessionController extends ChangeNotifier {
   Future<void> logout() async {
     try {
       if (api.refreshToken != null) {
-        await api.post('/auth/logout',
-            tenant: false, body: {'refresh_token': api.refreshToken});
+        await api.post(
+          '/auth/logout',
+          tenant: false,
+          body: {'refresh_token': api.refreshToken},
+        );
       }
     } catch (_) {}
     await _clearSession();
