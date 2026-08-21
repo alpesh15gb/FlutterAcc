@@ -51,7 +51,7 @@ class _MasterDataScreenState extends State<MasterDataScreen>
         widget.api.get('/masters/payment-terms'),
         widget.api.get('/masters/accounts', query: {'limit': 500}),
       ]);
-      if (!context.mounted) return;
+      if (!mounted) return;
       setState(() {
         _categories = _rows(result[0]);
         _taxes = _rows(result[1]);
@@ -59,9 +59,9 @@ class _MasterDataScreenState extends State<MasterDataScreen>
         _accounts = _rows(result[3]);
       });
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -153,10 +153,10 @@ class _MasterDataScreenState extends State<MasterDataScreen>
         await widget.api
             .put('/masters/expense-categories/${existing['id']}', body: result);
       }
-      if (context.mounted) showMessage(context, 'Expense category saved.');
+      if (mounted) showMessage(context, 'Expense category saved.');
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -168,10 +168,10 @@ class _MasterDataScreenState extends State<MasterDataScreen>
     if (!ok) return;
     try {
       await widget.api.delete('/masters/expense-categories/${category['id']}');
-      if (context.mounted) showMessage(context, 'Expense category deleted.');
+      if (mounted) showMessage(context, 'Expense category deleted.');
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -244,10 +244,10 @@ class _MasterDataScreenState extends State<MasterDataScreen>
         await widget.api
             .put('/masters/tax-templates/${existing['id']}', body: result);
       }
-      if (context.mounted) showMessage(context, 'GST rate saved.');
+      if (mounted) showMessage(context, 'GST rate saved.');
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -261,10 +261,10 @@ class _MasterDataScreenState extends State<MasterDataScreen>
     if (!ok) return;
     try {
       await widget.api.delete('/masters/tax-templates/${tax['id']}');
-      if (context.mounted) showMessage(context, 'GST rate deactivated.');
+      if (mounted) showMessage(context, 'GST rate deactivated.');
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 

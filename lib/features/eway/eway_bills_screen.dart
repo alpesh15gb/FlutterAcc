@@ -45,7 +45,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
     } catch (e) {
       _error = e.toString();
     }
-    if (context.mounted) setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _create() async {
@@ -60,7 +60,7 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
           .where(
               (i) => ['POSTED', 'PARTIALLY_PAID', 'PAID'].contains(i['status']))
           .toList();
-      if (!context.mounted) return;
+      if (!mounted) return;
       if (invoices.isEmpty && bills.isEmpty) {
         showMessage(context,
             'No finalized invoices or bills are available for e-Way Bill generation.',
@@ -318,13 +318,12 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
       ]) {
         c.dispose();
       }
-      if (!context.mounted) return;
       if (ok == true) {
         showMessage(context, 'e-Way Bill generated.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -382,7 +381,6 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
       ),
     );
     remarks.dispose();
-    if (!context.mounted) return;
     if (ok == true) _load();
   }
 
@@ -492,7 +490,6 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
     for (final c in [vehicle, fromPlace, fromState, remarks]) {
       c.dispose();
     }
-    if (!context.mounted) return;
     if (ok == true) {
       showMessage(context, 'Vehicle updated.');
       _load();
@@ -616,7 +613,6 @@ class _EWayBillsScreenState extends State<EWayBillsScreen> {
     for (final c in [vehicle, fromPlace, fromState]) {
       c.dispose();
     }
-    if (!context.mounted) return;
     if (ok == true) {
       showMessage(context, 'Consolidated e-Way Bill generated.');
       _load();

@@ -120,7 +120,7 @@ class _WarehousesTabState extends State<_WarehousesTab> {
     } catch (e) {
       _error = e.toString();
     }
-    if (context.mounted) setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _newWarehouse() async {
@@ -233,7 +233,6 @@ class _WarehousesTabState extends State<_WarehousesTab> {
     for (final c in [name, gstin, street, city, state, stateCode, pincode]) {
       c.dispose();
     }
-    if (!context.mounted) return;
     if (ok == true) {
       showMessage(context, 'Warehouse created.');
       _load();
@@ -316,7 +315,7 @@ class _WarehousesTabState extends State<_WarehousesTab> {
                                             }
                                             _load();
                                           } catch (e) {
-                                            if (context.mounted) {
+                                            if (mounted) {
                                               showMessage(context, e.toString(),
                                                   error: true);
                                             }
@@ -367,7 +366,7 @@ class _TransfersTabState extends State<_TransfersTab> {
     } catch (e) {
       _error = e.toString();
     }
-    if (context.mounted) setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _newTransfer() async {
@@ -378,7 +377,7 @@ class _TransfersTabState extends State<_TransfersTab> {
               .toList();
       final products = _rows(await widget.api.get('/masters/products',
           query: {'product_type': 'GOODS', 'limit': 100}));
-      if (!context.mounted) return;
+      if (!mounted) return;
       if (warehouses.length < 2) {
         showMessage(context, 'Create at least two active warehouses first.',
             error: true);
@@ -524,20 +523,19 @@ class _TransfersTabState extends State<_TransfersTab> {
       number.dispose();
       qty.dispose();
       notes.dispose();
-      if (!context.mounted) return;
       if (ok == true) {
         showMessage(context, 'Transfer draft created.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _action(Map<String, dynamic> row, String action) async {
     try {
       await widget.api.post('/transfers/${row['id']}/$action');
-      if (context.mounted) {
+      if (mounted) {
         showMessage(
             context,
             action == 'complete'
@@ -546,7 +544,7 @@ class _TransfersTabState extends State<_TransfersTab> {
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -643,14 +641,14 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
     } catch (e) {
       _error = e.toString();
     }
-    if (context.mounted) setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _new() async {
     try {
       final products = _rows(await widget.api.get('/masters/products',
           query: {'product_type': 'GOODS', 'limit': 100}));
-      if (!context.mounted) return;
+      if (!mounted) return;
       if (products.isEmpty) {
         showMessage(context, 'Create a goods item first.', error: true);
         return;
@@ -779,37 +777,36 @@ class _AdjustmentsTabState extends State<_AdjustmentsTab> {
       qty.dispose();
       cost.dispose();
       reason.dispose();
-      if (!context.mounted) return;
       if (ok == true) {
         showMessage(context, 'Adjustment draft created.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _confirm(Map<String, dynamic> a) async {
     try {
       await widget.api.post('/inventory-adjustments/${a['id']}/confirm');
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, 'Stock adjustment confirmed and posted.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _cancelAdj(Map<String, dynamic> a) async {
     try {
       await widget.api.post('/inventory-adjustments/${a['id']}/cancel');
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, 'Stock adjustment cancelled.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -901,7 +898,7 @@ class _StockLedgerTabState extends State<_StockLedgerTab> {
     } catch (e) {
       _error = e.toString();
     }
-    if (context.mounted) setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
   }
 
   @override

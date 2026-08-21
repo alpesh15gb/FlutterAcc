@@ -69,16 +69,16 @@ class _GstCenterScreenState extends State<GstCenterScreen>
         'start_date': apiDate(_from),
         'end_date': apiDate(_to),
       });
-      if (context.mounted) setState(() => _data = data);
+      if (mounted) setState(() => _data = data);
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         setState(() {
           _error = e.toString();
           _data = null;
         });
       }
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -93,11 +93,11 @@ class _GstCenterScreenState extends State<GstCenterScreen>
     try {
       final data =
           await widget.api.upload('/gst/gstr2a/upload', result.files.single);
-      if (context.mounted) setState(() => _reconciliation = data);
+      if (mounted) setState(() => _reconciliation = data);
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -108,16 +108,16 @@ class _GstCenterScreenState extends State<GstCenterScreen>
     });
     try {
       final d = await widget.api.get('/gst/returns');
-      if (context.mounted) {
+      if (mounted) {
         setState(() => _filings = (d as List)
             .whereType<Map>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList());
       }
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -133,11 +133,11 @@ class _GstCenterScreenState extends State<GstCenterScreen>
       });
       final filename = '${_returnType}_${apiDate(_from)}_${apiDate(_to)}.$ext';
       final saved = await saveDownloadedFile(bytes, filename);
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, saved ? '$filename saved.' : 'Save cancelled.');
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -247,10 +247,10 @@ class _GstCenterScreenState extends State<GstCenterScreen>
         'status': status,
         'arn': arnValue.isEmpty ? null : arnValue,
       });
-      if (context.mounted) showMessage(context, 'GST filing period added.');
+      if (mounted) showMessage(context, 'GST filing period added.');
       await _loadFilings();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -307,10 +307,10 @@ class _GstCenterScreenState extends State<GstCenterScreen>
         'status': status,
         'arn': arnValue.isEmpty ? null : arnValue,
       });
-      if (context.mounted) showMessage(context, 'GST filing status updated.');
+      if (mounted) showMessage(context, 'GST filing status updated.');
       await _loadFilings();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 

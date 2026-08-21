@@ -67,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         widget.api.get('/companies/$id/branches'),
         widget.api.get('/terms-templates'),
       ]);
-      if (!context.mounted) return;
+      if (!mounted) return;
       setState(() {
         _company = Map<String, dynamic>.from(r[0] as Map);
         _settings = Map<String, dynamic>.from(r[1] as Map);
@@ -77,9 +77,9 @@ class _SettingsScreenState extends State<SettingsScreen>
         _terms = _rows(r[5]);
       });
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -208,14 +208,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                     'tax_mode': taxMode,
                     'financial_year_start': _company['financial_year_start'],
                   });
-                  if (context.mounted) {
+                  if (mounted) {
                     setState(() =>
                         _company = Map<String, dynamic>.from(data as Map));
                     showMessage(context, 'Company profile updated.');
                   }
                 } catch (e) {
-                  if (context.mounted)
-                    showMessage(context, e.toString(), error: true);
+                  if (mounted) showMessage(context, e.toString(), error: true);
                 }
               },
               icon: const Icon(Icons.save_outlined),
@@ -300,12 +299,12 @@ class _SettingsScreenState extends State<SettingsScreen>
     if (picked == null || picked.files.isEmpty) return;
     try {
       await widget.api.upload('/settings/logo', picked.files.first);
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, 'Logo uploaded.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -425,7 +424,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     for (final c in [name, gstin, street, city, state, stateCode, pincode]) {
       c.dispose();
     }
-    if (!context.mounted) return;
     if (ok == true) _load();
   }
 
@@ -435,7 +433,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           body: {'is_active': branch['is_active'] == false});
       _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -462,7 +460,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       await widget.api.delete('/companies/$_tenantId/branches/${branch['id']}');
       _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -556,14 +554,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                   body['e_way_bill_password'] = ewayPass.text;
                 }
                 final data = await widget.api.put('/settings', body: body);
-                if (context.mounted) {
+                if (mounted) {
                   setState(
                       () => _settings = Map<String, dynamic>.from(data as Map));
                   showMessage(context, 'GST integration settings updated.');
                 }
               } catch (e) {
-                if (context.mounted)
-                  showMessage(context, e.toString(), error: true);
+                if (mounted) showMessage(context, e.toString(), error: true);
               }
             },
             icon: const Icon(Icons.save_outlined),
@@ -879,7 +876,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       await widget.api.delete('/terms-templates/${t['id']}');
       _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -1036,7 +1033,6 @@ class _SettingsScreenState extends State<SettingsScreen>
         ),
       ),
     );
-    if (!context.mounted) return;
     if (ok == true) _load();
   }
 
@@ -1046,7 +1042,7 @@ class _SettingsScreenState extends State<SettingsScreen>
           .delete('/companies/$_tenantId/members/${member['user_id']}');
       _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -1082,7 +1078,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     try {
       final data = Map<String, dynamic>.from(
           await widget.api.post('/auth/2fa/enable') as Map);
-      if (!context.mounted) return;
+      if (!mounted) return;
       final code = TextEditingController();
       Uint8List? bytes;
       final qr = data['qr_code']?.toString();
@@ -1134,11 +1130,10 @@ class _SettingsScreenState extends State<SettingsScreen>
       code.dispose();
       if (verified == true) {
         widget.session.updateTotpEnabled(true);
-        if (context.mounted)
-          showMessage(context, 'Two-factor authentication enabled.');
+        if (mounted) showMessage(context, 'Two-factor authentication enabled.');
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -1175,10 +1170,9 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
     );
     code.dispose();
-    if (!context.mounted) return;
     if (ok == true) {
       widget.session.updateTotpEnabled(false);
-      if (context.mounted) showMessage(context, '2FA disabled.');
+      if (mounted) showMessage(context, '2FA disabled.');
     }
   }
 
@@ -1240,12 +1234,12 @@ class _SettingsScreenState extends State<SettingsScreen>
       final data = await widget.api.get('/companies/$_tenantId/export');
       final encoded = const JsonEncoder.withIndent('  ').convert(data);
       await Clipboard.setData(ClipboardData(text: encoded));
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context,
             'Backup JSON copied to clipboard (${encoded.length} characters).');
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -1277,9 +1271,9 @@ class _SettingsScreenState extends State<SettingsScreen>
           : throw ApiException('The selected file could not be read.');
       final payload = jsonDecode(raw);
       await widget.api.post('/companies/$_tenantId/import', body: payload);
-      if (context.mounted) showMessage(context, 'Backup restore completed.');
+      if (mounted) showMessage(context, 'Backup restore completed.');
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -1304,7 +1298,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     if (!proceed) return;
     try {
       final result = await widget.api.post('/purge/request');
-      if (!context.mounted) return;
+      if (!mounted) return;
       final otp = TextEditingController();
       final hint = result is Map ? result['detail']?.toString() : 'OTP sent.';
       final verified = await showDialog<bool>(
@@ -1345,7 +1339,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         showMessage(context, 'Company data purged.');
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 }
@@ -1398,17 +1392,17 @@ class _ChangePasswordState extends State<_ChangePassword> {
                         'current_password': current.text,
                         'new_password': next.text
                       });
-                      if (context.mounted) {
+                      if (mounted) {
                         current.clear();
                         next.clear();
                         showMessage(context, 'Password changed.');
                       }
                     } catch (e) {
-                      if (context.mounted) {
+                      if (mounted) {
                         showMessage(context, e.toString(), error: true);
                       }
                     } finally {
-                      if (context.mounted) setState(() => saving = false);
+                      if (mounted) setState(() => saving = false);
                     }
                   },
             child: Text(saving ? 'Changing…' : 'Change password'),

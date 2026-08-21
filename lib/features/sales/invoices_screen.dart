@@ -40,7 +40,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
   }
 
   Future<void> _load() async {
-    if (context.mounted) {
+    if (mounted) {
       setState(() {
         _loading = true;
         _error = null;
@@ -55,7 +55,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
         widget.api.get('/invoices/stats'),
       ]);
       final data = Map<String, dynamic>.from(r[0] as Map);
-      if (context.mounted) {
+      if (mounted) {
         setState(() {
           _items = ((data['items'] as List?) ?? [])
               .whereType<Map>()
@@ -65,9 +65,9 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
         });
       }
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -105,10 +105,10 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
         await widget.api.get('/invoices/$id') as Map,
       );
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
       return;
     }
-    if (!context.mounted) return;
+    if (!mounted) return;
     final status = detail['status']?.toString().toUpperCase() ?? '';
     final eInvoiceStatus =
         detail['e_invoice_status']?.toString().toUpperCase() ?? 'PENDING';
@@ -320,10 +320,10 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     if (destructive && !await _confirm(label)) return;
     try {
       await widget.api.post('/invoices/$id/$suffix');
-      if (context.mounted) showMessage(context, '$label completed.');
+      if (mounted) showMessage(context, '$label completed.');
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -331,7 +331,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     try {
       final data = await widget.api.post('/invoices/$id/e-invoice');
       final irn = data is Map ? data['irn']?.toString() : null;
-      if (context.mounted) {
+      if (mounted) {
         showMessage(
           context,
           irn == null ? 'E-invoice generated.' : 'IRN generated: $irn',
@@ -339,7 +339,7 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
       }
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -412,10 +412,10 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
           'cancel_remarks': note.isEmpty ? null : note,
         },
       );
-      if (context.mounted) showMessage(context, 'E-invoice IRN cancelled.');
+      if (mounted) showMessage(context, 'E-invoice IRN cancelled.');
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -423,10 +423,10 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     if (!await _confirm('Delete draft')) return;
     try {
       await widget.api.delete('/invoices/$id');
-      if (context.mounted) showMessage(context, 'Draft invoice deleted.');
+      if (mounted) showMessage(context, 'Draft invoice deleted.');
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -441,11 +441,11 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
               ) ??
           id;
       final saved = await saveDownloadedFile(bytes, 'Invoice_$number.pdf');
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, saved ? 'Invoice PDF saved.' : 'Save cancelled.');
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 

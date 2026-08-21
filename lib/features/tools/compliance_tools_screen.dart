@@ -36,7 +36,7 @@ class _ComplianceToolsScreenState extends State<ComplianceToolsScreen>
   }
 
   Future<void> _loadReminders() async {
-    if (context.mounted) {
+    if (mounted) {
       setState(() {
         _loadingReminders = true;
         _reminderError = null;
@@ -44,16 +44,16 @@ class _ComplianceToolsScreenState extends State<ComplianceToolsScreen>
     }
     try {
       final data = await widget.api.get('/reminders');
-      if (context.mounted) {
+      if (mounted) {
         setState(() => _reminders = (data as List)
             .whereType<Map>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList());
       }
     } catch (e) {
-      if (context.mounted) setState(() => _reminderError = e.toString());
+      if (mounted) setState(() => _reminderError = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loadingReminders = false);
+      if (mounted) setState(() => _loadingReminders = false);
     }
   }
 
@@ -162,9 +162,9 @@ class _GstinVerifyCardState extends State<_GstinVerifyCard> {
         _captcha.clear();
       });
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (context.mounted) setState(() => _loadingCaptcha = false);
+      if (mounted) setState(() => _loadingCaptcha = false);
     }
   }
 
@@ -186,16 +186,16 @@ class _GstinVerifyCardState extends State<_GstinVerifyCard> {
         'captcha': _captcha.text.trim(),
         'session_id': _sessionId,
       });
-      if (context.mounted) {
+      if (mounted) {
         setState(() => _result = Map<String, dynamic>.from(data as Map));
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, e.toString(), error: true);
         _loadCaptcha();
       }
     } finally {
-      if (context.mounted) setState(() => _verifying = false);
+      if (mounted) setState(() => _verifying = false);
     }
   }
 
@@ -308,13 +308,13 @@ class _HsnLookupCardState extends State<_HsnLookupCard> {
     setState(() => _loading = true);
     try {
       final data = await widget.api.get('/gst/hsn/$code');
-      if (context.mounted) {
+      if (mounted) {
         setState(() => _result = Map<String, dynamic>.from(data as Map));
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 

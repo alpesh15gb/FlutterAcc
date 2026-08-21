@@ -44,11 +44,11 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
     });
     try {
       final data = await widget.api.get('/recurring-invoices');
-      if (context.mounted) setState(() => _items = _rows(data));
+      if (mounted) setState(() => _items = _rows(data));
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -61,7 +61,7 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
         ),
         widget.api.get('/masters/products', query: {'limit': 100}),
       ]);
-      if (!context.mounted) return;
+      if (!mounted) return;
       final contacts = _rows(result[0]);
       final products = _rows(result[1]);
       if (contacts.isEmpty || products.isEmpty) {
@@ -85,7 +85,7 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
       );
       if (saved == true) _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -116,14 +116,14 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
       final data = await widget.api.post(
         '/recurring-invoices/${row['id']}/generate',
       );
-      if (!context.mounted) return;
+      if (!mounted) return;
       showMessage(
         context,
         'Invoice ${data is Map ? data['invoice_number'] ?? '' : ''} generated with the template GST rate mode.',
       );
       _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -133,11 +133,11 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
         '/recurring-invoices/${row['id']}',
         body: {'is_active': active},
       );
-      if (!context.mounted) return;
+      if (!mounted) return;
       showMessage(context, active ? 'Template activated.' : 'Template paused.');
       _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -166,11 +166,11 @@ class _RecurringInvoicesScreenState extends State<RecurringInvoicesScreen> {
     if (!ok) return;
     try {
       await widget.api.delete('/recurring-invoices/${row['id']}');
-      if (!context.mounted) return;
+      if (!mounted) return;
       showMessage(context, 'Recurring template deleted.');
       _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -375,7 +375,7 @@ class _RecurringEditorState extends State<_RecurringEditor> {
       final data = Map<String, dynamic>.from(
         await widget.api.get('/recurring-invoices/${widget.initialId}') as Map,
       );
-      if (!context.mounted) return;
+      if (!mounted) return;
       for (final line in _lines) {
         line.dispose();
       }
@@ -411,9 +411,9 @@ class _RecurringEditorState extends State<_RecurringEditor> {
         if (_lines.isEmpty) _addProduct(widget.products.first);
       });
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -525,16 +525,16 @@ class _RecurringEditorState extends State<_RecurringEditor> {
       } else {
         await widget.api.post('/recurring-invoices', body: body);
       }
-      if (!context.mounted) return;
+      if (!mounted) return;
       showMessage(
         context,
         _editing ? 'Template updated.' : 'Template created.',
       );
       Navigator.pop(context, true);
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (context.mounted) setState(() => _saving = false);
+      if (mounted) setState(() => _saving = false);
     }
   }
 

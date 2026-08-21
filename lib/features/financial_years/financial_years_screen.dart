@@ -42,7 +42,7 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
     } catch (e) {
       _error = e.toString();
     }
-    if (context.mounted) setState(() => _loading = false);
+    if (mounted) setState(() => _loading = false);
   }
 
   Future<void> _create() async {
@@ -117,7 +117,6 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
       ),
     );
     name.dispose();
-    if (!context.mounted) return;
     if (ok == true) {
       showMessage(context, 'Financial year created and selected.');
       _load();
@@ -128,12 +127,12 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
     try {
       await widget.api.post('/financial-years/switch',
           body: {'financial_year_id': fy['id']});
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, 'Switched to ${fy['name']}.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -141,7 +140,7 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
     try {
       final report =
           await widget.api.get('/financial-years/${fy['id']}/dashboard');
-      if (!context.mounted) return;
+      if (!mounted) return;
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -177,7 +176,7 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
         ),
       );
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -226,7 +225,6 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
       ),
     );
     reason.dispose();
-    if (!context.mounted) return;
     if (ok == true) {
       showMessage(context, 'Financial year reopened.');
       _load();
@@ -294,7 +292,6 @@ class _FinancialYearsScreenState extends State<FinancialYearsScreen> {
       ),
     );
     note.dispose();
-    if (!context.mounted) return;
     if (ok == true) _load();
   }
 

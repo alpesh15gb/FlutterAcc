@@ -45,7 +45,7 @@ class _BankingScreenState extends State<BankingScreen> {
         widget.api
             .get('/bank-reconciliation/reconciliations', query: {'limit': 500}),
       ]);
-      if (!context.mounted) return;
+      if (!mounted) return;
       setState(() {
         _profiles = _rows(r[0]);
         _statements = _rows(r[1]);
@@ -58,9 +58,9 @@ class _BankingScreenState extends State<BankingScreen> {
         if (current != null) await _selectStatement(current);
       }
     } catch (e) {
-      if (context.mounted) setState(() => _error = e.toString());
+      if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (context.mounted) setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -78,7 +78,7 @@ class _BankingScreenState extends State<BankingScreen> {
         widget.api
             .get('/bank-reconciliation/reconciliations', query: {'limit': 500}),
       ]);
-      if (!context.mounted) return;
+      if (!mounted) return;
       setState(() {
         _stats = Map<String, dynamic>.from(r[0] as Map);
         _transactions = _rows(r[1]);
@@ -86,9 +86,9 @@ class _BankingScreenState extends State<BankingScreen> {
         _reconciliations = _rows(r[3]);
       });
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (context.mounted) setState(() => _detailLoading = false);
+      if (mounted) setState(() => _detailLoading = false);
     }
   }
 
@@ -106,7 +106,7 @@ class _BankingScreenState extends State<BankingScreen> {
         '/masters/banking-profiles/${bank['id']}',
         body: {'is_active': bank['is_active'] == false},
       );
-      if (context.mounted) {
+      if (mounted) {
         showMessage(
             context,
             bank['is_active'] == false
@@ -115,7 +115,7 @@ class _BankingScreenState extends State<BankingScreen> {
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -126,12 +126,12 @@ class _BankingScreenState extends State<BankingScreen> {
     }
     try {
       await widget.api.delete('/masters/banking-profiles/${bank['id']}');
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, 'Bank profile deleted.');
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -187,13 +187,13 @@ class _BankingScreenState extends State<BankingScreen> {
         file.files.single,
         query: {'banking_profile_id': chosen},
       );
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context,
             'Imported ${data['transactions_imported'] ?? ''} bank transactions.');
       }
       await _load();
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -207,7 +207,7 @@ class _BankingScreenState extends State<BankingScreen> {
     try {
       await widget.api
           .delete('/bank-reconciliation/statements/${statement['id']}');
-      if (context.mounted) {
+      if (mounted) {
         setState(() {
           if (_selected?['id'] == statement['id']) {
             _selected = null;
@@ -219,7 +219,7 @@ class _BankingScreenState extends State<BankingScreen> {
         _load();
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -229,13 +229,13 @@ class _BankingScreenState extends State<BankingScreen> {
     try {
       final data = await widget.api
           .post('/bank-reconciliation/statements/$id/auto-match');
-      if (context.mounted) {
+      if (mounted) {
         showMessage(
             context, 'Auto-matched ${data['matched'] ?? 0} transactions.');
       }
       await _selectStatement(_selected!);
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -291,11 +291,11 @@ class _BankingScreenState extends State<BankingScreen> {
                   }),
         ];
       } catch (e) {
-        if (context.mounted) showMessage(context, e.toString(), error: true);
+        if (mounted) showMessage(context, e.toString(), error: true);
         return;
       }
     }
-    if (!context.mounted) return;
+    if (!mounted) return;
     if (candidates.isEmpty) {
       showMessage(
           context, 'No active receipt or disbursement is available to match.',
@@ -378,12 +378,12 @@ class _BankingScreenState extends State<BankingScreen> {
               : noteText,
         },
       );
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, 'Transaction reconciled.');
         _selectStatement(_selected!);
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -398,12 +398,12 @@ class _BankingScreenState extends State<BankingScreen> {
     try {
       await widget.api
           .post('/bank-reconciliation/reconciliations/${recon['id']}/undo');
-      if (context.mounted) {
+      if (mounted) {
         showMessage(context, 'Reconciliation undone.');
         _selectStatement(_selected!);
       }
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -806,11 +806,11 @@ class _BankDialogState extends State<_BankDialog> {
         await widget.api
             .put('/masters/banking-profiles/${widget.item!['id']}', body: body);
       }
-      if (context.mounted) Navigator.pop(context, true);
+      if (mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (context.mounted) showMessage(context, e.toString(), error: true);
+      if (mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (context.mounted) setState(() => _saving = false);
+      if (mounted) setState(() => _saving = false);
     }
   }
 
