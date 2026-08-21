@@ -67,7 +67,7 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
   }
 
   Future<void> _load() async {
-    if (mounted) {
+    if (context.mounted) {
       setState(() {
         _loading = true;
         _error = null;
@@ -78,11 +78,11 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
       final text = _search.text.trim();
       if (text.isNotEmpty) query['search'] = text;
       final data = await widget.api.get(widget.config.endpoint, query: query);
-      if (mounted) setState(() => _items = _normalize(data));
+      if (context.mounted) setState(() => _items = _normalize(data));
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -146,7 +146,7 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
     try {
       detail = await _detail(item);
     } catch (_) {}
-    if (!mounted) return;
+    if (!context.mounted) return;
     await showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -498,7 +498,7 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
         final fileName =
             '${widget.config.id}_${_recordTitle(item).replaceAll(RegExp(r'[^A-Za-z0-9._-]'), '_')}.pdf';
         final saved = await saveDownloadedFile(bytes, fileName);
-        if (mounted) {
+        if (context.mounted) {
           showMessage(context, saved ? 'PDF saved.' : 'Save cancelled.');
         }
         return;
@@ -509,10 +509,10 @@ class _DataWorkspaceScreenState extends State<DataWorkspaceScreen> {
         final suffix = action.suffix == null ? '' : '/${action.suffix}';
         await widget.api.post('${widget.config.endpoint}/$id$suffix');
       }
-      if (mounted) showMessage(context, '${action.label} completed.');
+      if (context.mounted) showMessage(context, '${action.label} completed.');
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 

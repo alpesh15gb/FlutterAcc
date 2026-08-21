@@ -178,7 +178,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       final contacts = (data as List)
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList();
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _contacts = contacts;
         _contactId ??=
@@ -207,7 +207,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Future<void> _load() async {
     final report = selected;
     if (report.query == _ReportQuery.party && _contactId == null) {
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _data = null;
           _error = 'Create or load a party before running a party statement.';
@@ -222,16 +222,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
     try {
       final data =
           await widget.api.get(report.endpoint, query: _queryFor(report));
-      if (mounted) setState(() => _data = data);
+      if (context.mounted) setState(() => _data = data);
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _error = e.toString();
           _data = null;
         });
       }
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -258,9 +258,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         showMessage(context, '${report.title} $format saved.');
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _exporting = false);
+      if (context.mounted) setState(() => _exporting = false);
     }
   }
 

@@ -41,7 +41,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
     } catch (e) {
       _error = e.toString();
     }
-    if (mounted) setState(() => _loading = false);
+    if (context.mounted) setState(() => _loading = false);
   }
 
   Future<void> _create() async {
@@ -56,7 +56,7 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
               : ['POSTED', 'SENT', 'PARTIALLY_PAID', 'PAID']
                   .contains(e['status']))
           .toList();
-      if (!mounted) return;
+      if (!context.mounted) return;
       if (docs.isEmpty) {
         showMessage(context,
             'No eligible posted ${widget.purchase ? 'bills' : 'invoices'} found.',
@@ -71,19 +71,19 @@ class _ReturnsScreenState extends State<ReturnsScreen> {
       );
       if (saved == true) _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _cancel(Map<String, dynamic> item) async {
     try {
       await widget.api.post('$_endpoint/${item['id']}/cancel');
-      if (mounted) {
+      if (context.mounted) {
         showMessage(context, 'Return cancelled and reversed.');
         _load();
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -216,7 +216,7 @@ class _ReturnEditorState extends State<_ReturnEditor> {
     } catch (e) {
       _error = e.toString();
     }
-    if (mounted) setState(() => _loading = false);
+    if (context.mounted) setState(() => _loading = false);
   }
 
   Future<void> _save() async {
@@ -255,15 +255,15 @@ class _ReturnEditorState extends State<_ReturnEditor> {
             'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
             'line_items': lineItems,
           });
-      if (mounted) {
+      if (context.mounted) {
         showMessage(context,
             '${widget.purchase ? 'Purchase' : 'Sales'} return posted.');
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

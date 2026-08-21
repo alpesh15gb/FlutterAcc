@@ -33,15 +33,15 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     });
     try {
       final data = await widget.api.get('/expenses', query: {'limit': 100});
-      if (mounted) {
+      if (context.mounted) {
         setState(() => _items = (data as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList());
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -64,7 +64,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
   Future<void> _detail(Map<String, dynamic> row) async {
     try {
       final raw = await widget.api.get('/expenses/${row['id']}');
-      if (!mounted) return;
+      if (!context.mounted) return;
       final detail = Map<String, dynamic>.from(raw as Map);
       await showDialog<void>(
         context: context,
@@ -158,19 +158,19 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
         ),
       );
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _clone(String id) async {
     try {
       final raw = await widget.api.post('/expenses/$id/clone');
-      if (!mounted) return;
+      if (!context.mounted) return;
       final clone = Map<String, dynamic>.from(raw as Map);
       showMessage(
           context, 'Expense cloned as ${clone['expense_number'] ?? 'draft'}.');
       await _load();
-      if (!mounted) return;
+      if (!context.mounted) return;
       final saved = await Navigator.push<bool>(
         context,
         MaterialPageRoute(
@@ -180,7 +180,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       );
       if (saved == true) _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -203,7 +203,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
     if (ok != true) return;
     try {
       await widget.api.post('/expenses/$id/$action');
-      if (mounted) {
+      if (context.mounted) {
         showMessage(
             context,
             action == 'post'
@@ -212,7 +212,7 @@ class _ExpensesScreenState extends State<ExpensesScreen> {
       }
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -396,7 +396,7 @@ class _ExpenseEditorScreenState extends State<ExpenseEditorScreen> {
         if (_editing) widget.api.get('/expenses/${widget.initialId}'),
       ];
       final result = await Future.wait(futures);
-      if (!mounted) return;
+      if (!context.mounted) return;
       _categories = (result[0] as List)
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList();
@@ -427,7 +427,7 @@ class _ExpenseEditorScreenState extends State<ExpenseEditorScreen> {
     } catch (e) {
       _error = e.toString();
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -446,13 +446,13 @@ class _ExpenseEditorScreenState extends State<ExpenseEditorScreen> {
         'gst_rate': double.tryParse(_gst.text) ?? 0,
         'place_of_supply_state_code': _pos.text,
       });
-      if (mounted) {
+      if (context.mounted) {
         setState(() => _preview = Map<String, dynamic>.from(data as Map));
       }
     } catch (_) {
       // The create/update endpoint remains authoritative if preview is unavailable.
     } finally {
-      if (mounted) setState(() => _previewing = false);
+      if (context.mounted) setState(() => _previewing = false);
     }
   }
 
@@ -485,15 +485,15 @@ class _ExpenseEditorScreenState extends State<ExpenseEditorScreen> {
       } else {
         await widget.api.post('/expenses', body: body);
       }
-      if (mounted) {
+      if (context.mounted) {
         showMessage(
             context, _editing ? 'Draft expense updated.' : 'Expense posted.');
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 
@@ -715,7 +715,7 @@ class _ExpenseCategoriesDialogState extends State<_ExpenseCategoriesDialog> {
         widget.api.get('/masters/expense-categories'),
         widget.api.get('/masters/accounts', query: {'limit': 200}),
       ]);
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _categories = (r[0] as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
@@ -728,7 +728,7 @@ class _ExpenseCategoriesDialogState extends State<_ExpenseCategoriesDialog> {
         _loading = false;
       });
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _error = e.toString();
           _loading = false;
@@ -773,7 +773,7 @@ class _ExpenseCategoriesDialogState extends State<_ExpenseCategoriesDialog> {
       _changed = true;
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -885,11 +885,11 @@ class _ExpenseCategoryEditorState extends State<_ExpenseCategoryEditor> {
         await widget.api.put('/masters/expense-categories/${widget.row!['id']}',
             body: body);
       }
-      if (mounted) Navigator.pop(context, true);
+      if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

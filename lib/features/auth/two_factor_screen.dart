@@ -31,9 +31,9 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
     try {
       await widget.session.verifyTwoFactor(_code.text);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 

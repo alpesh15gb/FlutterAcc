@@ -52,11 +52,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         gstin: _gstin.text,
         pan: _pan.text,
       );
-      if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+      if (context.mounted)
+        Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 

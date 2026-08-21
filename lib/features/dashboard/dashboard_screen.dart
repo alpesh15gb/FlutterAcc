@@ -47,7 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         widget.api.get('/dashboard/expense-trend'),
         widget.api.get('/dashboard/overdue-alerts'),
       ]);
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _kpis = Map<String, dynamic>.from(results[0] as Map);
         _gst = Map<String, dynamic>.from(results[1] as Map);
@@ -60,9 +60,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _overdue = Map<String, dynamic>.from(results[4] as Map);
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 

@@ -37,11 +37,11 @@ class _ImportToolsScreenState extends State<ImportToolsScreen> {
     });
     try {
       final data = await task();
-      if (mounted) setState(() => _result = data);
+      if (context.mounted) setState(() => _result = data);
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 

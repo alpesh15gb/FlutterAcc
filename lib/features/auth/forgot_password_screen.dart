@@ -29,15 +29,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _loading = true);
     try {
       await widget.session.forgotPassword(_email.text);
-      if (mounted) {
+      if (context.mounted) {
         showMessage(
             context, 'If the email is registered, a reset link has been sent.');
         Navigator.pop(context);
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 

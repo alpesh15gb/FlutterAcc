@@ -44,7 +44,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
       if (_type != 'ALL') q['product_type'] = _type;
       if (_search.text.trim().isNotEmpty) q['search'] = _search.text.trim();
       final d = await widget.api.get('/masters/products', query: q);
-      if (mounted) {
+      if (context.mounted) {
         setState(
           () => _items = (d as List)
               .map((e) => Map<String, dynamic>.from(e as Map))
@@ -52,9 +52,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
         );
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -73,12 +73,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
         '/masters/products/${p['id']}',
         body: {'is_active': !active},
       );
-      if (mounted) {
+      if (context.mounted) {
         showMessage(context, active ? 'Item deactivated.' : 'Item activated.');
         _load();
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -106,12 +106,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
     if (!ok) return;
     try {
       await widget.api.delete('/masters/products/${p['id']}');
-      if (mounted) {
+      if (context.mounted) {
         showMessage(context, 'Item deleted.');
         _load();
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -389,11 +389,11 @@ class _ProductDialogState extends State<_ProductDialog> {
           body: body,
         );
       }
-      if (mounted) Navigator.pop(context, true);
+      if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

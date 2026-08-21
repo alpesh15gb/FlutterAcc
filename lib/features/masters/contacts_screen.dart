@@ -45,15 +45,15 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (_type != 'ALL') query['contact_type'] = _type;
       if (_search.text.trim().isNotEmpty) query['search'] = _search.text.trim();
       final data = await widget.api.get('/masters/contacts', query: query);
-      if (mounted) {
+      if (context.mounted) {
         setState(() => _items = (data as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList());
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -69,13 +69,13 @@ class _ContactsScreenState extends State<ContactsScreen> {
     try {
       await widget.api
           .put('/masters/contacts/${item['id']}', body: {'is_active': !active});
-      if (mounted) {
+      if (context.mounted) {
         showMessage(
             context, active ? 'Party deactivated.' : 'Party activated.');
         _load();
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -98,12 +98,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
     if (!ok) return;
     try {
       await widget.api.delete('/masters/contacts/${item['id']}');
-      if (mounted) {
+      if (context.mounted) {
         showMessage(context, 'Party deleted.');
         _load();
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -348,11 +348,11 @@ class _ContactDialogState extends State<_ContactDialog> {
         await widget.api
             .put('/masters/contacts/${widget.item!['id']}', body: body);
       }
-      if (mounted) Navigator.pop(context, true);
+      if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

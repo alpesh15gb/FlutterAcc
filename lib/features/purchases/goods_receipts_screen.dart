@@ -45,7 +45,7 @@ class _GoodsReceiptsScreenState extends State<GoodsReceiptsScreen> {
     } catch (e) {
       _error = e.toString();
     }
-    if (mounted) setState(() => _loading = false);
+    if (context.mounted) setState(() => _loading = false);
   }
 
   Future<void> _create() async {
@@ -56,7 +56,7 @@ class _GoodsReceiptsScreenState extends State<GoodsReceiptsScreen> {
           _rows(await widget.api.get('/warehouses', query: {'limit': 100}))
               .where((w) => w['is_active'] != false)
               .toList();
-      if (!mounted) return;
+      if (!context.mounted) return;
       if (poRows.isEmpty) {
         showMessage(context, 'Create a purchase order before receiving goods.',
             error: true);
@@ -71,14 +71,14 @@ class _GoodsReceiptsScreenState extends State<GoodsReceiptsScreen> {
                   warehouses: warehouses)));
       if (saved == true) _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _action(Map<String, dynamic> r, String action) async {
     try {
       await widget.api.post('/goods-receipts/${r['id']}/$action');
-      if (mounted) {
+      if (context.mounted) {
         showMessage(
             context,
             action == 'confirm'
@@ -87,7 +87,7 @@ class _GoodsReceiptsScreenState extends State<GoodsReceiptsScreen> {
         _load();
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -219,7 +219,7 @@ class _GoodsReceiptEditorState extends State<_GoodsReceiptEditor> {
     } catch (e) {
       _error = e.toString();
     }
-    if (mounted) setState(() => _loading = false);
+    if (context.mounted) setState(() => _loading = false);
   }
 
   Future<void> _save() async {
@@ -252,14 +252,14 @@ class _GoodsReceiptEditorState extends State<_GoodsReceiptEditor> {
                 })
             .toList()
       });
-      if (mounted) {
+      if (context.mounted) {
         showMessage(context, 'GRN draft created. Confirm it to update stock.');
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

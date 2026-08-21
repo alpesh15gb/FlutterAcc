@@ -93,9 +93,9 @@ class _BillScanScreenState extends State<BillScanScreen> {
       }
       _applyPreview(Map<String, dynamic>.from(preview));
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _scanning = false;
           _progress = null;
@@ -106,7 +106,7 @@ class _BillScanScreenState extends State<BillScanScreen> {
 
   Future<dynamic> _poll(String jobId) async {
     for (var attempt = 0; attempt < 80; attempt++) {
-      if (!mounted) throw ApiException('Scan cancelled.');
+      if (!context.mounted) throw ApiException('Scan cancelled.');
       setState(() => _progress = 'Reading bill… ${attempt + 1}');
       await Future<void>.delayed(const Duration(milliseconds: 1500));
       try {
@@ -222,7 +222,7 @@ class _BillScanScreenState extends State<BillScanScreen> {
         'line_items': _lines.map((line) => line.payload).toList(),
       };
       final result = await widget.api.post('/bills/scan-save', body: payload);
-      if (mounted) {
+      if (context.mounted) {
         final number = result is Map ? result['bill_number']?.toString() : null;
         showMessage(
             context,
@@ -232,9 +232,9 @@ class _BillScanScreenState extends State<BillScanScreen> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

@@ -48,15 +48,15 @@ class _AccountingScreenState extends State<AccountingScreen>
         widget.api.get('/masters/accounts', query: {'limit': 500}),
         widget.api.get('/accounting/journals', query: {'limit': 200}),
       ]);
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _accounts = _rows(result[0]);
         _journals = _rows(result[1]);
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -78,13 +78,13 @@ class _AccountingScreenState extends State<AccountingScreen>
       await widget.api.put('/masters/accounts/${account['id']}', body: {
         'is_active': !active,
       });
-      if (mounted) {
+      if (context.mounted) {
         showMessage(
             context, active ? 'Account deactivated.' : 'Account activated.');
       }
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -111,17 +111,17 @@ class _AccountingScreenState extends State<AccountingScreen>
     if (ok != true) return;
     try {
       await widget.api.delete('/masters/accounts/${account['id']}');
-      if (mounted) showMessage(context, 'Account deleted.');
+      if (context.mounted) showMessage(context, 'Account deleted.');
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _seedDefaults() async {
     try {
       final result = await widget.api.post('/masters/accounts/seed-defaults');
-      if (mounted) {
+      if (context.mounted) {
         final data = result is Map
             ? Map<String, dynamic>.from(result)
             : <String, dynamic>{};
@@ -130,7 +130,7 @@ class _AccountingScreenState extends State<AccountingScreen>
       }
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -157,7 +157,7 @@ class _AccountingScreenState extends State<AccountingScreen>
     try {
       final result =
           await widget.api.post('/masters/accounts/dedupe-contact-accounts');
-      if (mounted) {
+      if (context.mounted) {
         final data = result is Map
             ? Map<String, dynamic>.from(result)
             : <String, dynamic>{};
@@ -166,14 +166,14 @@ class _AccountingScreenState extends State<AccountingScreen>
       }
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
   Future<void> _recalculateBalances() async {
     try {
       final result = await widget.api.post('/accounting/recalculate-balances');
-      if (mounted) {
+      if (context.mounted) {
         final data = result is Map
             ? Map<String, dynamic>.from(result)
             : <String, dynamic>{};
@@ -181,7 +181,7 @@ class _AccountingScreenState extends State<AccountingScreen>
       }
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -191,13 +191,13 @@ class _AccountingScreenState extends State<AccountingScreen>
           .get('/accounting/ledger/${account['id']}', query: {'limit': 500});
       final data =
           raw is Map ? Map<String, dynamic>.from(raw) : <String, dynamic>{};
-      if (!mounted) return;
+      if (!context.mounted) return;
       await showDialog<void>(
         context: context,
         builder: (_) => _LedgerDialog(data: data),
       );
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -297,10 +297,10 @@ class _AccountingScreenState extends State<AccountingScreen>
     try {
       await widget.api
           .post('/accounting/journals/${journal['id']}/reverse', body: result);
-      if (mounted) showMessage(context, 'Journal reversal posted.');
+      if (context.mounted) showMessage(context, 'Journal reversal posted.');
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -611,11 +611,11 @@ class _AccountDialogState extends State<_AccountDialog> {
           'opening_balance': double.tryParse(_opening.text) ?? 0,
         });
       }
-      if (mounted) Navigator.pop(context, true);
+      if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 
@@ -866,11 +866,11 @@ class _ContraDialogState extends State<_ContraDialog> {
         'reference_number':
             _reference.text.trim().isEmpty ? null : _reference.text.trim(),
       });
-      if (mounted) Navigator.pop(context, true);
+      if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 
@@ -1020,11 +1020,11 @@ class _JournalEditorState extends State<_JournalEditor> {
                 })
             .toList(),
       });
-      if (mounted) Navigator.pop(context, true);
+      if (context.mounted) Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

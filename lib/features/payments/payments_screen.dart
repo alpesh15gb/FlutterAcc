@@ -36,16 +36,16 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     });
     try {
       final data = await widget.api.get(endpoint, query: {'limit': 100});
-      if (mounted) {
+      if (context.mounted) {
         setState(() => _items = (data as List)
             .whereType<Map>()
             .map((e) => Map<String, dynamic>.from(e))
             .toList());
       }
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -65,7 +65,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     try {
       final detail = Map<String, dynamic>.from(
           await widget.api.get('$endpoint/$id') as Map);
-      if (!mounted) return;
+      if (!context.mounted) return;
       final allocations =
           (detail['allocations'] as List?)?.whereType<Map>().toList() ??
               const <Map>[];
@@ -123,7 +123,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         ),
       );
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -202,13 +202,13 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         'reason': note,
         'cancellation_date': apiDate(date),
       });
-      if (mounted) {
+      if (context.mounted) {
         showMessage(context,
             '${widget.vendor ? 'Payment' : 'Receipt'} cancelled and reversed.');
       }
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -364,7 +364,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
         'contact_type': widget.vendor ? 'VENDOR' : 'CUSTOMER',
         'limit': 100
       });
-      if (mounted) {
+      if (context.mounted) {
         setState(() => _contacts = (d as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList());
@@ -372,7 +372,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
     } catch (e) {
       _error = e.toString();
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -390,7 +390,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
           ? '/payments/disbursements/outstanding/$id'
           : '/payments/receipts/outstanding/$id';
       final d = await widget.api.get(path);
-      if (mounted) {
+      if (context.mounted) {
         setState(() {
           _outstanding = (d as List)
               .map((e) => Map<String, dynamic>.from(e as Map))
@@ -402,9 +402,9 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
         });
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -457,7 +457,7 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
         body['advance_supply_type'] = _advanceSupplyType;
       }
       await widget.api.post(endpoint, body: body);
-      if (mounted) {
+      if (context.mounted) {
         showMessage(
             context,
             widget.vendor
@@ -466,9 +466,9 @@ class _PaymentEditorScreenState extends State<PaymentEditorScreen> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

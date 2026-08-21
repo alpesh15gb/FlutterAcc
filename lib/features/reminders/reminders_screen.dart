@@ -30,28 +30,28 @@ class _RemindersScreenState extends State<RemindersScreen> {
     });
     try {
       final data = await widget.api.get('/reminders');
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _items = data is List
             ? data.map((e) => Map<String, dynamic>.from(e as Map)).toList()
             : [];
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
   Future<void> _acknowledge() async {
     try {
       final result = await widget.api.post('/reminders');
-      if (!mounted) return;
+      if (!context.mounted) return;
       final message = result is Map ? result['message']?.toString() : null;
       showMessage(context, message ?? 'Reminders acknowledged.');
       await _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 

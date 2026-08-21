@@ -98,7 +98,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   }
 
   Future<void> _loadMasters() async {
-    if (mounted) {
+    if (context.mounted) {
       setState(() {
         _loading = true;
         _error = null;
@@ -124,7 +124,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
         );
       }
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _contacts = (contactData as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
@@ -143,9 +143,9 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       });
       _queuePreview();
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -206,7 +206,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
 
   void _queuePreview() {
     if (!def.hasPreview) {
-      if (mounted) setState(() {});
+      if (context.mounted) setState(() {});
       return;
     }
     _previewDebounce?.cancel();
@@ -293,7 +293,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
     }
     if (_pos.text.trim().length != 2) return;
 
-    if (mounted) {
+    if (context.mounted) {
       setState(() {
         _previewing = true;
         _previewError = null;
@@ -304,12 +304,12 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
         _previewPath(),
         body: _payload(preview: true),
       );
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() => _preview = Map<String, dynamic>.from(data as Map));
     } catch (e) {
-      if (mounted) setState(() => _previewError = e.toString());
+      if (context.mounted) setState(() => _previewError = e.toString());
     } finally {
-      if (mounted) setState(() => _previewing = false);
+      if (context.mounted) setState(() => _previewing = false);
     }
   }
 
@@ -367,16 +367,16 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       } else {
         await widget.api.post(def.endpoint, body: _payload());
       }
-      if (!mounted) return;
+      if (!context.mounted) return;
       showMessage(
         context,
         _editing ? '${def.title} updated.' : '${def.title} saved.',
       );
       Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 

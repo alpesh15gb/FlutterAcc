@@ -30,7 +30,7 @@ class _NotesScreenState extends State<NotesScreen> {
   }
 
   Future<void> _load() async {
-    if (mounted) {
+    if (context.mounted) {
       setState(() {
         _loading = true;
         _error = null;
@@ -38,16 +38,16 @@ class _NotesScreenState extends State<NotesScreen> {
     }
     try {
       final data = await widget.api.get(_endpoint);
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _items = (data as List)
             .map((e) => Map<String, dynamic>.from(e as Map))
             .toList();
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -67,7 +67,7 @@ class _NotesScreenState extends State<NotesScreen> {
           )
           .toList();
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       if (invoices.isEmpty) {
         showMessage(context, 'No posted invoice is available.', error: true);
         return;
@@ -85,7 +85,7 @@ class _NotesScreenState extends State<NotesScreen> {
       );
       if (saved == true) _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -96,7 +96,7 @@ class _NotesScreenState extends State<NotesScreen> {
       } else {
         await widget.api.post('$_endpoint/${row['id']}/$action');
       }
-      if (!mounted) return;
+      if (!context.mounted) return;
       showMessage(
         context,
         '${widget.credit ? 'Credit' : 'Debit'} note '
@@ -104,7 +104,7 @@ class _NotesScreenState extends State<NotesScreen> {
       );
       _load();
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     }
   }
 
@@ -296,7 +296,7 @@ class _NoteEditorState extends State<_NoteEditor> {
   }
 
   Future<void> _loadInvoice() async {
-    if (mounted) {
+    if (context.mounted) {
       setState(() {
         _loading = true;
         _error = null;
@@ -306,16 +306,16 @@ class _NoteEditorState extends State<_NoteEditor> {
       final data = Map<String, dynamic>.from(
         await widget.api.get('/invoices/$_invoiceId') as Map,
       );
-      if (!mounted) return;
+      if (!context.mounted) return;
       setState(() {
         _invoice = data;
         final lines = _invoiceLines;
         if (lines.isNotEmpty) _syncLine(lines.first);
       });
     } catch (e) {
-      if (mounted) setState(() => _error = e.toString());
+      if (context.mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (context.mounted) setState(() => _loading = false);
     }
   }
 
@@ -376,7 +376,7 @@ class _NoteEditorState extends State<_NoteEditor> {
         body: body,
       );
 
-      if (!mounted) return;
+      if (!context.mounted) return;
       showMessage(
         context,
         '${widget.credit ? 'Credit' : 'Debit'} note saved as draft. '
@@ -384,9 +384,9 @@ class _NoteEditorState extends State<_NoteEditor> {
       );
       Navigator.pop(context, true);
     } catch (e) {
-      if (mounted) showMessage(context, e.toString(), error: true);
+      if (context.mounted) showMessage(context, e.toString(), error: true);
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (context.mounted) setState(() => _saving = false);
     }
   }
 
