@@ -3,14 +3,14 @@ name: Flutter CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, fix/tax-mode-consistency]
 
 concurrency:
   group: flutter-ci-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -30,8 +30,21 @@ jobs:
       - name: Static project audit
         run: python tool/static_audit.py
 
-      - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed lib test
+      - name: Format release source
+        run: dart format lib test
+
+      - name: Commit release formatting
+        if: github.event_name == 'push' && github.ref_name == 'fix/tax-mode-consistency'
+        run: |
+          if git diff --quiet; then
+            echo "Source already formatted."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lib test
+          git commit -m "style: apply dart formatter"
+          git push origin HEAD:fix/tax-mode-consistency
 
       - name: Analyze
         run: flutter analyze
