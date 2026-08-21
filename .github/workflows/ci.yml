@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
 
       - uses: subosito/flutter-action@v2
         with:
@@ -30,21 +32,25 @@ jobs:
       - name: Static project audit
         run: python tool/static_audit.py
 
-      - name: Format release source
+      - name: Apply safe Dart fixes
+        if: github.ref_name == 'fix/tax-mode-consistency' || github.head_ref == 'fix/tax-mode-consistency'
+        run: dart fix --apply
+
+      - name: Format source
         run: dart format lib test
 
-      - name: Commit release formatting
-        if: github.event_name == 'push' && github.ref_name == 'fix/tax-mode-consistency'
+      - name: Commit release cleanup
+        if: github.ref_name == 'fix/tax-mode-consistency' || github.head_ref == 'fix/tax-mode-consistency'
         run: |
           if git diff --quiet; then
-            echo "Source already formatted."
-            exit 0
+            echo "Source already clean."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add lib test
+            git commit -m "style: apply Dart fixes and formatter"
+            git push origin HEAD:fix/tax-mode-consistency
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lib test
-          git commit -m "style: apply dart formatter"
-          git push origin HEAD:fix/tax-mode-consistency
 
       - name: Analyze
         run: flutter analyze
