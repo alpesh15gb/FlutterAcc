@@ -17,7 +17,8 @@ Responsive Flutter client for the **ApexBooks / Bookkeeping FastAPI backend**. T
 - Accounting: chart of accounts, balanced manual journals, financial statements and financial-year workspace.
 - GST Center: GSTR-1/2/3B views, e-invoice/e-way entry points and GSTR-2B/2A ITC reconciliation.
 - Reports: P&L, balance sheet, trial balance, cash flow, sales/purchase analytics, receivables/payables aging and GST reports.
-- Settings: company identity/tax mode, GST/e-invoice/e-way credentials, UPI, numbering series, team roles, password/2FA and backup verification.
+- Settings: company identity/tax mode, logo, branches, GST/e-invoice/e-way credentials, UPI, numbering series, terms templates, team roles, password/2FA, JSON backup/restore and optional purge.
+- Dedicated workspaces for recurring invoices, credit/debit notes, sales/purchase returns, GRNs, receipts/payments, expenses, inventory, e-way bills and financial-year/period locks.
 - Migration tools: native Vyapar `.vyb`, Tally XML, atomic dry-run CSV migration and GST portal JSON reconciliation.
 - Audit and financial-year administration workspaces.
 
@@ -46,14 +47,7 @@ Access tokens are automatically refreshed using the rotating refresh token. Sess
 
 ## First-time platform bootstrap
 
-The execution environment used to prepare this repository did not contain the Flutter SDK, so generated platform runners are intentionally produced from your installed Flutter version rather than checking in stale runner boilerplate.
-
-```bash
-chmod +x tool/bootstrap_platforms.sh
-./tool/bootstrap_platforms.sh
-```
-
-This runs:
+The execution environment can generate platform runners from the installed Flutter SDK:
 
 ```bash
 flutter create --project-name apexbooks --org in.apexbooks \
@@ -120,5 +114,5 @@ The interface follows the strongest pattern across Indian SMB accounting product
 - GST totals shown before posting come from the backend preview engine; the client does not maintain a competing statutory tax engine.
 - Posted accounting documents should be corrected through backend-supported reversal/correction workflows instead of destructive editing.
 - CSV migration validates in dry-run mode before the UI offers a commit.
-- The generic workspace component is intentionally used for lower-frequency modules whose backend payloads are primarily list/detail until bespoke transaction editors are required.
+The generic workspace is used for quotations, sales/purchase orders, delivery challans, purchase bills and the audit log. Higher-frequency modules (invoices, notes, returns, recurring, GRNs, payments, expenses, inventory, e-way, financial years, settings) have dedicated screens.
 - Permissions are server-authoritative. The UI can be extended to hide actions from `/auth/me` scopes, but it never treats hidden controls as an authorization boundary.
