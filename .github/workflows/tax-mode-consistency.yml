@@ -1,0 +1,67 @@
+name: Tax mode consistency fix
+
+on:
+  push:
+    branches:
+      - fix/tax-mode-consistency
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/tax-mode-consistency
+          fetch-depth: 0
+
+      - name: Apply guarded frontend corrections
+        shell: bash
+        run: |
+          python tool/apply_tax_mode_consistency.py
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('lib/features/expenses/expenses_screen.dart')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace(
+              "                            subtitle: 'Expense entry uses GST-exclusive taxable value. The preview shows GST added above the base amount.',\n",
+              "",
+          )
+          p.write_text(text, encoding='utf-8')
+          PY
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Resolve packages
+        run: flutter pub get
+
+      - name: Format
+        run: dart format lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build web
+        run: flutter build web --release
+
+      - name: Commit validated frontend fixes
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- lib/features/sales/tax_document_editor_screen.dart lib/features/sales/invoices_screen.dart lib/features/masters/products_screen.dart lib/features/notes/notes_screen.dart lib/features/returns/returns_screen.dart lib/features/expenses/expenses_screen.dart
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+            exit 0
+          fi
+          git commit -m "fix: make GST inclusive and exclusive pricing explicit"
+          git push origin HEAD:fix/tax-mode-consistency
