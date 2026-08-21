@@ -71,7 +71,8 @@ const workspaceCatalog = <String, WorkspaceConfig>{
     title: 'Quotations / Proforma',
     endpoint: '/proforma-invoices',
     icon: Icons.request_quote_outlined,
-    subtitle: 'Issue estimates and convert accepted documents into orders or invoices.',
+    subtitle:
+        'Issue estimates and convert accepted documents into orders or invoices.',
     editor: WorkspaceEditor.taxDocument,
     documentKind: 'proforma',
     columns: [
@@ -103,7 +104,8 @@ const workspaceCatalog = <String, WorkspaceConfig>{
     title: 'Delivery Challans',
     endpoint: '/delivery-challans',
     icon: Icons.local_shipping_outlined,
-    subtitle: 'Move goods against customer delivery documents and later convert to invoices.',
+    subtitle:
+        'Move goods against customer delivery documents and later convert to invoices.',
     editor: WorkspaceEditor.taxDocument,
     documentKind: 'challan',
     columns: [
@@ -295,7 +297,8 @@ const workspaceCatalog = <String, WorkspaceConfig>{
     title: 'Stock Adjustments',
     endpoint: '/inventory-adjustments',
     icon: Icons.tune_rounded,
-    subtitle: 'Physical stock corrections, damage, shrinkage and opening corrections.',
+    subtitle:
+        'Physical stock corrections, damage, shrinkage and opening corrections.',
     columns: [
       WorkspaceColumn('adjustment_number', 'Adjustment'),
       WorkspaceColumn('adjustment_date', 'Date', date: true),

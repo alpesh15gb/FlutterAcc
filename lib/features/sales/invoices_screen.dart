@@ -269,24 +269,24 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
   }
 
   Widget _detailRow(String label, Object? value) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 145,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.muted,
-              fontWeight: FontWeight.w600,
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 145,
+              child: Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.muted,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-          ),
+            Expanded(child: SelectableText(displayValue(value))),
+          ],
         ),
-        Expanded(child: SelectableText(displayValue(value))),
-      ],
-    ),
-  );
+      );
 
   Future<bool> _confirm(String title) async =>
       (await showDialog<bool>(
@@ -433,11 +433,10 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
     if (id == null) return;
     try {
       final bytes = await widget.api.download('/invoices/$id/print');
-      final number =
-          invoice['invoice_number']?.toString().replaceAll(
-            RegExp(r'[^A-Za-z0-9._-]'),
-            '_',
-          ) ??
+      final number = invoice['invoice_number']?.toString().replaceAll(
+                RegExp(r'[^A-Za-z0-9._-]'),
+                '_',
+              ) ??
           id;
       final saved = await saveDownloadedFile(bytes, 'Invoice_$number.pdf');
       if (mounted)
@@ -449,278 +448,281 @@ class _InvoicesScreenState extends State<InvoicesScreen> {
 
   @override
   Widget build(BuildContext context) => PageFrame(
-    title: 'Sales Invoices',
-    subtitle: 'GST invoices, collections status and customer receivables.',
-    actions: [
-      IconButton(
-        onPressed: _loading ? null : _load,
-        icon: const Icon(Icons.refresh_rounded),
-      ),
-      FilledButton.icon(
-        onPressed: _newInvoice,
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('New invoice'),
-      ),
-    ],
-    child: Column(
-      children: [
-        _statsBar(),
-        const SizedBox(height: 14),
-        SectionCard(
-          child: Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              SizedBox(
-                width: 330,
-                child: TextField(
-                  controller: _search,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search_rounded),
-                    hintText: 'Search invoice or customer',
+        title: 'Sales Invoices',
+        subtitle: 'GST invoices, collections status and customer receivables.',
+        actions: [
+          IconButton(
+            onPressed: _loading ? null : _load,
+            icon: const Icon(Icons.refresh_rounded),
+          ),
+          FilledButton.icon(
+            onPressed: _newInvoice,
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('New invoice'),
+          ),
+        ],
+        child: Column(
+          children: [
+            _statsBar(),
+            const SizedBox(height: 14),
+            SectionCard(
+              child: Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  SizedBox(
+                    width: 330,
+                    child: TextField(
+                      controller: _search,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search_rounded),
+                        hintText: 'Search invoice or customer',
+                      ),
+                      onChanged: (_) {
+                        _debounce?.cancel();
+                        _debounce =
+                            Timer(const Duration(milliseconds: 400), _load);
+                      },
+                    ),
                   ),
-                  onChanged: (_) {
-                    _debounce?.cancel();
-                    _debounce = Timer(const Duration(milliseconds: 400), _load);
-                  },
-                ),
-              ),
-              SizedBox(
-                width: 210,
-                child: DropdownButtonFormField<String>(
-                  value: _status,
-                  decoration: const InputDecoration(labelText: 'Status'),
-                  items: const [
-                    DropdownMenuItem(value: 'ALL', child: Text('All statuses')),
-                    DropdownMenuItem(value: 'DRAFT', child: Text('Draft')),
-                    DropdownMenuItem(value: 'POSTED', child: Text('Posted')),
-                    DropdownMenuItem(
-                      value: 'PARTIALLY_PAID',
-                      child: Text('Partially paid'),
+                  SizedBox(
+                    width: 210,
+                    child: DropdownButtonFormField<String>(
+                      value: _status,
+                      decoration: const InputDecoration(labelText: 'Status'),
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'ALL', child: Text('All statuses')),
+                        DropdownMenuItem(value: 'DRAFT', child: Text('Draft')),
+                        DropdownMenuItem(
+                            value: 'POSTED', child: Text('Posted')),
+                        DropdownMenuItem(
+                          value: 'PARTIALLY_PAID',
+                          child: Text('Partially paid'),
+                        ),
+                        DropdownMenuItem(value: 'PAID', child: Text('Paid')),
+                        DropdownMenuItem(
+                          value: 'CANCELLED',
+                          child: Text('Cancelled'),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) {
+                          setState(() => _status = v);
+                          _load();
+                        }
+                      },
                     ),
-                    DropdownMenuItem(value: 'PAID', child: Text('Paid')),
-                    DropdownMenuItem(
-                      value: 'CANCELLED',
-                      child: Text('Cancelled'),
-                    ),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) {
-                      setState(() => _status = v);
-                      _load();
-                    }
-                  },
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        if (_loading)
-          const Padding(
-            padding: EdgeInsets.all(50),
-            child: CircularProgressIndicator(),
-          )
-        else if (_error != null)
-          ErrorPanel(message: _error!, onRetry: _load)
-        else if (_items.isEmpty)
-          EmptyState(
-            icon: Icons.receipt_long_outlined,
-            title: 'No invoices found',
-            message: 'Create a GST invoice to start sales tracking.',
-            action: FilledButton.icon(
-              onPressed: _newInvoice,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Create invoice'),
             ),
-          )
-        else
-          LayoutBuilder(
-            builder: (context, c) => c.maxWidth >= 950
-                ? _table()
-                : Column(children: _items.map(_card).toList()),
-          ),
-      ],
-    ),
-  );
+            const SizedBox(height: 14),
+            if (_loading)
+              const Padding(
+                padding: EdgeInsets.all(50),
+                child: CircularProgressIndicator(),
+              )
+            else if (_error != null)
+              ErrorPanel(message: _error!, onRetry: _load)
+            else if (_items.isEmpty)
+              EmptyState(
+                icon: Icons.receipt_long_outlined,
+                title: 'No invoices found',
+                message: 'Create a GST invoice to start sales tracking.',
+                action: FilledButton.icon(
+                  onPressed: _newInvoice,
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Create invoice'),
+                ),
+              )
+            else
+              LayoutBuilder(
+                builder: (context, c) => c.maxWidth >= 950
+                    ? _table()
+                    : Column(children: _items.map(_card).toList()),
+              ),
+          ],
+        ),
+      );
 
   Widget _statsBar() => LayoutBuilder(
-    builder: (context, c) {
-      final cards = [
-        (
-          'Total',
-          _stats['total_amount'],
-          Icons.receipt_long_outlined,
-          AppColors.primary,
-        ),
-        (
-          'Collected',
-          _stats['collected'],
-          Icons.check_circle_outline_rounded,
-          AppColors.success,
-        ),
-        (
-          'Outstanding',
-          _stats['outstanding'],
-          Icons.schedule_rounded,
-          AppColors.warning,
-        ),
-        (
-          'Overdue',
-          _stats['overdue'],
-          Icons.error_outline_rounded,
-          AppColors.danger,
-        ),
-      ];
-      final cols = c.maxWidth >= 900
-          ? 4
-          : c.maxWidth >= 520
-          ? 2
-          : 1;
-      const gap = 10.0;
-      final w = (c.maxWidth - gap * (cols - 1)) / cols;
-      return Wrap(
-        spacing: gap,
-        runSpacing: gap,
-        children: cards
-            .map(
-              (e) => SizedBox(
-                width: w,
-                child: MetricCard(
-                  label: e.$1,
-                  value: shortMoney(e.$2),
-                  icon: e.$3,
-                  tone: e.$4,
-                ),
-              ),
-            )
-            .toList(),
+        builder: (context, c) {
+          final cards = [
+            (
+              'Total',
+              _stats['total_amount'],
+              Icons.receipt_long_outlined,
+              AppColors.primary,
+            ),
+            (
+              'Collected',
+              _stats['collected'],
+              Icons.check_circle_outline_rounded,
+              AppColors.success,
+            ),
+            (
+              'Outstanding',
+              _stats['outstanding'],
+              Icons.schedule_rounded,
+              AppColors.warning,
+            ),
+            (
+              'Overdue',
+              _stats['overdue'],
+              Icons.error_outline_rounded,
+              AppColors.danger,
+            ),
+          ];
+          final cols = c.maxWidth >= 900
+              ? 4
+              : c.maxWidth >= 520
+                  ? 2
+                  : 1;
+          const gap = 10.0;
+          final w = (c.maxWidth - gap * (cols - 1)) / cols;
+          return Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: cards
+                .map(
+                  (e) => SizedBox(
+                    width: w,
+                    child: MetricCard(
+                      label: e.$1,
+                      value: shortMoney(e.$2),
+                      icon: e.$3,
+                      tone: e.$4,
+                    ),
+                  ),
+                )
+                .toList(),
+          );
+        },
       );
-    },
-  );
 
   Widget _table() => SectionCard(
-    padding: EdgeInsets.zero,
-    child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Invoice')),
-          DataColumn(label: Text('Customer')),
-          DataColumn(label: Text('Date')),
-          DataColumn(label: Text('Due')),
-          DataColumn(label: Text('Status')),
-          DataColumn(label: Text('Total'), numeric: true),
-          DataColumn(label: Text('Balance'), numeric: true),
-          DataColumn(label: Text('')),
-        ],
-        rows: _items
-            .map(
-              (i) => DataRow(
-                onSelectChanged: (_) => _open(i),
-                cells: [
-                  DataCell(
-                    Text(
-                      i['invoice_number']?.toString() ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  DataCell(Text(i['contact_name']?.toString() ?? '')),
-                  DataCell(Text(displayDate(i['issue_date']))),
-                  DataCell(Text(displayDate(i['due_date']))),
-                  DataCell(_statusChip(i['status']?.toString() ?? '')),
-                  DataCell(Text(money(i['total']))),
-                  DataCell(
-                    Text(
-                      money(
-                        (num.tryParse('${i['total']}') ?? 0) -
-                            (num.tryParse('${i['amount_paid']}') ?? 0),
-                      ),
-                    ),
-                  ),
-                  DataCell(
-                    IconButton(
-                      onPressed: () => _open(i),
-                      icon: const Icon(Icons.chevron_right_rounded),
-                    ),
-                  ),
-                ],
-              ),
-            )
-            .toList(),
-      ),
-    ),
-  );
-
-  Widget _card(Map<String, dynamic> i) => Padding(
-    padding: const EdgeInsets.only(bottom: 9),
-    child: Card(
-      child: InkWell(
-        onTap: () => _open(i),
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      i['invoice_number']?.toString() ?? '',
-                      style: const TextStyle(fontWeight: FontWeight.w900),
-                    ),
-                  ),
-                  _statusChip(i['status']?.toString() ?? ''),
-                ],
-              ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      i['contact_name']?.toString() ?? '',
-                      style: const TextStyle(color: AppColors.muted),
-                    ),
-                  ),
-                  Text(
-                    money(i['total']),
-                    style: const TextStyle(fontWeight: FontWeight.w900),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Text(
-                    displayDate(i['issue_date']),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.muted,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    'Balance ${money((num.tryParse('${i['total']}') ?? 0) - (num.tryParse('${i['amount_paid']}') ?? 0))}',
-                    style: const TextStyle(fontSize: 12),
-                  ),
-                ],
-              ),
+        padding: EdgeInsets.zero,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('Invoice')),
+              DataColumn(label: Text('Customer')),
+              DataColumn(label: Text('Date')),
+              DataColumn(label: Text('Due')),
+              DataColumn(label: Text('Status')),
+              DataColumn(label: Text('Total'), numeric: true),
+              DataColumn(label: Text('Balance'), numeric: true),
+              DataColumn(label: Text('')),
             ],
+            rows: _items
+                .map(
+                  (i) => DataRow(
+                    onSelectChanged: (_) => _open(i),
+                    cells: [
+                      DataCell(
+                        Text(
+                          i['invoice_number']?.toString() ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                      DataCell(Text(i['contact_name']?.toString() ?? '')),
+                      DataCell(Text(displayDate(i['issue_date']))),
+                      DataCell(Text(displayDate(i['due_date']))),
+                      DataCell(_statusChip(i['status']?.toString() ?? '')),
+                      DataCell(Text(money(i['total']))),
+                      DataCell(
+                        Text(
+                          money(
+                            (num.tryParse('${i['total']}') ?? 0) -
+                                (num.tryParse('${i['amount_paid']}') ?? 0),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        IconButton(
+                          onPressed: () => _open(i),
+                          icon: const Icon(Icons.chevron_right_rounded),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                .toList(),
           ),
         ),
-      ),
-    ),
-  );
+      );
+
+  Widget _card(Map<String, dynamic> i) => Padding(
+        padding: const EdgeInsets.only(bottom: 9),
+        child: Card(
+          child: InkWell(
+            onTap: () => _open(i),
+            borderRadius: BorderRadius.circular(14),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          i['invoice_number']?.toString() ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.w900),
+                        ),
+                      ),
+                      _statusChip(i['status']?.toString() ?? ''),
+                    ],
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          i['contact_name']?.toString() ?? '',
+                          style: const TextStyle(color: AppColors.muted),
+                        ),
+                      ),
+                      Text(
+                        money(i['total']),
+                        style: const TextStyle(fontWeight: FontWeight.w900),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        displayDate(i['issue_date']),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.muted,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'Balance ${money((num.tryParse('${i['total']}') ?? 0) - (num.tryParse('${i['amount_paid']}') ?? 0))}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 
   Widget _statusChip(String s) {
     final u = s.toUpperCase();
     final color = u == 'PAID'
         ? AppColors.success
         : u == 'CANCELLED'
-        ? AppColors.danger
-        : u == 'DRAFT'
-        ? AppColors.warning
-        : AppColors.primary;
+            ? AppColors.danger
+            : u == 'DRAFT'
+                ? AppColors.warning
+                : AppColors.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(

@@ -154,8 +154,7 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   }
 
   void _applyExisting(Map<String, dynamic> data) {
-    _contactId =
-        data['contact_id']?.toString() ??
+    _contactId = data['contact_id']?.toString() ??
         (data['contact'] is Map
             ? (data['contact'] as Map)['id']?.toString()
             : null);
@@ -218,16 +217,16 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   }
 
   Map<String, dynamic> _linePayload(_LineDraft line) => {
-    'product_id': line.productId,
-    'description': line.description.text.trim().isEmpty
-        ? null
-        : line.description.text.trim(),
-    'quantity': double.tryParse(line.quantity.text) ?? 0,
-    'rate': double.tryParse(line.rate.text) ?? 0,
-    'discount': double.tryParse(line.discount.text) ?? 0,
-    'hsn_sac': line.hsn.text.trim(),
-    'gst_rate': double.tryParse(line.gst.text) ?? 0,
-  };
+        'product_id': line.productId,
+        'description': line.description.text.trim().isEmpty
+            ? null
+            : line.description.text.trim(),
+        'quantity': double.tryParse(line.quantity.text) ?? 0,
+        'rate': double.tryParse(line.rate.text) ?? 0,
+        'discount': double.tryParse(line.discount.text) ?? 0,
+        'hsn_sac': line.hsn.text.trim(),
+        'gst_rate': double.tryParse(line.gst.text) ?? 0,
+      };
 
   Map<String, dynamic> _payload({bool preview = false}) {
     final common = <String, dynamic>{
@@ -246,12 +245,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
         'discount_rate': double.tryParse(_discount.text) ?? 0,
         'shipping_charges': double.tryParse(_shipping.text) ?? 0,
         'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
-        'terms_and_conditions': _terms.text.trim().isEmpty
-            ? null
-            : _terms.text.trim(),
-        'reference_number': _reference.text.trim().isEmpty
-            ? null
-            : _reference.text.trim(),
+        'terms_and_conditions':
+            _terms.text.trim().isEmpty ? null : _terms.text.trim(),
+        'reference_number':
+            _reference.text.trim().isEmpty ? null : _reference.text.trim(),
         'is_gst_inclusive': _inclusive ?? false,
         if (!_editing) 'post_on_create': preview ? false : _postOnCreate,
       });
@@ -275,10 +272,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   }
 
   String _previewPath() => switch (def.kind) {
-    'bill' => '/bills/preview',
-    'proforma' => '/proforma-invoices/preview',
-    _ => '/invoices/preview',
-  };
+        'bill' => '/bills/preview',
+        'proforma' => '/proforma-invoices/preview',
+        _ => '/invoices/preview',
+      };
 
   Future<void> _previewDocument() async {
     if (!def.hasPreview ||
@@ -409,9 +406,8 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
 
   void _selectProduct(_LineDraft line, String? productId) {
     setState(() => line.productId = productId);
-    final match = _products
-        .where((p) => p['id']?.toString() == productId)
-        .toList();
+    final match =
+        _products.where((p) => p['id']?.toString() == productId).toList();
     if (match.isNotEmpty) {
       final product = match.first;
       line.rate.text =
@@ -435,9 +431,8 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       final rate = double.tryParse(line.rate.text) ?? 0;
       final discount = double.tryParse(line.discount.text) ?? 0;
       final gst = double.tryParse(line.gst.text) ?? 0;
-      final grossLine = (qty * rate - discount)
-          .clamp(0.0, double.infinity)
-          .toDouble();
+      final grossLine =
+          (qty * rate - discount).clamp(0.0, double.infinity).toDouble();
       entered += grossLine;
 
       if (_inclusive == true && gst > 0) {
@@ -492,58 +487,58 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-          ? Padding(
-              padding: const EdgeInsets.all(20),
-              child: ErrorPanel(message: _error!, onRetry: _loadMasters),
-            )
-          : Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1320),
-                    child: LayoutBuilder(
-                      builder: (context, c) {
-                        final wide = c.maxWidth >= 1000;
-                        final form = Column(
-                          children: [
-                            _headerCard(),
-                            const SizedBox(height: 14),
-                            _taxModeCard(),
-                            const SizedBox(height: 14),
-                            _lineItemsCard(),
-                            if (def.extendedTaxFields) ...[
-                              const SizedBox(height: 14),
-                              _adjustmentsCard(),
-                              const SizedBox(height: 14),
-                              _notesCard(),
-                            ],
-                          ],
-                        );
-                        if (!wide) {
-                          return Column(
-                            children: [
-                              form,
-                              const SizedBox(height: 14),
-                              _summaryCard(),
-                            ],
-                          );
-                        }
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 3, child: form),
-                            const SizedBox(width: 14),
-                            SizedBox(width: 340, child: _summaryCard()),
-                          ],
-                        );
-                      },
+              ? Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: ErrorPanel(message: _error!, onRetry: _loadMasters),
+                )
+              : Form(
+                  key: _formKey,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(20),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 1320),
+                        child: LayoutBuilder(
+                          builder: (context, c) {
+                            final wide = c.maxWidth >= 1000;
+                            final form = Column(
+                              children: [
+                                _headerCard(),
+                                const SizedBox(height: 14),
+                                _taxModeCard(),
+                                const SizedBox(height: 14),
+                                _lineItemsCard(),
+                                if (def.extendedTaxFields) ...[
+                                  const SizedBox(height: 14),
+                                  _adjustmentsCard(),
+                                  const SizedBox(height: 14),
+                                  _notesCard(),
+                                ],
+                              ],
+                            );
+                            if (!wide) {
+                              return Column(
+                                children: [
+                                  form,
+                                  const SizedBox(height: 14),
+                                  _summaryCard(),
+                                ],
+                              );
+                            }
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(flex: 3, child: form),
+                                const SizedBox(width: 14),
+                                SizedBox(width: 340, child: _summaryCard()),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
     );
   }
 
@@ -730,13 +725,12 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
             _inclusive == true
                 ? 'Example: ₹16,500 @ 18% stays ₹16,500 payable; the server extracts about ₹2,516.95 GST from the entered amount.'
                 : _inclusive == false
-                ? 'Example: ₹16,500 @ 18% becomes ₹19,470 payable because ₹2,970 GST is added on top.'
-                : 'No mode selected. Saving and tax preview are blocked until you choose one.',
+                    ? 'Example: ₹16,500 @ 18% becomes ₹19,470 payable because ₹2,970 GST is added on top.'
+                    : 'No mode selected. Saving and tax preview are blocked until you choose one.',
             style: TextStyle(
               color: _inclusive == null ? AppColors.danger : AppColors.muted,
-              fontWeight: _inclusive == null
-                  ? FontWeight.w800
-                  : FontWeight.w500,
+              fontWeight:
+                  _inclusive == null ? FontWeight.w800 : FontWeight.w500,
             ),
           ),
         ],
@@ -816,8 +810,8 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                         helperText: _inclusive == true
                             ? 'GST already inside'
                             : _inclusive == false || !def.extendedTaxFields
-                            ? 'GST added on top'
-                            : 'Choose mode above',
+                                ? 'GST added on top'
+                                : 'Choose mode above',
                       ),
                     ),
                   ),
@@ -862,9 +856,8 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                   ),
                   IconButton(
                     tooltip: 'Remove line',
-                    onPressed: _lines.length == 1
-                        ? null
-                        : () => _removeLine(index),
+                    onPressed:
+                        _lines.length == 1 ? null : () => _removeLine(index),
                     icon: const Icon(Icons.delete_outline_rounded),
                   ),
                 ],
@@ -994,10 +987,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
     final modeText = !def.extendedTaxFields
         ? 'GST EXCLUDED — added on top'
         : _inclusive == true
-        ? 'GST INCLUDED in entered rate'
-        : _inclusive == false
-        ? 'GST EXCLUDED — added on top'
-        : 'SELECT GST RATE MODE';
+            ? 'GST INCLUDED in entered rate'
+            : _inclusive == false
+                ? 'GST EXCLUDED — added on top'
+                : 'SELECT GST RATE MODE';
 
     final taxable = server?['subtotal'] ?? estimate.taxable;
     final grandTotal = server?['total'] ?? estimate.total;
@@ -1022,11 +1015,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color:
-                  (_inclusive == null && _requiresTaxChoice
-                          ? AppColors.danger
-                          : AppColors.primary)
-                      .withOpacity(.08),
+              color: (_inclusive == null && _requiresTaxChoice
+                      ? AppColors.danger
+                      : AppColors.primary)
+                  .withOpacity(.08),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -1107,16 +1099,17 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   }
 
   Widget _summaryRow(String label, String value) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 5),
-    child: Row(
-      children: [
-        Expanded(
-          child: Text(label, style: const TextStyle(color: AppColors.muted)),
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: Row(
+          children: [
+            Expanded(
+              child:
+                  Text(label, style: const TextStyle(color: AppColors.muted)),
+            ),
+            Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+          ],
         ),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
-      ],
-    ),
-  );
+      );
 }
 
 class _DateField extends StatelessWidget {
@@ -1132,18 +1125,18 @@ class _DateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => InkWell(
-    onTap: () async {
-      final picked = await pickDate(context, value);
-      if (picked != null) onChanged(picked);
-    },
-    child: InputDecorator(
-      decoration: InputDecoration(
-        labelText: label,
-        suffixIcon: const Icon(Icons.calendar_month_outlined),
-      ),
-      child: Text(displayDate(value.toIso8601String())),
-    ),
-  );
+        onTap: () async {
+          final picked = await pickDate(context, value);
+          if (picked != null) onChanged(picked);
+        },
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: label,
+            suffixIcon: const Icon(Icons.calendar_month_outlined),
+          ),
+          child: Text(displayDate(value.toIso8601String())),
+        ),
+      );
 }
 
 class _LineDraft {
@@ -1222,79 +1215,79 @@ class _DocDef {
   final bool numberOptional;
 
   factory _DocDef.fromName(String name) => switch (name) {
-    'invoice' => const _DocDef(
-      kind: 'invoice',
-      title: 'Invoice',
-      endpoint: '/invoices',
-      numberKey: 'invoice_number',
-      numberLabel: 'Invoice number',
-      dateKey: 'issue_date',
-      dateLabel: 'Invoice date',
-      vendor: false,
-      extendedTaxFields: true,
-      hasPreview: true,
-      numberOptional: true,
-    ),
-    'bill' => const _DocDef(
-      kind: 'bill',
-      title: 'Purchase Bill',
-      endpoint: '/bills',
-      numberKey: 'bill_number',
-      numberLabel: 'Supplier bill number',
-      dateKey: 'issue_date',
-      dateLabel: 'Bill date',
-      vendor: true,
-      extendedTaxFields: true,
-      hasPreview: true,
-    ),
-    'proforma' => const _DocDef(
-      kind: 'proforma',
-      title: 'Proforma',
-      endpoint: '/proforma-invoices',
-      numberKey: 'proforma_number',
-      numberLabel: 'Proforma number',
-      dateKey: 'issue_date',
-      dateLabel: 'Issue date',
-      vendor: false,
-      extendedTaxFields: false,
-      hasPreview: true,
-    ),
-    'salesOrder' => const _DocDef(
-      kind: 'salesOrder',
-      title: 'Sales Order',
-      endpoint: '/sales-orders',
-      numberKey: 'so_number',
-      numberLabel: 'Sales order number',
-      dateKey: 'order_date',
-      dateLabel: 'Order date',
-      vendor: false,
-      extendedTaxFields: false,
-      hasPreview: false,
-    ),
-    'purchaseOrder' => const _DocDef(
-      kind: 'purchaseOrder',
-      title: 'Purchase Order',
-      endpoint: '/purchase-orders',
-      numberKey: 'po_number',
-      numberLabel: 'Purchase order number',
-      dateKey: 'order_date',
-      dateLabel: 'Order date',
-      vendor: true,
-      extendedTaxFields: false,
-      hasPreview: false,
-    ),
-    'challan' => const _DocDef(
-      kind: 'challan',
-      title: 'Delivery Challan',
-      endpoint: '/delivery-challans',
-      numberKey: 'challan_number',
-      numberLabel: 'Challan number',
-      dateKey: 'challan_date',
-      dateLabel: 'Challan date',
-      vendor: false,
-      extendedTaxFields: false,
-      hasPreview: false,
-    ),
-    _ => throw ArgumentError('Unsupported document kind: $name'),
-  };
+        'invoice' => const _DocDef(
+            kind: 'invoice',
+            title: 'Invoice',
+            endpoint: '/invoices',
+            numberKey: 'invoice_number',
+            numberLabel: 'Invoice number',
+            dateKey: 'issue_date',
+            dateLabel: 'Invoice date',
+            vendor: false,
+            extendedTaxFields: true,
+            hasPreview: true,
+            numberOptional: true,
+          ),
+        'bill' => const _DocDef(
+            kind: 'bill',
+            title: 'Purchase Bill',
+            endpoint: '/bills',
+            numberKey: 'bill_number',
+            numberLabel: 'Supplier bill number',
+            dateKey: 'issue_date',
+            dateLabel: 'Bill date',
+            vendor: true,
+            extendedTaxFields: true,
+            hasPreview: true,
+          ),
+        'proforma' => const _DocDef(
+            kind: 'proforma',
+            title: 'Proforma',
+            endpoint: '/proforma-invoices',
+            numberKey: 'proforma_number',
+            numberLabel: 'Proforma number',
+            dateKey: 'issue_date',
+            dateLabel: 'Issue date',
+            vendor: false,
+            extendedTaxFields: false,
+            hasPreview: true,
+          ),
+        'salesOrder' => const _DocDef(
+            kind: 'salesOrder',
+            title: 'Sales Order',
+            endpoint: '/sales-orders',
+            numberKey: 'so_number',
+            numberLabel: 'Sales order number',
+            dateKey: 'order_date',
+            dateLabel: 'Order date',
+            vendor: false,
+            extendedTaxFields: false,
+            hasPreview: false,
+          ),
+        'purchaseOrder' => const _DocDef(
+            kind: 'purchaseOrder',
+            title: 'Purchase Order',
+            endpoint: '/purchase-orders',
+            numberKey: 'po_number',
+            numberLabel: 'Purchase order number',
+            dateKey: 'order_date',
+            dateLabel: 'Order date',
+            vendor: true,
+            extendedTaxFields: false,
+            hasPreview: false,
+          ),
+        'challan' => const _DocDef(
+            kind: 'challan',
+            title: 'Delivery Challan',
+            endpoint: '/delivery-challans',
+            numberKey: 'challan_number',
+            numberLabel: 'Challan number',
+            dateKey: 'challan_date',
+            dateLabel: 'Challan date',
+            vendor: false,
+            extendedTaxFields: false,
+            hasPreview: false,
+          ),
+        _ => throw ArgumentError('Unsupported document kind: $name'),
+      };
 }

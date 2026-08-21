@@ -616,20 +616,20 @@ class _ResponsiveWorkspace extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, c) {
-      if (c.maxWidth >= 850) return _table(context);
-      return Column(
-        children: items
-            .map(
-              (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 9),
-                child: _card(context, item),
-              ),
-            )
-            .toList(),
+        builder: (context, c) {
+          if (c.maxWidth >= 850) return _table(context);
+          return Column(
+            children: items
+                .map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(bottom: 9),
+                    child: _card(context, item),
+                  ),
+                )
+                .toList(),
+          );
+        },
       );
-    },
-  );
 
   Widget _table(BuildContext context) {
     return SectionCard(
@@ -717,14 +717,13 @@ class _ResponsiveWorkspace extends StatelessWidget {
     final text = column.taxMode
         ? (raw == true ? 'GST INCLUDED' : 'GST EXCLUDED')
         : column.money
-        ? money(raw)
-        : column.date
-        ? displayDate(raw)
-        : displayValue(raw);
+            ? money(raw)
+            : column.date
+                ? displayDate(raw)
+                : displayValue(raw);
     if (column.status) {
       final normalized = text.toUpperCase();
-      final color =
-          normalized.contains('PAID') ||
+      final color = normalized.contains('PAID') ||
               normalized.contains('POSTED') ||
               normalized.contains('ACTIVE') ||
               normalized.contains('COMPLETE') ||
@@ -732,10 +731,10 @@ class _ResponsiveWorkspace extends StatelessWidget {
               normalized.contains('ISSUED')
           ? AppColors.success
           : normalized.contains('CANCEL') || normalized.contains('FAILED')
-          ? AppColors.danger
-          : normalized.contains('DRAFT') || normalized.contains('PENDING')
-          ? AppColors.warning
-          : AppColors.primary;
+              ? AppColors.danger
+              : normalized.contains('DRAFT') || normalized.contains('PENDING')
+                  ? AppColors.warning
+                  : AppColors.primary;
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
         decoration: BoxDecoration(

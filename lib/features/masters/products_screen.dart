@@ -82,8 +82,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Future<void> _delete(Map<String, dynamic> p) async {
-    final ok =
-        await showDialog<bool>(
+    final ok = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text('Delete item?'),
@@ -116,183 +115,186 @@ class _ProductsScreenState extends State<ProductsScreen> {
   }
 
   Widget _actions(Map<String, dynamic> p) => PopupMenuButton<String>(
-    onSelected: (v) {
-      if (v == 'edit') _form(p);
-      if (v == 'toggle') _toggle(p);
-      if (v == 'delete') _delete(p);
-    },
-    itemBuilder: (_) => [
-      const PopupMenuItem(value: 'edit', child: Text('Edit')),
-      PopupMenuItem(
-        value: 'toggle',
-        child: Text(p['is_active'] == false ? 'Activate' : 'Deactivate'),
-      ),
-      const PopupMenuItem(value: 'delete', child: Text('Delete')),
-    ],
-  );
+        onSelected: (v) {
+          if (v == 'edit') _form(p);
+          if (v == 'toggle') _toggle(p);
+          if (v == 'delete') _delete(p);
+        },
+        itemBuilder: (_) => [
+          const PopupMenuItem(value: 'edit', child: Text('Edit')),
+          PopupMenuItem(
+            value: 'toggle',
+            child: Text(p['is_active'] == false ? 'Activate' : 'Deactivate'),
+          ),
+          const PopupMenuItem(value: 'delete', child: Text('Delete')),
+        ],
+      );
   @override
   Widget build(BuildContext context) => PageFrame(
-    title: 'Items',
-    subtitle:
-        'Goods and services with HSN/SAC, GST, prices and stock controls.',
-    actions: [
-      IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
-      FilledButton.icon(
-        onPressed: () => _form(),
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add item'),
-      ),
-    ],
-    child: Column(
-      children: [
-        SectionCard(
-          child: Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              SizedBox(
-                width: 340,
-                child: TextField(
-                  controller: _search,
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search_rounded),
-                    hintText: 'Search name, SKU, barcode or HSN',
-                  ),
-                  onChanged: (_) {
-                    _debounce?.cancel();
-                    _debounce = Timer(const Duration(milliseconds: 400), _load);
-                  },
-                ),
-              ),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'ALL', label: Text('All')),
-                  ButtonSegment(value: 'GOODS', label: Text('Goods')),
-                  ButtonSegment(value: 'SERVICE', label: Text('Services')),
-                ],
-                selected: {_type},
-                onSelectionChanged: (s) {
-                  setState(() => _type = s.first);
-                  _load();
-                },
-              ),
-            ],
+        title: 'Items',
+        subtitle:
+            'Goods and services with HSN/SAC, GST, prices and stock controls.',
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
+          FilledButton.icon(
+            onPressed: () => _form(),
+            icon: const Icon(Icons.add_rounded),
+            label: const Text('Add item'),
           ),
-        ),
-        const SizedBox(height: 14),
-        if (_loading)
-          const Padding(
-            padding: EdgeInsets.all(50),
-            child: CircularProgressIndicator(),
-          )
-        else if (_error != null)
-          ErrorPanel(message: _error!, onRetry: _load)
-        else if (_items.isEmpty)
-          EmptyState(
-            icon: Icons.inventory_2_outlined,
-            title: 'No items found',
-            message:
-                'Add goods or services to use them in sales and purchases.',
-            action: FilledButton.icon(
-              onPressed: () => _form(),
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Add item'),
-            ),
-          )
-        else
-          LayoutBuilder(
-            builder: (context, c) => c.maxWidth >= 900
-                ? _table()
-                : Column(children: _items.map(_card).toList()),
-          ),
-      ],
-    ),
-  );
-  Widget _table() => SectionCard(
-    padding: EdgeInsets.zero,
-    child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Item')),
-          DataColumn(label: Text('HSN/SAC')),
-          DataColumn(label: Text('GST')),
-          DataColumn(label: Text('Default sale rate')),
-          DataColumn(label: Text('Stock')),
-          DataColumn(label: Text('Reorder')),
-          DataColumn(label: Text('')),
         ],
-        rows: _items
-            .map(
-              (p) => DataRow(
-                cells: [
-                  DataCell(
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          p['name']?.toString() ?? '',
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        Text(
-                          '${p['sku'] ?? '—'} • ${p['product_type'] ?? ''}${p['is_active'] == false ? ' • INACTIVE' : ''}',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: AppColors.muted,
-                          ),
-                        ),
-                      ],
+        child: Column(
+          children: [
+            SectionCard(
+              child: Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  SizedBox(
+                    width: 340,
+                    child: TextField(
+                      controller: _search,
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search_rounded),
+                        hintText: 'Search name, SKU, barcode or HSN',
+                      ),
+                      onChanged: (_) {
+                        _debounce?.cancel();
+                        _debounce =
+                            Timer(const Duration(milliseconds: 400), _load);
+                      },
                     ),
                   ),
-                  DataCell(Text(p['hsn_sac']?.toString() ?? '')),
-                  DataCell(Text('${p['gst_rate'] ?? 0}%')),
-                  DataCell(Text(money(p['sales_price']))),
-                  DataCell(
-                    Text('${p['current_stock'] ?? 0} ${p['uom'] ?? ''}'),
+                  SegmentedButton<String>(
+                    segments: const [
+                      ButtonSegment(value: 'ALL', label: Text('All')),
+                      ButtonSegment(value: 'GOODS', label: Text('Goods')),
+                      ButtonSegment(value: 'SERVICE', label: Text('Services')),
+                    ],
+                    selected: {_type},
+                    onSelectionChanged: (s) {
+                      setState(() => _type = s.first);
+                      _load();
+                    },
                   ),
-                  DataCell(Text('${p['reorder_level'] ?? 0}')),
-                  DataCell(_actions(p)),
                 ],
               ),
-            )
-            .toList(),
-      ),
-    ),
-  );
-  Widget _card(Map<String, dynamic> p) => Padding(
-    padding: const EdgeInsets.only(bottom: 9),
-    child: Card(
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          child: Icon(
-            p['product_type'] == 'SERVICE'
-                ? Icons.design_services_outlined
-                : Icons.inventory_2_outlined,
-          ),
-        ),
-        title: Text(
-          p['name']?.toString() ?? '',
-          style: const TextStyle(fontWeight: FontWeight.w800),
-        ),
-        subtitle: Text(
-          'HSN/SAC ${p['hsn_sac'] ?? ''} • GST ${p['gst_rate'] ?? 0}%${p['is_active'] == false ? ' • INACTIVE' : ''}\nStock ${p['current_stock'] ?? 0} ${p['uom'] ?? ''}',
-        ),
-        isThreeLine: true,
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              money(p['sales_price']),
-              style: const TextStyle(fontWeight: FontWeight.w800),
             ),
-            _actions(p),
+            const SizedBox(height: 14),
+            if (_loading)
+              const Padding(
+                padding: EdgeInsets.all(50),
+                child: CircularProgressIndicator(),
+              )
+            else if (_error != null)
+              ErrorPanel(message: _error!, onRetry: _load)
+            else if (_items.isEmpty)
+              EmptyState(
+                icon: Icons.inventory_2_outlined,
+                title: 'No items found',
+                message:
+                    'Add goods or services to use them in sales and purchases.',
+                action: FilledButton.icon(
+                  onPressed: () => _form(),
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('Add item'),
+                ),
+              )
+            else
+              LayoutBuilder(
+                builder: (context, c) => c.maxWidth >= 900
+                    ? _table()
+                    : Column(children: _items.map(_card).toList()),
+              ),
           ],
         ),
-      ),
-    ),
-  );
+      );
+  Widget _table() => SectionCard(
+        padding: EdgeInsets.zero,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: const [
+              DataColumn(label: Text('Item')),
+              DataColumn(label: Text('HSN/SAC')),
+              DataColumn(label: Text('GST')),
+              DataColumn(label: Text('Default sale rate')),
+              DataColumn(label: Text('Stock')),
+              DataColumn(label: Text('Reorder')),
+              DataColumn(label: Text('')),
+            ],
+            rows: _items
+                .map(
+                  (p) => DataRow(
+                    cells: [
+                      DataCell(
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              p['name']?.toString() ?? '',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            Text(
+                              '${p['sku'] ?? '—'} • ${p['product_type'] ?? ''}${p['is_active'] == false ? ' • INACTIVE' : ''}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.muted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      DataCell(Text(p['hsn_sac']?.toString() ?? '')),
+                      DataCell(Text('${p['gst_rate'] ?? 0}%')),
+                      DataCell(Text(money(p['sales_price']))),
+                      DataCell(
+                        Text('${p['current_stock'] ?? 0} ${p['uom'] ?? ''}'),
+                      ),
+                      DataCell(Text('${p['reorder_level'] ?? 0}')),
+                      DataCell(_actions(p)),
+                    ],
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      );
+  Widget _card(Map<String, dynamic> p) => Padding(
+        padding: const EdgeInsets.only(bottom: 9),
+        child: Card(
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: CircleAvatar(
+              child: Icon(
+                p['product_type'] == 'SERVICE'
+                    ? Icons.design_services_outlined
+                    : Icons.inventory_2_outlined,
+              ),
+            ),
+            title: Text(
+              p['name']?.toString() ?? '',
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            subtitle: Text(
+              'HSN/SAC ${p['hsn_sac'] ?? ''} • GST ${p['gst_rate'] ?? 0}%${p['is_active'] == false ? ' • INACTIVE' : ''}\nStock ${p['current_stock'] ?? 0} ${p['uom'] ?? ''}',
+            ),
+            isThreeLine: true,
+            trailing: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  money(p['sales_price']),
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                _actions(p),
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 class _ProductDialog extends StatefulWidget {
@@ -353,8 +355,7 @@ class _ProductDialogState extends State<_ProductDialog> {
       _gst,
       _opening,
       _reorder,
-    ])
-      c.dispose();
+    ]) c.dispose();
     super.dispose();
   }
 
@@ -372,12 +373,10 @@ class _ProductDialogState extends State<_ProductDialog> {
         'sales_price': double.tryParse(_sale.text) ?? 0,
         'purchase_price': double.tryParse(_purchase.text) ?? 0,
         'gst_rate': double.tryParse(_gst.text) ?? 0,
-        'opening_stock': _type == 'SERVICE'
-            ? 0
-            : double.tryParse(_opening.text) ?? 0,
-        'reorder_level': _type == 'SERVICE'
-            ? 0
-            : double.tryParse(_reorder.text) ?? 0,
+        'opening_stock':
+            _type == 'SERVICE' ? 0 : double.tryParse(_opening.text) ?? 0,
+        'reorder_level':
+            _type == 'SERVICE' ? 0 : double.tryParse(_reorder.text) ?? 0,
       };
       if (widget.item == null) {
         await widget.api.post('/masters/products', body: body);
@@ -397,146 +396,147 @@ class _ProductDialogState extends State<_ProductDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.item == null ? 'Add item or service' : 'Edit item'),
-    content: SizedBox(
-      width: 760,
-      child: SingleChildScrollView(
-        child: Form(
-          key: _form,
-          child: Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              SizedBox(
-                width: 350,
-                child: TextFormField(
-                  controller: _name,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (v) =>
-                      v == null || v.trim().isEmpty ? 'Required' : null,
-                ),
-              ),
-              SizedBox(
-                width: 180,
-                child: DropdownButtonFormField<String>(
-                  value: _type,
-                  decoration: const InputDecoration(labelText: 'Type'),
-                  items: const [
-                    DropdownMenuItem(value: 'GOODS', child: Text('Goods')),
-                    DropdownMenuItem(value: 'SERVICE', child: Text('Service')),
-                  ],
-                  onChanged: (v) => setState(() => _type = v!),
-                ),
-              ),
-              SizedBox(
-                width: 180,
-                child: TextFormField(
-                  controller: _hsn,
-                  keyboardType: TextInputType.number,
-                  maxLength: 8,
-                  decoration: const InputDecoration(
-                    labelText: 'HSN / SAC',
-                    counterText: '',
-                  ),
-                  validator: (v) =>
-                      (v?.length ?? 0) >= 6 ? null : 'Use 6–8 digits',
-                ),
-              ),
-              SizedBox(
-                width: 130,
-                child: TextFormField(
-                  controller: _uom,
-                  decoration: const InputDecoration(labelText: 'UOM'),
-                ),
-              ),
-              SizedBox(
-                width: 220,
-                child: TextFormField(
-                  controller: _sku,
-                  decoration: const InputDecoration(labelText: 'SKU'),
-                ),
-              ),
-              SizedBox(
-                width: 220,
-                child: TextFormField(
-                  controller: _barcode,
-                  decoration: const InputDecoration(labelText: 'Barcode'),
-                ),
-              ),
-              SizedBox(
-                width: 160,
-                child: TextFormField(
-                  controller: _sale,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Default sale rate',
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 160,
-                child: TextFormField(
-                  controller: _purchase,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Default purchase rate',
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 130,
-                child: TextFormField(
-                  controller: _gst,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: const InputDecoration(labelText: 'GST %'),
-                ),
-              ),
-              if (_type == 'GOODS')
-                SizedBox(
-                  width: 160,
-                  child: TextFormField(
-                    controller: _opening,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Opening stock',
+        title: Text(widget.item == null ? 'Add item or service' : 'Edit item'),
+        content: SizedBox(
+          width: 760,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _form,
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  SizedBox(
+                    width: 350,
+                    child: TextFormField(
+                      controller: _name,
+                      decoration: const InputDecoration(labelText: 'Name'),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'Required' : null,
                     ),
                   ),
-                ),
-              if (_type == 'GOODS')
-                SizedBox(
-                  width: 160,
-                  child: TextFormField(
-                    controller: _reorder,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: const InputDecoration(
-                      labelText: 'Reorder level',
+                  SizedBox(
+                    width: 180,
+                    child: DropdownButtonFormField<String>(
+                      value: _type,
+                      decoration: const InputDecoration(labelText: 'Type'),
+                      items: const [
+                        DropdownMenuItem(value: 'GOODS', child: Text('Goods')),
+                        DropdownMenuItem(
+                            value: 'SERVICE', child: Text('Service')),
+                      ],
+                      onChanged: (v) => setState(() => _type = v!),
                     ),
                   ),
-                ),
-            ],
+                  SizedBox(
+                    width: 180,
+                    child: TextFormField(
+                      controller: _hsn,
+                      keyboardType: TextInputType.number,
+                      maxLength: 8,
+                      decoration: const InputDecoration(
+                        labelText: 'HSN / SAC',
+                        counterText: '',
+                      ),
+                      validator: (v) =>
+                          (v?.length ?? 0) >= 6 ? null : 'Use 6–8 digits',
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: TextFormField(
+                      controller: _uom,
+                      decoration: const InputDecoration(labelText: 'UOM'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: TextFormField(
+                      controller: _sku,
+                      decoration: const InputDecoration(labelText: 'SKU'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: TextFormField(
+                      controller: _barcode,
+                      decoration: const InputDecoration(labelText: 'Barcode'),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 160,
+                    child: TextFormField(
+                      controller: _sale,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Default sale rate',
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 160,
+                    child: TextFormField(
+                      controller: _purchase,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Default purchase rate',
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 130,
+                    child: TextFormField(
+                      controller: _gst,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(labelText: 'GST %'),
+                    ),
+                  ),
+                  if (_type == 'GOODS')
+                    SizedBox(
+                      width: 160,
+                      child: TextFormField(
+                        controller: _opening,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'Opening stock',
+                        ),
+                      ),
+                    ),
+                  if (_type == 'GOODS')
+                    SizedBox(
+                      width: 160,
+                      child: TextFormField(
+                        controller: _reorder,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'Reorder level',
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
-    ),
-    actions: [
-      TextButton(
-        onPressed: _saving ? null : () => Navigator.pop(context),
-        child: const Text('Cancel'),
-      ),
-      FilledButton(
-        onPressed: _saving ? null : _save,
-        child: Text(_saving ? 'Saving…' : 'Save'),
-      ),
-    ],
-  );
+        actions: [
+          TextButton(
+            onPressed: _saving ? null : () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: _saving ? null : _save,
+            child: Text(_saving ? 'Saving…' : 'Save'),
+          ),
+        ],
+      );
 }

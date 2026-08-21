@@ -100,11 +100,7 @@ class _NotesScreenState extends State<NotesScreen> {
       showMessage(
         context,
         '${widget.credit ? 'Credit' : 'Debit'} note '
-        '${action == 'finalize'
-            ? 'posted'
-            : action == 'cancel'
-            ? 'cancelled and reversed'
-            : 'removed'}.',
+        '${action == 'finalize' ? 'posted' : action == 'cancel' ? 'cancelled and reversed' : 'removed'}.',
       );
       _load();
     } catch (e) {
@@ -114,101 +110,104 @@ class _NotesScreenState extends State<NotesScreen> {
 
   @override
   Widget build(BuildContext context) => PageFrame(
-    title: widget.credit ? 'Credit Notes' : 'Debit Notes',
-    subtitle: widget.credit
-        ? 'Reduce customer receivables/output GST using the source invoice tax basis.'
-        : 'Add a value debit using the source invoice tax basis.',
-    actions: [
-      IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
-      FilledButton.icon(
-        onPressed: _create,
-        icon: const Icon(Icons.add_rounded),
-        label: Text(widget.credit ? 'New credit note' : 'New debit note'),
-      ),
-    ],
-    child: _loading
-        ? const Padding(
-            padding: EdgeInsets.all(60),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : _error != null
-        ? ErrorPanel(message: _error!, onRetry: _load)
-        : _items.isEmpty
-        ? EmptyState(
-            icon: widget.credit
-                ? Icons.assignment_return_outlined
-                : Icons.note_add_outlined,
-            title: 'No ${widget.credit ? 'credit' : 'debit'} notes',
-            message: 'Create a note from a posted invoice when a value adjustment is required.',
-            action: FilledButton.icon(
-              onPressed: _create,
-              icon: const Icon(Icons.add_rounded),
-              label: const Text('Create note'),
-            ),
-          )
-        : Column(
-            children: _items.map((row) {
-              final status = '${row['status'] ?? ''}'.toUpperCase();
-              final number = widget.credit
-                  ? row['credit_note_number']
-                  : row['debit_note_number'];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 9),
-                child: Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      child: Icon(
-                        widget.credit
+        title: widget.credit ? 'Credit Notes' : 'Debit Notes',
+        subtitle: widget.credit
+            ? 'Reduce customer receivables/output GST using the source invoice tax basis.'
+            : 'Add a value debit using the source invoice tax basis.',
+        actions: [
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh_rounded)),
+          FilledButton.icon(
+            onPressed: _create,
+            icon: const Icon(Icons.add_rounded),
+            label: Text(widget.credit ? 'New credit note' : 'New debit note'),
+          ),
+        ],
+        child: _loading
+            ? const Padding(
+                padding: EdgeInsets.all(60),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : _error != null
+                ? ErrorPanel(message: _error!, onRetry: _load)
+                : _items.isEmpty
+                    ? EmptyState(
+                        icon: widget.credit
                             ? Icons.assignment_return_outlined
                             : Icons.note_add_outlined,
+                        title: 'No ${widget.credit ? 'credit' : 'debit'} notes',
+                        message:
+                            'Create a note from a posted invoice when a value adjustment is required.',
+                        action: FilledButton.icon(
+                          onPressed: _create,
+                          icon: const Icon(Icons.add_rounded),
+                          label: const Text('Create note'),
+                        ),
+                      )
+                    : Column(
+                        children: _items.map((row) {
+                          final status = '${row['status'] ?? ''}'.toUpperCase();
+                          final number = widget.credit
+                              ? row['credit_note_number']
+                              : row['debit_note_number'];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 9),
+                            child: Card(
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  child: Icon(
+                                    widget.credit
+                                        ? Icons.assignment_return_outlined
+                                        : Icons.note_add_outlined,
+                                  ),
+                                ),
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        '$number',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w800),
+                                      ),
+                                    ),
+                                    Text(
+                                      money(row['total']),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Text(
+                                  '${row['contact_name'] ?? ''} • '
+                                  '${displayDate(row['issue_date'])} • $status\n'
+                                  '${row['reason'] ?? ''}',
+                                ),
+                                isThreeLine: true,
+                                trailing: PopupMenuButton<String>(
+                                  onSelected: (value) => _action(row, value),
+                                  itemBuilder: (_) => [
+                                    if (status == 'DRAFT')
+                                      const PopupMenuItem(
+                                        value: 'finalize',
+                                        child: Text('Finalize / post'),
+                                      ),
+                                    if (status == 'DRAFT')
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete draft'),
+                                      ),
+                                    if (status == 'POSTED')
+                                      const PopupMenuItem(
+                                        value: 'cancel',
+                                        child: Text('Cancel & reverse'),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    ),
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '$number',
-                            style: const TextStyle(fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                        Text(
-                          money(row['total']),
-                          style: const TextStyle(fontWeight: FontWeight.w900),
-                        ),
-                      ],
-                    ),
-                    subtitle: Text(
-                      '${row['contact_name'] ?? ''} • '
-                      '${displayDate(row['issue_date'])} • $status\n'
-                      '${row['reason'] ?? ''}',
-                    ),
-                    isThreeLine: true,
-                    trailing: PopupMenuButton<String>(
-                      onSelected: (value) => _action(row, value),
-                      itemBuilder: (_) => [
-                        if (status == 'DRAFT')
-                          const PopupMenuItem(
-                            value: 'finalize',
-                            child: Text('Finalize / post'),
-                          ),
-                        if (status == 'DRAFT')
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Text('Delete draft'),
-                          ),
-                        if (status == 'POSTED')
-                          const PopupMenuItem(
-                            value: 'cancel',
-                            child: Text('Cancel & reverse'),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-  );
+      );
 }
 
 class _NoteEditor extends StatefulWidget {
@@ -393,229 +392,235 @@ class _NoteEditorState extends State<_NoteEditor> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text('New ${widget.credit ? 'credit' : 'debit'} note'),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 12),
-          child: FilledButton.icon(
-            onPressed: _saving ? null : _save,
-            icon: const Icon(Icons.check_rounded),
-            label: Text(_saving ? 'Saving…' : 'Save draft'),
-          ),
-        ),
-      ],
-    ),
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1000),
-          child: Column(
-            children: [
-              SectionCard(
-                title: 'Source invoice',
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: [
-                    SizedBox(
-                      width: 520,
-                      child: DropdownButtonFormField<String>(
-                        value: _invoiceId,
-                        isExpanded: true,
-                        decoration: const InputDecoration(
-                          labelText: 'Posted invoice',
-                        ),
-                        items: widget.invoices
-                            .map(
-                              (invoice) => DropdownMenuItem(
-                                value: '${invoice['id']}',
-                                child: Text(
-                                  '${invoice['invoice_number']} • '
-                                  '${invoice['contact_name']} • '
-                                  '${money(invoice['total'])}',
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() => _invoiceId = value);
-                          _loadInvoice();
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      width: 220,
-                      child: InkWell(
-                        onTap: () async {
-                          final picked = await pickDate(context, _date);
-                          if (picked != null) setState(() => _date = picked);
-                        },
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Note date',
-                          ),
-                          child: Text(displayDate(_date.toIso8601String())),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 760,
-                      child: TextField(
-                        controller: _reason,
-                        decoration: const InputDecoration(
-                          labelText: 'Reason *',
-                        ),
-                      ),
-                    ),
-                    if (widget.credit)
-                      SizedBox(
-                        width: 320,
-                        child: SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text('Restock returned goods'),
-                          value: _restock,
-                          onChanged: (value) =>
-                              setState(() => _restock = value),
-                        ),
-                      ),
-                  ],
-                ),
+        appBar: AppBar(
+          title: Text('New ${widget.credit ? 'credit' : 'debit'} note'),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: FilledButton.icon(
+                onPressed: _saving ? null : _save,
+                icon: const Icon(Icons.check_rounded),
+                label: Text(_saving ? 'Saving…' : 'Save draft'),
               ),
-              const SizedBox(height: 14),
-              if (_loading)
-                const Padding(
-                  padding: EdgeInsets.all(50),
-                  child: CircularProgressIndicator(),
-                )
-              else if (_error != null)
-                ErrorPanel(message: _error!, onRetry: _loadInvoice)
-              else ...[
-                SectionCard(
-                  title: 'GST rate handling',
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color:
-                          (_sourceInclusive
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1000),
+              child: Column(
+                children: [
+                  SectionCard(
+                    title: 'Source invoice',
+                    child: Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: [
+                        SizedBox(
+                          width: 520,
+                          child: DropdownButtonFormField<String>(
+                            value: _invoiceId,
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              labelText: 'Posted invoice',
+                            ),
+                            items: widget.invoices
+                                .map(
+                                  (invoice) => DropdownMenuItem(
+                                    value: '${invoice['id']}',
+                                    child: Text(
+                                      '${invoice['invoice_number']} • '
+                                      '${invoice['contact_name']} • '
+                                      '${money(invoice['total'])}',
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() => _invoiceId = value);
+                              _loadInvoice();
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          width: 220,
+                          child: InkWell(
+                            onTap: () async {
+                              final picked = await pickDate(context, _date);
+                              if (picked != null)
+                                setState(() => _date = picked);
+                            },
+                            child: InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Note date',
+                              ),
+                              child: Text(displayDate(_date.toIso8601String())),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 760,
+                          child: TextField(
+                            controller: _reason,
+                            decoration: const InputDecoration(
+                              labelText: 'Reason *',
+                            ),
+                          ),
+                        ),
+                        if (widget.credit)
+                          SizedBox(
+                            width: 320,
+                            child: SwitchListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Restock returned goods'),
+                              value: _restock,
+                              onChanged: (value) =>
+                                  setState(() => _restock = value),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  if (_loading)
+                    const Padding(
+                      padding: EdgeInsets.all(50),
+                      child: CircularProgressIndicator(),
+                    )
+                  else if (_error != null)
+                    ErrorPanel(message: _error!, onRetry: _loadInvoice)
+                  else ...[
+                    SectionCard(
+                      title: 'GST rate handling',
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: (_sourceInclusive
                                   ? AppColors.success
                                   : AppColors.primary)
                               .withOpacity(.08),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      _sourceInclusive
-                          ? 'Source invoice rates INCLUDE GST. ApexBooks converts the selected source line to its posted TAXABLE rate before sending the note, preventing GST from being added twice.'
-                          : 'Source invoice rates EXCLUDE GST. The note uses the source taxable rate and GST is calculated once on top.',
-                      style: const TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                SectionCard(
-                  title: 'Adjustment line',
-                  child: Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 370,
-                        child: DropdownButtonFormField<String>(
-                          value: _lineId,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Invoice line',
-                          ),
-                          items: _invoiceLines.map((line) {
-                            return DropdownMenuItem(
-                              value: '${line['id']}',
-                              child: Text(
-                                '${line['product_name'] ?? line['description'] ?? 'Item'} • '
-                                'Qty ${formatNumber(line['quantity'])}',
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: _selectLine,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                      SizedBox(
-                        width: 120,
-                        child: TextField(
-                          controller: _qty,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: const InputDecoration(labelText: 'Qty'),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 200,
-                        child: TextField(
-                          controller: _rate,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: const InputDecoration(
-                            labelText: 'Taxable rate (GST excluded)',
-                            helperText: 'Backend note basis',
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 140,
-                        child: TextField(
-                          controller: _discount,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: const InputDecoration(
-                            labelText: 'Discount',
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 160,
-                        child: TextField(
-                          controller: _hsn,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'HSN/SAC',
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 120,
-                        child: TextField(
-                          controller: _gst,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: const InputDecoration(labelText: 'GST %'),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 760,
                         child: Text(
-                          'The source document determines the economic value. '
-                          'For GST-inclusive invoices the taxable value is derived '
-                          'from the posted source line before this note is created.',
-                          style: TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 12,
-                          ),
+                          _sourceInclusive
+                              ? 'Source invoice rates INCLUDE GST. ApexBooks converts the selected source line to its posted TAXABLE rate before sending the note, preventing GST from being added twice.'
+                              : 'Source invoice rates EXCLUDE GST. The note uses the source taxable rate and GST is calculated once on top.',
+                          style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ],
+                    ),
+                    const SizedBox(height: 14),
+                    SectionCard(
+                      title: 'Adjustment line',
+                      child: Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          SizedBox(
+                            width: 370,
+                            child: DropdownButtonFormField<String>(
+                              value: _lineId,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Invoice line',
+                              ),
+                              items: _invoiceLines.map((line) {
+                                return DropdownMenuItem(
+                                  value: '${line['id']}',
+                                  child: Text(
+                                    '${line['product_name'] ?? line['description'] ?? 'Item'} • '
+                                    'Qty ${formatNumber(line['quantity'])}',
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: _selectLine,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 120,
+                            child: TextField(
+                              controller: _qty,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              decoration:
+                                  const InputDecoration(labelText: 'Qty'),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: TextField(
+                              controller: _rate,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              decoration: const InputDecoration(
+                                labelText: 'Taxable rate (GST excluded)',
+                                helperText: 'Backend note basis',
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 140,
+                            child: TextField(
+                              controller: _discount,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              decoration: const InputDecoration(
+                                labelText: 'Discount',
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 160,
+                            child: TextField(
+                              controller: _hsn,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'HSN/SAC',
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 120,
+                            child: TextField(
+                              controller: _gst,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                decimal: true,
+                              ),
+                              decoration:
+                                  const InputDecoration(labelText: 'GST %'),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 760,
+                            child: Text(
+                              'The source document determines the economic value. '
+                              'For GST-inclusive invoices the taxable value is derived '
+                              'from the posted source line before this note is created.',
+                              style: TextStyle(
+                                color: AppColors.muted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
-      ),
-    ),
-  );
+      );
 }
