@@ -105,12 +105,17 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       });
     }
     try {
-      final contactData = await widget.api.get('/masters/contacts', query: {
-        'contact_type': def.vendor ? 'VENDOR' : 'CUSTOMER',
-        'limit': 100,
-      });
-      final productData =
-          await widget.api.get('/masters/products', query: {'limit': 100});
+      final contactData = await widget.api.get(
+        '/masters/contacts',
+        query: {
+          'contact_type': def.vendor ? 'VENDOR' : 'CUSTOMER',
+          'limit': 100,
+        },
+      );
+      final productData = await widget.api.get(
+        '/masters/products',
+        query: {'limit': 100},
+      );
 
       Map<String, dynamic>? existing;
       if (_editing) {
@@ -149,7 +154,8 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   }
 
   void _applyExisting(Map<String, dynamic> data) {
-    _contactId = data['contact_id']?.toString() ??
+    _contactId =
+        data['contact_id']?.toString() ??
         (data['contact'] is Map
             ? (data['contact'] as Map)['id']?.toString()
             : null);
@@ -180,17 +186,19 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
     }
     _lines
       ..clear()
-      ..addAll(rawLines.map((raw) {
-        final map = Map<String, dynamic>.from(raw as Map);
-        return _LineDraft()
-          ..productId = map['product_id']?.toString()
-          ..quantity.text = '${map['quantity'] ?? 1}'
-          ..rate.text = '${map['rate'] ?? 0}'
-          ..discount.text = '${map['discount'] ?? 0}'
-          ..hsn.text = '${map['hsn_sac'] ?? ''}'
-          ..gst.text = '${map['gst_rate'] ?? 0}'
-          ..description.text = '${map['description'] ?? ''}';
-      }));
+      ..addAll(
+        rawLines.map((raw) {
+          final map = Map<String, dynamic>.from(raw as Map);
+          return _LineDraft()
+            ..productId = map['product_id']?.toString()
+            ..quantity.text = '${map['quantity'] ?? 1}'
+            ..rate.text = '${map['rate'] ?? 0}'
+            ..discount.text = '${map['discount'] ?? 0}'
+            ..hsn.text = '${map['hsn_sac'] ?? ''}'
+            ..gst.text = '${map['gst_rate'] ?? 0}'
+            ..description.text = '${map['description'] ?? ''}';
+        }),
+      );
     if (_lines.isEmpty) _lines.add(_LineDraft());
     for (final line in _lines) {
       line.addListener(_queuePreview);
@@ -203,21 +211,23 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       return;
     }
     _previewDebounce?.cancel();
-    _previewDebounce =
-        Timer(const Duration(milliseconds: 400), _previewDocument);
+    _previewDebounce = Timer(
+      const Duration(milliseconds: 400),
+      _previewDocument,
+    );
   }
 
   Map<String, dynamic> _linePayload(_LineDraft line) => {
-        'product_id': line.productId,
-        'description': line.description.text.trim().isEmpty
-            ? null
-            : line.description.text.trim(),
-        'quantity': double.tryParse(line.quantity.text) ?? 0,
-        'rate': double.tryParse(line.rate.text) ?? 0,
-        'discount': double.tryParse(line.discount.text) ?? 0,
-        'hsn_sac': line.hsn.text.trim(),
-        'gst_rate': double.tryParse(line.gst.text) ?? 0,
-      };
+    'product_id': line.productId,
+    'description': line.description.text.trim().isEmpty
+        ? null
+        : line.description.text.trim(),
+    'quantity': double.tryParse(line.quantity.text) ?? 0,
+    'rate': double.tryParse(line.rate.text) ?? 0,
+    'discount': double.tryParse(line.discount.text) ?? 0,
+    'hsn_sac': line.hsn.text.trim(),
+    'gst_rate': double.tryParse(line.gst.text) ?? 0,
+  };
 
   Map<String, dynamic> _payload({bool preview = false}) {
     final common = <String, dynamic>{
@@ -236,10 +246,12 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
         'discount_rate': double.tryParse(_discount.text) ?? 0,
         'shipping_charges': double.tryParse(_shipping.text) ?? 0,
         'notes': _notes.text.trim().isEmpty ? null : _notes.text.trim(),
-        'terms_and_conditions':
-            _terms.text.trim().isEmpty ? null : _terms.text.trim(),
-        'reference_number':
-            _reference.text.trim().isEmpty ? null : _reference.text.trim(),
+        'terms_and_conditions': _terms.text.trim().isEmpty
+            ? null
+            : _terms.text.trim(),
+        'reference_number': _reference.text.trim().isEmpty
+            ? null
+            : _reference.text.trim(),
         'is_gst_inclusive': _inclusive ?? false,
         if (!_editing) 'post_on_create': preview ? false : _postOnCreate,
       });
@@ -263,10 +275,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   }
 
   String _previewPath() => switch (def.kind) {
-        'bill' => '/bills/preview',
-        'proforma' => '/proforma-invoices/preview',
-        _ => '/invoices/preview',
-      };
+    'bill' => '/bills/preview',
+    'proforma' => '/proforma-invoices/preview',
+    _ => '/invoices/preview',
+  };
 
   Future<void> _previewDocument() async {
     if (!def.hasPreview ||
@@ -275,9 +287,11 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       return;
     }
     if (_requiresTaxChoice && _inclusive == null) return;
-    if (_lines.any((line) =>
-        (double.tryParse(line.quantity.text) ?? 0) <= 0 ||
-        (double.tryParse(line.rate.text) ?? -1) < 0)) {
+    if (_lines.any(
+      (line) =>
+          (double.tryParse(line.quantity.text) ?? 0) <= 0 ||
+          (double.tryParse(line.rate.text) ?? -1) < 0,
+    )) {
       return;
     }
     if (_pos.text.trim().length != 2) return;
@@ -289,8 +303,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       });
     }
     try {
-      final data =
-          await widget.api.post(_previewPath(), body: _payload(preview: true));
+      final data = await widget.api.post(
+        _previewPath(),
+        body: _payload(preview: true),
+      );
       if (!mounted) return;
       setState(() => _preview = Map<String, dynamic>.from(data as Map));
     } catch (e) {
@@ -347,8 +363,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
     setState(() => _saving = true);
     try {
       if (_editing) {
-        await widget.api
-            .put('${def.endpoint}/${widget.initialId}', body: _payload());
+        await widget.api.put(
+          '${def.endpoint}/${widget.initialId}',
+          body: _payload(),
+        );
       } else {
         await widget.api.post(def.endpoint, body: _payload());
       }
@@ -391,8 +409,9 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
 
   void _selectProduct(_LineDraft line, String? productId) {
     setState(() => line.productId = productId);
-    final match =
-        _products.where((p) => p['id']?.toString() == productId).toList();
+    final match = _products
+        .where((p) => p['id']?.toString() == productId)
+        .toList();
     if (match.isNotEmpty) {
       final product = match.first;
       line.rate.text =
@@ -416,8 +435,9 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       final rate = double.tryParse(line.rate.text) ?? 0;
       final discount = double.tryParse(line.discount.text) ?? 0;
       final gst = double.tryParse(line.gst.text) ?? 0;
-      final grossLine =
-          (qty * rate - discount).clamp(0.0, double.infinity).toDouble();
+      final grossLine = (qty * rate - discount)
+          .clamp(0.0, double.infinity)
+          .toDouble();
       entered += grossLine;
 
       if (_inclusive == true && gst > 0) {
@@ -472,159 +492,176 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: ErrorPanel(message: _error!, onRetry: _loadMasters),
-                )
-              : Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1320),
-                        child: LayoutBuilder(
-                          builder: (context, c) {
-                            final wide = c.maxWidth >= 1000;
-                            final form = Column(children: [
-                              _headerCard(),
+          ? Padding(
+              padding: const EdgeInsets.all(20),
+              child: ErrorPanel(message: _error!, onRetry: _loadMasters),
+            )
+          : Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1320),
+                    child: LayoutBuilder(
+                      builder: (context, c) {
+                        final wide = c.maxWidth >= 1000;
+                        final form = Column(
+                          children: [
+                            _headerCard(),
+                            const SizedBox(height: 14),
+                            _taxModeCard(),
+                            const SizedBox(height: 14),
+                            _lineItemsCard(),
+                            if (def.extendedTaxFields) ...[
                               const SizedBox(height: 14),
-                              _taxModeCard(),
+                              _adjustmentsCard(),
                               const SizedBox(height: 14),
-                              _lineItemsCard(),
-                              if (def.extendedTaxFields) ...[
-                                const SizedBox(height: 14),
-                                _adjustmentsCard(),
-                                const SizedBox(height: 14),
-                                _notesCard(),
-                              ],
-                            ]);
-                            if (!wide) {
-                              return Column(children: [
-                                form,
-                                const SizedBox(height: 14),
-                                _summaryCard(),
-                              ]);
-                            }
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(flex: 3, child: form),
-                                const SizedBox(width: 14),
-                                SizedBox(width: 340, child: _summaryCard()),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
+                              _notesCard(),
+                            ],
+                          ],
+                        );
+                        if (!wide) {
+                          return Column(
+                            children: [
+                              form,
+                              const SizedBox(height: 14),
+                              _summaryCard(),
+                            ],
+                          );
+                        }
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(flex: 3, child: form),
+                            const SizedBox(width: 14),
+                            SizedBox(width: 340, child: _summaryCard()),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ),
+              ),
+            ),
     );
   }
 
   Widget _headerCard() {
     return SectionCard(
       title: 'Document details',
-      child: Wrap(spacing: 14, runSpacing: 14, children: [
-        SizedBox(
-          width: 350,
-          child: DropdownButtonFormField<String>(
-            value: _contactId,
-            isExpanded: true,
-            decoration:
-                InputDecoration(labelText: def.vendor ? 'Vendor' : 'Customer'),
-            items: _contacts
-                .map(
-                  (c) => DropdownMenuItem(
-                    value: c['id']?.toString(),
-                    child: Text(
-                      c['name']?.toString() ?? 'Party',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              setState(() => _contactId = value);
-              final contact =
-                  _contacts.where((c) => c['id']?.toString() == value).toList();
-              if (contact.isNotEmpty && contact.first['state_code'] != null) {
-                _pos.text = contact.first['state_code'].toString();
-              }
-              _queuePreview();
-            },
-          ),
-        ),
-        SizedBox(
-          width: 220,
-          child: TextFormField(
-            controller: _number,
-            maxLength: def.kind == 'invoice' ? 16 : 50,
-            decoration: InputDecoration(
-              labelText: def.numberLabel,
-              counterText: '',
-              hintText: def.numberOptional ? 'Auto if blank' : null,
-            ),
-          ),
-        ),
-        SizedBox(
-          width: 210,
-          child: _DateField(
-            label: def.dateLabel,
-            value: _date,
-            onChanged: (value) {
-              setState(() => _date = value);
-              _queuePreview();
-            },
-          ),
-        ),
-        SizedBox(
-          width: 210,
-          child: _DateField(
-            label: 'Due date',
-            value: _dueDate,
-            onChanged: (value) => setState(() => _dueDate = value),
-          ),
-        ),
-        SizedBox(
-          width: 160,
-          child: TextField(
-            controller: _pos,
-            maxLength: 2,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'POS state',
-              helperText: '2-digit GST code',
-              counterText: '',
-            ),
-          ),
-        ),
-        if (def.kind == 'invoice')
+      child: Wrap(
+        spacing: 14,
+        runSpacing: 14,
+        children: [
           SizedBox(
-            width: 210,
+            width: 350,
             child: DropdownButtonFormField<String>(
-              value: _supplyType,
-              decoration: const InputDecoration(labelText: 'Supply type'),
-              items: const [
-                DropdownMenuItem(value: 'DOMESTIC', child: Text('Domestic')),
-                DropdownMenuItem(
-                    value: 'EXPORT_WITH_TAX', child: Text('Export with tax')),
-                DropdownMenuItem(
-                    value: 'EXPORT_WITHOUT_TAX',
-                    child: Text('Export without tax / LUT')),
-                DropdownMenuItem(
-                    value: 'SEZ_WITH_TAX', child: Text('SEZ with tax')),
-                DropdownMenuItem(
-                    value: 'SEZ_WITHOUT_TAX', child: Text('SEZ without tax')),
-              ],
+              value: _contactId,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: def.vendor ? 'Vendor' : 'Customer',
+              ),
+              items: _contacts
+                  .map(
+                    (c) => DropdownMenuItem(
+                      value: c['id']?.toString(),
+                      child: Text(
+                        c['name']?.toString() ?? 'Party',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                  .toList(),
               onChanged: (value) {
-                setState(() => _supplyType = value ?? 'DOMESTIC');
+                setState(() => _contactId = value);
+                final contact = _contacts
+                    .where((c) => c['id']?.toString() == value)
+                    .toList();
+                if (contact.isNotEmpty && contact.first['state_code'] != null) {
+                  _pos.text = contact.first['state_code'].toString();
+                }
                 _queuePreview();
               },
             ),
           ),
-      ]),
+          SizedBox(
+            width: 220,
+            child: TextFormField(
+              controller: _number,
+              maxLength: def.kind == 'invoice' ? 16 : 50,
+              decoration: InputDecoration(
+                labelText: def.numberLabel,
+                counterText: '',
+                hintText: def.numberOptional ? 'Auto if blank' : null,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 210,
+            child: _DateField(
+              label: def.dateLabel,
+              value: _date,
+              onChanged: (value) {
+                setState(() => _date = value);
+                _queuePreview();
+              },
+            ),
+          ),
+          SizedBox(
+            width: 210,
+            child: _DateField(
+              label: 'Due date',
+              value: _dueDate,
+              onChanged: (value) => setState(() => _dueDate = value),
+            ),
+          ),
+          SizedBox(
+            width: 160,
+            child: TextField(
+              controller: _pos,
+              maxLength: 2,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'POS state',
+                helperText: '2-digit GST code',
+                counterText: '',
+              ),
+            ),
+          ),
+          if (def.kind == 'invoice')
+            SizedBox(
+              width: 210,
+              child: DropdownButtonFormField<String>(
+                value: _supplyType,
+                decoration: const InputDecoration(labelText: 'Supply type'),
+                items: const [
+                  DropdownMenuItem(value: 'DOMESTIC', child: Text('Domestic')),
+                  DropdownMenuItem(
+                    value: 'EXPORT_WITH_TAX',
+                    child: Text('Export with tax'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'EXPORT_WITHOUT_TAX',
+                    child: Text('Export without tax / LUT'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'SEZ_WITH_TAX',
+                    child: Text('SEZ with tax'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'SEZ_WITHOUT_TAX',
+                    child: Text('SEZ without tax'),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() => _supplyType = value ?? 'DOMESTIC');
+                  _queuePreview();
+                },
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -667,31 +704,39 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
             style: TextStyle(color: AppColors.muted),
           ),
           const SizedBox(height: 12),
-          Wrap(spacing: 10, runSpacing: 10, children: [
-            ChoiceChip(
-              avatar: const Icon(Icons.check_circle_outline_rounded, size: 18),
-              label: const Text('GST INCLUDED in entered rate'),
-              selected: _inclusive == true,
-              onSelected: (_) => _selectTaxMode(true),
-            ),
-            ChoiceChip(
-              avatar: const Icon(Icons.add_circle_outline_rounded, size: 18),
-              label: const Text('GST EXCLUDED — add GST on top'),
-              selected: _inclusive == false,
-              onSelected: (_) => _selectTaxMode(false),
-            ),
-          ]),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              ChoiceChip(
+                avatar: const Icon(
+                  Icons.check_circle_outline_rounded,
+                  size: 18,
+                ),
+                label: const Text('GST INCLUDED in entered rate'),
+                selected: _inclusive == true,
+                onSelected: (_) => _selectTaxMode(true),
+              ),
+              ChoiceChip(
+                avatar: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                label: const Text('GST EXCLUDED — add GST on top'),
+                selected: _inclusive == false,
+                onSelected: (_) => _selectTaxMode(false),
+              ),
+            ],
+          ),
           const SizedBox(height: 10),
           Text(
             _inclusive == true
                 ? 'Example: ₹16,500 @ 18% stays ₹16,500 payable; the server extracts about ₹2,516.95 GST from the entered amount.'
                 : _inclusive == false
-                    ? 'Example: ₹16,500 @ 18% becomes ₹19,470 payable because ₹2,970 GST is added on top.'
-                    : 'No mode selected. Saving and tax preview are blocked until you choose one.',
+                ? 'Example: ₹16,500 @ 18% becomes ₹19,470 payable because ₹2,970 GST is added on top.'
+                : 'No mode selected. Saving and tax preview are blocked until you choose one.',
             style: TextStyle(
               color: _inclusive == null ? AppColors.danger : AppColors.muted,
-              fontWeight:
-                  _inclusive == null ? FontWeight.w800 : FontWeight.w500,
+              fontWeight: _inclusive == null
+                  ? FontWeight.w800
+                  : FontWeight.w500,
             ),
           ),
         ],
@@ -711,13 +756,15 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
         children: List.generate(_lines.length, (index) {
           final line = _lines[index];
           return Padding(
-            padding:
-                EdgeInsets.only(bottom: index == _lines.length - 1 ? 0 : 14),
+            padding: EdgeInsets.only(
+              bottom: index == _lines.length - 1 ? 0 : 14,
+            ),
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant),
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Wrap(
@@ -730,8 +777,9 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                     child: DropdownButtonFormField<String>(
                       value: line.productId,
                       isExpanded: true,
-                      decoration:
-                          InputDecoration(labelText: 'Item ${index + 1}'),
+                      decoration: InputDecoration(
+                        labelText: 'Item ${index + 1}',
+                      ),
                       items: _products
                           .map(
                             (p) => DropdownMenuItem(
@@ -750,8 +798,9 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                     width: 100,
                     child: TextField(
                       controller: line.quantity,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: const InputDecoration(labelText: 'Qty'),
                     ),
                   ),
@@ -759,15 +808,16 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                     width: 185,
                     child: TextField(
                       controller: line.rate,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: InputDecoration(
                         labelText: _rateLabel,
                         helperText: _inclusive == true
                             ? 'GST already inside'
                             : _inclusive == false || !def.extendedTaxFields
-                                ? 'GST added on top'
-                                : 'Choose mode above',
+                            ? 'GST added on top'
+                            : 'Choose mode above',
                       ),
                     ),
                   ),
@@ -775,10 +825,12 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                     width: 135,
                     child: TextField(
                       controller: line.discount,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      decoration:
-                          const InputDecoration(labelText: 'Line discount'),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Line discount',
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -793,8 +845,9 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                     width: 110,
                     child: TextField(
                       controller: line.gst,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       decoration: const InputDecoration(labelText: 'GST %'),
                     ),
                   ),
@@ -802,14 +855,16 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
                     width: 300,
                     child: TextField(
                       controller: line.description,
-                      decoration:
-                          const InputDecoration(labelText: 'Description'),
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                      ),
                     ),
                   ),
                   IconButton(
                     tooltip: 'Remove line',
-                    onPressed:
-                        _lines.length == 1 ? null : () => _removeLine(index),
+                    onPressed: _lines.length == 1
+                        ? null
+                        : () => _removeLine(index),
                     icon: const Icon(Icons.delete_outline_rounded),
                   ),
                 ],
@@ -824,101 +879,112 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
   Widget _adjustmentsCard() {
     return SectionCard(
       title: 'Adjustments & tax options',
-      child: Wrap(spacing: 12, runSpacing: 12, children: [
-        SizedBox(
-          width: 160,
-          child: TextField(
-            controller: _discount,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Discount %'),
-          ),
-        ),
-        SizedBox(
-          width: 180,
-          child: TextField(
-            controller: _shipping,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Shipping'),
-          ),
-        ),
-        if (def.kind == 'invoice')
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
           SizedBox(
-            width: 145,
+            width: 160,
             child: TextField(
-              controller: _tds,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'TDS %'),
+              controller: _discount,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Discount %'),
             ),
           ),
-        if (def.kind == 'invoice')
           SizedBox(
-            width: 145,
+            width: 180,
             child: TextField(
-              controller: _tcs,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'TCS %'),
+              controller: _shipping,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: const InputDecoration(labelText: 'Shipping'),
             ),
           ),
-        if (def.kind == 'bill')
-          SizedBox(
-            width: 145,
-            child: TextField(
-              controller: _tds,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(labelText: 'TDS %'),
+          if (def.kind == 'invoice')
+            SizedBox(
+              width: 145,
+              child: TextField(
+                controller: _tds,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(labelText: 'TDS %'),
+              ),
             ),
-          ),
-        if (def.kind == 'invoice')
-          FilterChip(
-            label: const Text('Reverse charge'),
-            selected: _rcm,
-            onSelected: (value) {
-              setState(() => _rcm = value);
-              _queuePreview();
-            },
-          ),
-        if (def.kind == 'bill')
-          FilterChip(
-            label: const Text('ITC eligible'),
-            selected: _itc,
-            onSelected: (value) => setState(() => _itc = value),
-          ),
-        if (!_editing)
-          FilterChip(
-            label: const Text('Post on create'),
-            selected: _postOnCreate,
-            onSelected: (value) => setState(() => _postOnCreate = value),
-          ),
-      ]),
+          if (def.kind == 'invoice')
+            SizedBox(
+              width: 145,
+              child: TextField(
+                controller: _tcs,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(labelText: 'TCS %'),
+              ),
+            ),
+          if (def.kind == 'bill')
+            SizedBox(
+              width: 145,
+              child: TextField(
+                controller: _tds,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: const InputDecoration(labelText: 'TDS %'),
+              ),
+            ),
+          if (def.kind == 'invoice')
+            FilterChip(
+              label: const Text('Reverse charge'),
+              selected: _rcm,
+              onSelected: (value) {
+                setState(() => _rcm = value);
+                _queuePreview();
+              },
+            ),
+          if (def.kind == 'bill')
+            FilterChip(
+              label: const Text('ITC eligible'),
+              selected: _itc,
+              onSelected: (value) => setState(() => _itc = value),
+            ),
+          if (!_editing)
+            FilterChip(
+              label: const Text('Post on create'),
+              selected: _postOnCreate,
+              onSelected: (value) => setState(() => _postOnCreate = value),
+            ),
+        ],
+      ),
     );
   }
 
   Widget _notesCard() {
     return SectionCard(
       title: 'Reference & notes',
-      child: Column(children: [
-        TextField(
-          controller: _reference,
-          decoration: const InputDecoration(labelText: 'Reference number'),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _notes,
-          maxLines: 2,
-          decoration: const InputDecoration(labelText: 'Notes'),
-        ),
-        const SizedBox(height: 10),
-        TextField(
-          controller: _terms,
-          maxLines: 3,
-          decoration: const InputDecoration(labelText: 'Terms & conditions'),
-        ),
-      ]),
+      child: Column(
+        children: [
+          TextField(
+            controller: _reference,
+            decoration: const InputDecoration(labelText: 'Reference number'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _notes,
+            maxLines: 2,
+            decoration: const InputDecoration(labelText: 'Notes'),
+          ),
+          const SizedBox(height: 10),
+          TextField(
+            controller: _terms,
+            maxLines: 3,
+            decoration: const InputDecoration(labelText: 'Terms & conditions'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -928,10 +994,10 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
     final modeText = !def.extendedTaxFields
         ? 'GST EXCLUDED — added on top'
         : _inclusive == true
-            ? 'GST INCLUDED in entered rate'
-            : _inclusive == false
-                ? 'GST EXCLUDED — added on top'
-                : 'SELECT GST RATE MODE';
+        ? 'GST INCLUDED in entered rate'
+        : _inclusive == false
+        ? 'GST EXCLUDED — added on top'
+        : 'SELECT GST RATE MODE';
 
     final taxable = server?['subtotal'] ?? estimate.taxable;
     final grandTotal = server?['total'] ?? estimate.total;
@@ -949,99 +1015,108 @@ class _TaxDocumentEditorScreenState extends State<TaxDocumentEditorScreen> {
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           : null,
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: (_inclusive == null && _requiresTaxChoice
-                    ? AppColors.danger
-                    : AppColors.primary)
-                .withOpacity(.08),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            modeText,
-            style: TextStyle(
-              color: _inclusive == null && _requiresTaxChoice
-                  ? AppColors.danger
-                  : AppColors.primary,
-              fontWeight: FontWeight.w900,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color:
+                  (_inclusive == null && _requiresTaxChoice
+                          ? AppColors.danger
+                          : AppColors.primary)
+                      .withOpacity(.08),
+              borderRadius: BorderRadius.circular(10),
             ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        _summaryRow('Entered line amount', money(estimate.entered)),
-        _summaryRow(
-          _inclusive == true ? 'Taxable (GST extracted)' : 'Taxable value',
-          money(taxable),
-        ),
-        if (server != null) ...[
-          _summaryRow('CGST', money(cgst)),
-          _summaryRow(
-            'SGST / UTGST',
-            money((num.tryParse('$sgst') ?? 0) +
-                (num.tryParse('$utgst') ?? 0)),
-          ),
-          _summaryRow('IGST', money(igst)),
-          if ((num.tryParse('$cess') ?? 0) != 0)
-            _summaryRow('Cess', money(cess)),
-          _summaryRow('Round off', money(server['round_off'] ?? 0)),
-        ] else
-          _summaryRow('Estimated GST', money(estimate.tax)),
-        const Divider(height: 22),
-        Row(children: [
-          const Expanded(
             child: Text(
-              'Grand total',
-              style: TextStyle(fontWeight: FontWeight.w900),
+              modeText,
+              style: TextStyle(
+                color: _inclusive == null && _requiresTaxChoice
+                    ? AppColors.danger
+                    : AppColors.primary,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
-          Text(
-            money(grandTotal),
-            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
-          ),
-        ]),
-        if (_previewError != null) ...[
           const SizedBox(height: 10),
-          Text(
-            'Tax preview error: $_previewError',
-            style: const TextStyle(color: AppColors.danger, fontSize: 11),
+          _summaryRow('Entered line amount', money(estimate.entered)),
+          _summaryRow(
+            _inclusive == true ? 'Taxable (GST extracted)' : 'Taxable value',
+            money(taxable),
           ),
-        ] else if (def.hasPreview) ...[
-          const SizedBox(height: 10),
-          Text(
-            server == null
-                ? 'Shown values are an estimate until the FastAPI tax preview responds.'
-                : 'Taxable value, GST split and total above came from the FastAPI preview.',
-            style: const TextStyle(color: AppColors.muted, fontSize: 11),
+          if (server != null) ...[
+            _summaryRow('CGST', money(cgst)),
+            _summaryRow(
+              'SGST / UTGST',
+              money(
+                (num.tryParse('$sgst') ?? 0) + (num.tryParse('$utgst') ?? 0),
+              ),
+            ),
+            _summaryRow('IGST', money(igst)),
+            if ((num.tryParse('$cess') ?? 0) != 0)
+              _summaryRow('Cess', money(cess)),
+            _summaryRow('Round off', money(server['round_off'] ?? 0)),
+          ] else
+            _summaryRow('Estimated GST', money(estimate.tax)),
+          const Divider(height: 22),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Grand total',
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+              ),
+              Text(
+                money(grandTotal),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 20,
+                ),
+              ),
+            ],
+          ),
+          if (_previewError != null) ...[
+            const SizedBox(height: 10),
+            Text(
+              'Tax preview error: $_previewError',
+              style: const TextStyle(color: AppColors.danger, fontSize: 11),
+            ),
+          ] else if (def.hasPreview) ...[
+            const SizedBox(height: 10),
+            Text(
+              server == null
+                  ? 'Shown values are an estimate until the FastAPI tax preview responds.'
+                  : 'Taxable value, GST split and total above came from the FastAPI preview.',
+              style: const TextStyle(color: AppColors.muted, fontSize: 11),
+            ),
+          ],
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _saving ? null : _save,
+              icon: const Icon(Icons.check_rounded),
+              label: Text(_saving ? 'Saving…' : 'Save ${def.title}'),
+            ),
           ),
         ],
-        const SizedBox(height: 18),
-        SizedBox(
-          width: double.infinity,
-          child: FilledButton.icon(
-            onPressed: _saving ? null : _save,
-            icon: const Icon(Icons.check_rounded),
-            label: Text(_saving ? 'Saving…' : 'Save ${def.title}'),
-          ),
-        ),
-      ]),
+      ),
     );
   }
 
   Widget _summaryRow(String label, String value) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        child: Row(children: [
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(color: AppColors.muted),
-            ),
-          ),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
-        ]),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(label, style: const TextStyle(color: AppColors.muted)),
+        ),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
+      ],
+    ),
+  );
 }
 
 class _DateField extends StatelessWidget {
@@ -1057,18 +1132,18 @@ class _DateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: () async {
-          final picked = await pickDate(context, value);
-          if (picked != null) onChanged(picked);
-        },
-        child: InputDecorator(
-          decoration: InputDecoration(
-            labelText: label,
-            suffixIcon: const Icon(Icons.calendar_month_outlined),
-          ),
-          child: Text(displayDate(value.toIso8601String())),
-        ),
-      );
+    onTap: () async {
+      final picked = await pickDate(context, value);
+      if (picked != null) onChanged(picked);
+    },
+    child: InputDecorator(
+      decoration: InputDecoration(
+        labelText: label,
+        suffixIcon: const Icon(Icons.calendar_month_outlined),
+      ),
+      child: Text(displayDate(value.toIso8601String())),
+    ),
+  );
 }
 
 class _LineDraft {
@@ -1147,73 +1222,79 @@ class _DocDef {
   final bool numberOptional;
 
   factory _DocDef.fromName(String name) => switch (name) {
-        'invoice' => const _DocDef(
-            kind: 'invoice',
-            title: 'Invoice',
-            endpoint: '/invoices',
-            numberKey: 'invoice_number',
-            numberLabel: 'Invoice number',
-            dateKey: 'issue_date',
-            dateLabel: 'Invoice date',
-            vendor: false,
-            extendedTaxFields: true,
-            hasPreview: true,
-            numberOptional: true),
-        'bill' => const _DocDef(
-            kind: 'bill',
-            title: 'Purchase Bill',
-            endpoint: '/bills',
-            numberKey: 'bill_number',
-            numberLabel: 'Supplier bill number',
-            dateKey: 'issue_date',
-            dateLabel: 'Bill date',
-            vendor: true,
-            extendedTaxFields: true,
-            hasPreview: true),
-        'proforma' => const _DocDef(
-            kind: 'proforma',
-            title: 'Proforma',
-            endpoint: '/proforma-invoices',
-            numberKey: 'proforma_number',
-            numberLabel: 'Proforma number',
-            dateKey: 'issue_date',
-            dateLabel: 'Issue date',
-            vendor: false,
-            extendedTaxFields: false,
-            hasPreview: true),
-        'salesOrder' => const _DocDef(
-            kind: 'salesOrder',
-            title: 'Sales Order',
-            endpoint: '/sales-orders',
-            numberKey: 'so_number',
-            numberLabel: 'Sales order number',
-            dateKey: 'order_date',
-            dateLabel: 'Order date',
-            vendor: false,
-            extendedTaxFields: false,
-            hasPreview: false),
-        'purchaseOrder' => const _DocDef(
-            kind: 'purchaseOrder',
-            title: 'Purchase Order',
-            endpoint: '/purchase-orders',
-            numberKey: 'po_number',
-            numberLabel: 'Purchase order number',
-            dateKey: 'order_date',
-            dateLabel: 'Order date',
-            vendor: true,
-            extendedTaxFields: false,
-            hasPreview: false),
-        'challan' => const _DocDef(
-            kind: 'challan',
-            title: 'Delivery Challan',
-            endpoint: '/delivery-challans',
-            numberKey: 'challan_number',
-            numberLabel: 'Challan number',
-            dateKey: 'challan_date',
-            dateLabel: 'Challan date',
-            vendor: false,
-            extendedTaxFields: false,
-            hasPreview: false),
-        _ => throw ArgumentError('Unsupported document kind: $name'),
-      };
+    'invoice' => const _DocDef(
+      kind: 'invoice',
+      title: 'Invoice',
+      endpoint: '/invoices',
+      numberKey: 'invoice_number',
+      numberLabel: 'Invoice number',
+      dateKey: 'issue_date',
+      dateLabel: 'Invoice date',
+      vendor: false,
+      extendedTaxFields: true,
+      hasPreview: true,
+      numberOptional: true,
+    ),
+    'bill' => const _DocDef(
+      kind: 'bill',
+      title: 'Purchase Bill',
+      endpoint: '/bills',
+      numberKey: 'bill_number',
+      numberLabel: 'Supplier bill number',
+      dateKey: 'issue_date',
+      dateLabel: 'Bill date',
+      vendor: true,
+      extendedTaxFields: true,
+      hasPreview: true,
+    ),
+    'proforma' => const _DocDef(
+      kind: 'proforma',
+      title: 'Proforma',
+      endpoint: '/proforma-invoices',
+      numberKey: 'proforma_number',
+      numberLabel: 'Proforma number',
+      dateKey: 'issue_date',
+      dateLabel: 'Issue date',
+      vendor: false,
+      extendedTaxFields: false,
+      hasPreview: true,
+    ),
+    'salesOrder' => const _DocDef(
+      kind: 'salesOrder',
+      title: 'Sales Order',
+      endpoint: '/sales-orders',
+      numberKey: 'so_number',
+      numberLabel: 'Sales order number',
+      dateKey: 'order_date',
+      dateLabel: 'Order date',
+      vendor: false,
+      extendedTaxFields: false,
+      hasPreview: false,
+    ),
+    'purchaseOrder' => const _DocDef(
+      kind: 'purchaseOrder',
+      title: 'Purchase Order',
+      endpoint: '/purchase-orders',
+      numberKey: 'po_number',
+      numberLabel: 'Purchase order number',
+      dateKey: 'order_date',
+      dateLabel: 'Order date',
+      vendor: true,
+      extendedTaxFields: false,
+      hasPreview: false,
+    ),
+    'challan' => const _DocDef(
+      kind: 'challan',
+      title: 'Delivery Challan',
+      endpoint: '/delivery-challans',
+      numberKey: 'challan_number',
+      numberLabel: 'Challan number',
+      dateKey: 'challan_date',
+      dateLabel: 'Challan date',
+      vendor: false,
+      extendedTaxFields: false,
+      hasPreview: false,
+    ),
+    _ => throw ArgumentError('Unsupported document kind: $name'),
+  };
 }
